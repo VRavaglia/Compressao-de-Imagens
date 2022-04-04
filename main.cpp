@@ -95,18 +95,48 @@ vector<vector<pair<string, float>>> createHuffmanTable(const map<char, float> &s
     return huffmanTree;
 }
 
+map<char, string> createSymbolTable(vector<vector<pair<string, float>>> &huffmanTree){
+    map<char, string> symbolCodes;
+    char test = 'A';
+    string code;
+    bool endCode = false;
+    vector<vector<pair<string, float>>>::size_type idxColumn = huffmanTree.size();
+
+    while (!endCode)
+    {
+        for (auto& symbols : huffmanTree[idxColumn])
+        {
+            string::size_type idx = symbols.first.find(test);
+            if (idx != string::npos)
+            {
+                cout << symbols.first << " | " << idx << "\n";
+                if(symbols.first.size() == 1)
+                {
+                    endCode = true;
+                }
+            }
+        }
+        idxColumn--;
+    }
+
+    cout << "Codigo: " << code << "\n";
+
+    return symbolCodes;
+}
+
 void encoder(const string& filename){
 
     float totalCount = 0;
     map<char, int> symbolCount = generateSymbols(filename, totalCount);
     map<char, float> symbolProbabilities = calculateProbabilities(symbolCount, totalCount);
     vector<vector<pair<string, float>>> huffmanTree = createHuffmanTable(symbolProbabilities);
+    map<char, string> symbolTable = createSymbolTable(huffmanTree);
 
-    cout << "\n\n Final: \n";
-    for(const auto& elem : huffmanTree.back())
-    {
-        cout << elem.first << " " << elem.second << "\n";
-    }
+//    cout << "\n\n Final: \n";
+//    for(const auto& elem : huffmanTree.back())
+//    {
+//        cout << elem.first << " " << elem.second << "\n";
+//    }
 }
 
 int main() {
