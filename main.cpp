@@ -15,7 +15,8 @@ bool cmp(pair<string, float>& a,
     return a.second > b.second;
 }
 
-void encoder(const string& filename){
+
+map<char, int> generateSymbols(const string& filename, float &totalCount){
     ifstream fin(filename);
 
     char byte = 0;
@@ -29,13 +30,12 @@ void encoder(const string& filename){
 
     fin.close();
 
-    int total = 0;
     map<char, int> symbolCount;
 
     // Create a map that has keys: symbols and values: occurrences
 
     for (char c : source){
-        total += 1;
+        totalCount += 1;
         if(symbolCount.count(c)){
             symbolCount[c] += 1;
         }
@@ -44,24 +44,21 @@ void encoder(const string& filename){
         }
     }
 
+    return symbolCount;
+}
+
+map<char, float> calculateProbabilities(const map<char, int> &symbolCount, const float totalCount){
+    // Create a map that has keys: symbols and values: frequencies
     map<char, float> symbolProbabilities;
 
-    // Create a map that has keys: symbols and values: frequencies
-
-//    cout << "Ocorrencias de cada simbolo: \n";
     for (const auto& x : symbolCount) {
-//        cout << x.first << ": " << x.second << "\n";
-        symbolProbabilities.insert(pair<char, float>(x.first, float(x.second)/float(total)));
+        symbolProbabilities.insert(pair<char, float>(x.first, float(x.second)/float(totalCount)));
     }
 
-//    cout << "Probabilidades de cada simbolo: \n";
-//    for(const auto& elem : symbolProbabilities)
-//    {
-//        std::cout << elem.first << " " << elem.second << "\n";
-//    }
+    return symbolProbabilities;
+}
 
-
-
+vector<vector<pair<string, float>>> createHuffmanTable(const map<char, float> &symbolProbabilities){
     vector<vector<pair<string, float>>> huffmanTree;
     vector<pair<string, float>> tempVec;
 
@@ -77,12 +74,9 @@ void encoder(const string& filename){
 
     huffmanTree.push_back(tempVec);
 
-
     for (int i = 0; i < (tempVec.size() - 2); ++i) {
-//    for (int i = 0; i < 2; ++i) {
         vector<pair<string, float>> newRow;
-        float pSum = huffmanTree[i].rbegin()[1].second + huffmanTree[i].rbegin()[1].second;
-//        cout << "Iteracao " << i << ": " <<huffmanTree[i].rbegin()[0].first << " | " << huffmanTree[i].rbegin()[1].first << "\n";
+        float pSum = huffmanTree[i].rbegin()[0].second + huffmanTree[i].rbegin()[1].second;
         string charSum = huffmanTree[i].rbegin()[0].first + huffmanTree[i].rbegin()[1].first;
 
         newRow.reserve((huffmanTree[i].size() - 2));
@@ -93,25 +87,26 @@ void encoder(const string& filename){
 
         sort(newRow.begin(), newRow.end(), cmp);
 
-        float pTotal = 0;
-        for(const auto& elem : newRow)
-        {
-            pTotal += elem.second;
-//        cout << elem.first << " " << elem.second << "\n";
-        }
-
-        cout << "Prob Total:  " << pTotal << "\n";
-
         huffmanTree.push_back(newRow);
+
 
     }
 
-//    cout << "\n\n Final: \n";
-//    for(const auto& elem : huffmanTree.back())
-//    {
-//        cout << elem.first << " " << elem.second << "\n";
-//    }
+    return huffmanTree;
+}
 
+void encoder(const string& filename){
+
+    float totalCount = 0;
+    map<char, int> symbolCount = generateSymbols(filename, totalCount);
+    map<char, float> symbolProbabilities = calculateProbabilities(symbolCount, totalCount);
+    vector<vector<pair<string, float>>> huffmanTree = createHuffmanTable(symbolProbabilities);
+
+    cout << "\n\n Final: \n";
+    for(const auto& elem : huffmanTree.back())
+    {
+        cout << elem.first << " " << elem.second << "\n";
+    }
 }
 
 int main() {
