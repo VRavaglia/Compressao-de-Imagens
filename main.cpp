@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <iterator>
 #include <unistd.h>
+#include <bitset>
+#include <filesystem>
 
 using namespace std;
 
@@ -17,11 +19,10 @@ bool cmp(pair<string, float>& a,
 }
 
 
-map<char, int> generateSymbols(const string& filename, float &totalCount){
+map<char, int> generateSymbols(const string& filename, float &totalCount, vector<char> &source){
     ifstream fin(filename);
 
     char byte = 0;
-    vector<char> source;
 
     // Read file byte by byte
 
@@ -163,14 +164,67 @@ float calculateBits(map<char, string> &symbolTable, map<char, float> &symbolProb
     return Bits;
 }
 
-void encoder(const string& filename, map<char, string> &symbolTable){
+void encoder(const string& filename, map<char, string> &symbolTable, vector<char> &source){
+    string encodedFilename = filename;
+    encodedFilename.erase(encodedFilename.length()-4);
+    ofstream encoded_file(encodedFilename + "_encoded.txt");
+
+    unsigned totalBytes = 0;
+    string header;
+
+    for(auto& symbol :symbolTable){
+        totalBytes += symbol.second.size() + 1;
+        header += symbol.first + symbol.second + "|";
+    }
+
+    encoded_file << "|" + to_string(totalBytes) + "|" + header;
+
+    string bitstream;
+
+    for(auto& symbol :source){
+        bitstream += symbolTable[symbol];
+    }
+
+    int remainingBits = 0;
+    int progress = 0;
+    int totalProgress = 0;
+    unsigned char buffer = 0;
+    for (char c : bitstream) {
+        buffer <<= 1;
+
+        if(int(c - '0') == 1) buffer |= 1;
+
+        remainingBits++;
+
+        if(remainingBits == 8){
+            remainingBits = 0;
+            encoded_file << buffer;
+            buffer = 0;
+        }
+        progress++;
+        if(progress >= bitstream.length()/10){
+            progress = 0;
+            totalProgress += 10;
+            cout << "Comprimindo: " << totalProgress << "%\n";
+        }
+    }
+
+    encoded_file.close();
+
+    ifstream in(filename, std::ifstream::ate | std::ifstream::binary);
+    cout << "Tamanho original: " << in.tellg() << "\n";
+    ifstream out(encodedFilename + "_encoded.txt", std::ifstream::ate | std::ifstream::binary);
+    cout << "Tamanho codificado: " << out.tellg() << "\n";
+    cout << "Compressao: " << float(in.tellg())/float(out.tellg()) << "x\n";
+    cout << "FALTA O ULTIMO CARACTERE DA BITSTREAM\n";
 
 
 }
 
-map<char, string> sourceAnalysis(const string& filename){
+map<char, string> sourceAnalysis(const string& filename, vector<char> &source){
     float totalCount = 0;
-    map<char, int> symbolCount = generateSymbols(filename, totalCount);
+
+    map<char, int> symbolCount = generateSymbols(filename, totalCount, source);
     map<char, float> symbolProbabilities = calculateProbabilities(symbolCount, totalCount);
     vector<vector<pair<string, float>>> huffmanTree = createHuffmanTable(symbolProbabilities);
     map<char, string> symbolTable = createSymbolTable(huffmanTree);
@@ -188,11 +242,14 @@ map<char, string> sourceAnalysis(const string& filename){
 //        cout << elem.first << " " << elem.second << "\n";
 //    }
 
+
     return  symbolTable;
 }
 
 int main() {
-    map<char, string> symbolTable = sourceAnalysis("./../biblia.txt");
-    encoder("./../biblia.txt", symbolTable);
+    vector<char> source;
+    map<char, string> symbolTable = sourceAnalysis("./../biblia.txt", source);
+    encoder("./../biblia.txt", symbolTable, source);
+
     return 0;
 }
