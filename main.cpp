@@ -1,15 +1,14 @@
+// Agradecimentos ao meu amigo de CC que sabe como a merda do leitor de arquivos do C++ funciona
+
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <vector>
 #include <map>
-#include <math.h>
+#include <cmath>
 #include <memory>
 #include <algorithm>
 #include <iterator>
-#include <unistd.h>
-#include <bitset>
-#include <filesystem>
 
 #define DEBUG 0
 
@@ -420,3 +419,4 @@ int main() {
 
     return 0;
 }
+
