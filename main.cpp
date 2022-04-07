@@ -4,23 +4,25 @@
 #include <vector>
 #include <map>
 #include <math.h>
+#include <memory>
 #include <algorithm>
 #include <iterator>
 #include <unistd.h>
 #include <bitset>
 #include <filesystem>
 
+#define DEBUG 0
+
 using namespace std;
 
-bool cmp(pair<string, float>& a,
-         pair<string, float>& b)
-{
+bool cmp(pair<string, float> &a,
+         pair<string, float> &b) {
     return a.second > b.second;
 }
 
 
-map<char, int> generateSymbols(const string& filename, float &totalCount, vector<char> &source){
-    ifstream fin(filename);
+map<char, int> generateSymbols(const string &filename, float &totalCount, vector<char> &source) {
+    ifstream fin(filename, ios_base::binary);
 
     char byte = 0;
 
@@ -36,12 +38,11 @@ map<char, int> generateSymbols(const string& filename, float &totalCount, vector
 
     // Create a map that has keys: symbols and values: occurrences
 
-    for (char c : source){
+    for (char c: source) {
         totalCount += 1;
-        if(symbolCount.count(c)){
+        if (symbolCount.count(c)) {
             symbolCount[c] += 1;
-        }
-        else{
+        } else {
             symbolCount.insert(pair<char, int>(c, 1));
         }
     }
@@ -49,24 +50,24 @@ map<char, int> generateSymbols(const string& filename, float &totalCount, vector
     return symbolCount;
 }
 
-map<char, float> calculateProbabilities(const map<char, int> &symbolCount, const float totalCount){
+map<char, float> calculateProbabilities(const map<char, int> &symbolCount, const float totalCount) {
     // Create a map that has keys: symbols and values: frequencies
     map<char, float> symbolProbabilities;
 
-    for (const auto& x : symbolCount) {
-        symbolProbabilities.insert(pair<char, float>(x.first, float(x.second)/float(totalCount)));
+    for (const auto &x: symbolCount) {
+        symbolProbabilities.insert(pair<char, float>(x.first, float(x.second) / float(totalCount)));
     }
 
     return symbolProbabilities;
 }
 
-vector<vector<pair<string, float>>> createHuffmanTable(const map<char, float> &symbolProbabilities){
+vector<vector<pair<string, float>>> createHuffmanTable(const map<char, float> &symbolProbabilities) {
     vector<vector<pair<string, float>>> huffmanTree;
     vector<pair<string, float>> tempVec;
 
     // Copy key-value pair from Map
     // to vector of pairs
-    for (auto& it : symbolProbabilities) {
+    for (auto &it: symbolProbabilities) {
         string s(1, it.first);
         tempVec.emplace_back(pair<string, float>(s, it.second));
     }
@@ -82,7 +83,7 @@ vector<vector<pair<string, float>>> createHuffmanTable(const map<char, float> &s
         string charSum = huffmanTree[i].rbegin()[0].first + huffmanTree[i].rbegin()[1].first;
 
         newRow.reserve((huffmanTree[i].size() - 2));
-        for (int n=0; n<(huffmanTree[i].size() - 2); n++){
+        for (int n = 0; n < (huffmanTree[i].size() - 2); n++) {
             newRow.push_back(huffmanTree[i][n]);
         }
         newRow.emplace_back(charSum, pSum);
@@ -97,32 +98,27 @@ vector<vector<pair<string, float>>> createHuffmanTable(const map<char, float> &s
     return huffmanTree;
 }
 
-map<char, string> createSymbolTable(vector<vector<pair<string, float>>> &huffmanTree){
+map<char, string> createSymbolTable(vector<vector<pair<string, float>>> &huffmanTree) {
     map<char, string> symbolCodes;
 
-    for (auto& s : huffmanTree[0])
-    {
+    for (auto &s: huffmanTree[0]) {
         char charTest = s.first[0];
         string code;
         bool endCode = false;
         vector<vector<pair<string, float>>>::size_type idxColumn = huffmanTree.size();
 
-        while (!endCode)
-        {
+        while (!endCode) {
             int idxSymbol = 1;
-            for (auto& symbols : huffmanTree[idxColumn])
-            {
+            for (auto &symbols: huffmanTree[idxColumn]) {
                 string::size_type idx = symbols.first.find(charTest);
 
-                if (idx != string::npos)
-                {
+                if (idx != string::npos) {
 //                    cout << symbols.first << " | " << idxSymbol << " | " << huffmanTree[idxColumn].size() <<"\n";
-                    if(symbols.first.size() == 1)
-                    {
+                    if (symbols.first.size() == 1) {
                         endCode = true;
                     }
                     int codeToAppend = 1 - (huffmanTree[idxColumn].size() - idxSymbol);
-                    if(codeToAppend >= 0){
+                    if (codeToAppend >= 0) {
                         code += to_string(codeToAppend);
                     }
 
@@ -140,23 +136,23 @@ map<char, string> createSymbolTable(vector<vector<pair<string, float>>> &huffman
     return symbolCodes;
 }
 
-float calculateEntropy(map<char, float> &symbolProbabilities){
+float calculateEntropy(map<char, float> &symbolProbabilities) {
     float H = 0;
 
-    for(auto& symbol : symbolProbabilities){
-        H -= symbol.second*log2(symbol.second);
+    for (auto &symbol: symbolProbabilities) {
+        H -= symbol.second * log2(symbol.second);
     }
 
     return H;
 }
 
-float calculateBits(map<char, string> &symbolTable, map<char, float> &symbolProbabilities){
+float calculateBits(map<char, string> &symbolTable, map<char, float> &symbolProbabilities) {
     float Bits = 0;
 
-    for(auto& symbol : symbolTable){
-        for(auto& symbol2 : symbolProbabilities){
-            if(symbol.first == symbol2.first){
-                Bits += float(symbol.second.size())*symbol2.second;
+    for (auto &symbol: symbolTable) {
+        for (auto &symbol2: symbolProbabilities) {
+            if (symbol.first == symbol2.first) {
+                Bits += float(symbol.second.size()) * symbol2.second;
             }
         }
     }
@@ -164,24 +160,24 @@ float calculateBits(map<char, string> &symbolTable, map<char, float> &symbolProb
     return Bits;
 }
 
-void encoder(const string& filename, map<char, string> &symbolTable, vector<char> &source){
+void encoder(const string &filename, map<char, string> &symbolTable, vector<char> &source) {
     string encodedFilename = filename;
-    encodedFilename.erase(encodedFilename.length()-4);
-    ofstream encoded_file(encodedFilename + "_encoded.txt");
+    encodedFilename.erase(encodedFilename.length() - 4);
+    ofstream encoded_file(encodedFilename + "_encoded.txt", ios_base::binary);
 
     unsigned totalBytes = 0;
     string header;
 
-    for(auto& symbol :symbolTable){
-        totalBytes += symbol.second.size() + 1;
+    for (auto &symbol: symbolTable) {
+        totalBytes += symbol.second.size();
         header += symbol.first + symbol.second + "|";
     }
 
-    encoded_file << "|" + to_string(totalBytes) + "|" + header;
+    encoded_file << to_string(totalBytes) + "|" + header;
 
     string bitstream;
 
-    for(auto& symbol :source){
+    for (auto &symbol: source) {
         bitstream += symbolTable[symbol];
     }
 
@@ -189,24 +185,30 @@ void encoder(const string& filename, map<char, string> &symbolTable, vector<char
     int progress = 0;
     int totalProgress = 0;
     unsigned char buffer = 0;
-    for (char c : bitstream) {
+    for (char c: bitstream) {
         buffer <<= 1;
 
-        if(int(c - '0') == 1) buffer |= 1;
+        if (int(c - '0') == 1) buffer |= 1;
 
         remainingBits++;
 
-        if(remainingBits == 8){
+        if (remainingBits == 8) {
             remainingBits = 0;
             encoded_file << buffer;
             buffer = 0;
         }
         progress++;
-        if(progress >= bitstream.length()/10){
+        if (progress >= bitstream.length() / 10) {
             progress = 0;
             totalProgress += 10;
             cout << "Comprimindo: " << totalProgress << "%\n";
         }
+    }
+    if (remainingBits != 0) {
+        for (int i = 0; i < (8 - remainingBits); ++i) {
+            buffer <<= 1;
+        }
+        encoded_file << buffer;
     }
 
     encoded_file.close();
@@ -215,13 +217,12 @@ void encoder(const string& filename, map<char, string> &symbolTable, vector<char
     cout << "Tamanho original: " << in.tellg() << "\n";
     ifstream out(encodedFilename + "_encoded.txt", std::ifstream::ate | std::ifstream::binary);
     cout << "Tamanho codificado: " << out.tellg() << "\n";
-    cout << "Compressao: " << float(in.tellg())/float(out.tellg()) << "x\n";
-    cout << "FALTA O ULTIMO CARACTERE DA BITSTREAM\n";
+    cout << "Compressao: " << float(in.tellg()) / float(out.tellg()) << "x\n";
 
 
 }
 
-map<char, string> sourceAnalysis(const string& filename, vector<char> &source){
+map<char, string> sourceAnalysis(const string &filename, vector<char> &source) {
     float totalCount = 0;
 
     map<char, int> symbolCount = generateSymbols(filename, totalCount, source);
@@ -243,13 +244,179 @@ map<char, string> sourceAnalysis(const string& filename, vector<char> &source){
 //    }
 
 
-    return  symbolTable;
+    return symbolTable;
 }
+
+class TreeNode {
+public:
+    unique_ptr<TreeNode> zero = nullptr;
+    unique_ptr<TreeNode> one = nullptr;
+    char symbol = '\0';
+    bool isLeaf = false;
+    int counter = 0;
+};
+
+void insertSymbol(char symbol, const string &code, TreeNode &root, int &counter) {
+    TreeNode *currentNode = &root;
+    int bitIdx = 0;
+
+    for (char bit: code) {
+        bitIdx++;
+        switch (bit) {
+            case '0':
+                if (currentNode->zero == nullptr) {
+                    currentNode->zero = make_unique<TreeNode>();
+                    currentNode->counter = counter;
+                }
+                currentNode = currentNode->zero.get();
+                break;
+            case '1':
+                if (currentNode->one == nullptr) {
+                    currentNode->one = make_unique<TreeNode>();
+                    currentNode->counter = counter;
+                }
+                currentNode = currentNode->one.get();
+                break;
+            default:
+                cout << "Simbolo com codigo incorreto no cabecalho!";
+                return;
+        }
+        counter++;
+    }
+
+    currentNode->symbol = symbol;
+    currentNode->isLeaf = true;
+}
+
+string recurse(string father, TreeNode &currentNode, int side) {
+    string currentNodeName =
+            "A" + to_string(currentNode.symbol) + "X" + to_string(currentNode.counter) + "X" + to_string(side);
+    string tempString;
+    if (currentNode.zero) {
+        tempString += recurse(currentNodeName, *currentNode.zero, 0);
+    }
+    if (currentNode.one) {
+        tempString += recurse(currentNodeName, *currentNode.one, 1);
+    }
+    return father + " -> " + currentNodeName + ";\n" + tempString;
+}
+
+string generateGraphviz(TreeNode &root) {
+    string out = "digraph G {\n";
+
+    out += recurse("macetado", *root.zero, 0);
+    out += recurse("macetado", *root.one, 1);
+
+    out += "}";
+
+    return out;
+}
+
+void decoder(const string &filename) {
+    FILE *fin = fopen(filename.c_str(), "rb");
+    char byte;
+    vector<char> header;
+    string tempSize;
+    int messageSize = 0;
+    int bytesRead = 0;
+    int counter = 0;
+
+    vector<bool> encodedStream;
+    string test;
+
+    string tempCode;
+    char tempSymbol;
+
+    TreeNode root;
+
+
+    TreeNode *currentNode = &root;
+    string decodedFile;
+
+    enum DecoderStates {
+        ReadingSize, ReadingChar, ReadingCode, Decoding
+    };
+
+    DecoderStates state = ReadingSize;
+
+    while (fread(&byte, 1, 1, fin) == 1) {
+        test += byte;
+        switch (state) {
+            case ReadingSize:
+                if ('|' != byte) {
+                    tempSize += byte;
+                } else {
+                    messageSize = stoi(tempSize);
+                    state = ReadingChar;
+                }
+                break;
+            case ReadingChar:
+                tempSymbol = byte;
+                state = ReadingCode;
+                break;
+            case ReadingCode:
+                if ('|' != byte) {
+                    tempCode += byte;
+                    bytesRead++;
+                } else {
+                    insertSymbol(tempSymbol, tempCode, root, counter);
+                    counter++;
+                    state = ReadingChar;
+                    tempCode = "";
+
+                }
+                if (bytesRead == messageSize) {
+                    insertSymbol(tempSymbol, tempCode, root, counter);
+
+                    fseek(fin,1,SEEK_CUR);
+
+                    state = Decoding;
+#if DEBUG == 1
+                    cout << generateGraphviz(root) << "\n\n\n";
+#endif
+                }
+                break;
+            case Decoding:
+                unsigned char mask = 0b10000000;
+//               byte 0011 0101
+//               ] 010111000010
+//               1 10100011
+                for (int i = 0; i < 8; ++i, mask >>= 1) {
+                    if (byte & mask) {
+                        currentNode = currentNode->one.get();
+                    } else {
+                        currentNode = currentNode->zero.get();
+                    }
+                    if (currentNode->isLeaf) {
+                        decodedFile += currentNode->symbol;
+                        currentNode = &root;
+                    }
+                }
+                break;
+        }
+
+    }
+
+
+
+    fclose(fin);
+
+    string decodedFilename = filename;
+    decodedFilename.erase(decodedFilename.length() - 4);
+    decodedFilename += "_decoded.txt";
+
+    FILE * fout = fopen(decodedFilename.c_str(), "wb");
+
+    fwrite(decodedFile.data(), 1, decodedFile.size(), fout);
+    fclose(fout);
+}
+
 
 int main() {
     vector<char> source;
     map<char, string> symbolTable = sourceAnalysis("./../biblia.txt", source);
     encoder("./../biblia.txt", symbolTable, source);
+    decoder("./../biblia_encoded.txt");
 
     return 0;
 }
