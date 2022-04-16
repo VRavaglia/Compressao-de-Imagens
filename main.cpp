@@ -9,8 +9,10 @@
 #include <memory>
 #include <algorithm>
 #include <iterator>
+#include <chrono>
 
-#define DEBUG 0
+#define GRAPH 0
+#define DEBUG 1
 
 using namespace std;
 
@@ -45,6 +47,8 @@ map<char, int> generateSymbols(const string &filename, float &totalCount, vector
             symbolCount.insert(pair<char, int>(c, 1));
         }
     }
+
+    symbolCount.insert(pair<char, int>(char_traits<char>::eof(), 1));
 
     return symbolCount;
 }
@@ -91,7 +95,6 @@ vector<vector<pair<string, float>>> createHuffmanTable(const map<char, float> &s
 
         huffmanTree.push_back(newRow);
 
-
     }
 
     return huffmanTree;
@@ -104,7 +107,7 @@ map<char, string> createSymbolTable(vector<vector<pair<string, float>>> &huffman
         char charTest = s.first[0];
         string code;
         bool endCode = false;
-        vector<vector<pair<string, float>>>::size_type idxColumn = huffmanTree.size();
+        auto idxColumn = huffmanTree.size()-1;
 
         while (!endCode) {
             int idxSymbol = 1;
@@ -112,7 +115,6 @@ map<char, string> createSymbolTable(vector<vector<pair<string, float>>> &huffman
                 string::size_type idx = symbols.first.find(charTest);
 
                 if (idx != string::npos) {
-//                    cout << symbols.first << " | " << idxSymbol << " | " << huffmanTree[idxColumn].size() <<"\n";
                     if (symbols.first.size() == 1) {
                         endCode = true;
                     }
@@ -126,9 +128,9 @@ map<char, string> createSymbolTable(vector<vector<pair<string, float>>> &huffman
             }
             idxColumn--;
         }
-
+#if DEBUG == 1
         cout << "Simbolo: " << int(charTest) << " | Codigo: " << code << "\n";
-
+#endif
         symbolCodes.insert(pair<char, string>(charTest, code));
     }
 
@@ -179,6 +181,7 @@ void encoder(const string &filename, map<char, string> &symbolTable, vector<char
     for (auto &symbol: source) {
         bitstream += symbolTable[symbol];
     }
+    bitstream += symbolTable[char_traits<char>::eof()];
 
     int remainingBits = 0;
     int progress = 0;
@@ -200,7 +203,9 @@ void encoder(const string &filename, map<char, string> &symbolTable, vector<char
         if (progress >= bitstream.length() / 10) {
             progress = 0;
             totalProgress += 10;
+#if DEBUG == 1
             cout << "Comprimindo: " << totalProgress << "%\n";
+#endif
         }
     }
     if (remainingBits != 0) {
@@ -213,11 +218,14 @@ void encoder(const string &filename, map<char, string> &symbolTable, vector<char
     encoded_file.close();
 
     ifstream in(filename, std::ifstream::ate | std::ifstream::binary);
-    cout << "Tamanho original: " << in.tellg() << "\n";
+#if DEBUG == 1
+    cout << "\nTamanho original: " << in.tellg() << "\n";
+#endif
     ifstream out(encodedFilename + "_encoded.txt", std::ifstream::ate | std::ifstream::binary);
+#if DEBUG == 1
     cout << "Tamanho codificado: " << out.tellg() << "\n";
     cout << "Compressao: " << float(in.tellg()) / float(out.tellg()) << "x\n";
-
+#endif
 
 }
 
@@ -231,16 +239,11 @@ map<char, string> sourceAnalysis(const string &filename, vector<char> &source) {
 
     float H = calculateEntropy(symbolProbabilities);
     float bitsPerSymbol = calculateBits(symbolTable, symbolProbabilities);
-
+#if DEBUG == 1
     cout << "\n\nEntropia da fonte: " << H << "\n";
     cout << "Bits/s apos Huffman: " << bitsPerSymbol << "\n";
-    cout << "Redundancia: " << bitsPerSymbol - H << "\n";
-
-//    cout << "\n\n Final: \n";
-//    for(const auto& elem : huffmanTree.back())
-//    {
-//        cout << elem.first << " " << elem.second << "\n";
-//    }
+    cout << "Redundancia: " << bitsPerSymbol - H << "\n\n";
+#endif
 
 
     return symbolTable;
@@ -277,7 +280,9 @@ void insertSymbol(char symbol, const string &code, TreeNode &root, int &counter)
                 currentNode = currentNode->one.get();
                 break;
             default:
+#if DEBUG == 1
                 cout << "Simbolo com codigo incorreto no cabecalho!";
+#endif
                 return;
         }
         counter++;
@@ -303,8 +308,8 @@ string recurse(string father, TreeNode &currentNode, int side) {
 string generateGraphviz(TreeNode &root) {
     string out = "digraph G {\n";
 
-    out += recurse("macetado", *root.zero, 0);
-    out += recurse("macetado", *root.one, 1);
+    out += recurse("nome", *root.zero, 0);
+    out += recurse("nome", *root.one, 1);
 
     out += "}";
 
@@ -328,6 +333,8 @@ void decoder(const string &filename) {
 
     TreeNode root;
 
+    string debugBits;
+
 
     TreeNode *currentNode = &root;
     string decodedFile;
@@ -337,8 +344,9 @@ void decoder(const string &filename) {
     };
 
     DecoderStates state = ReadingSize;
+    bool eof = false;
 
-    while (fread(&byte, 1, 1, fin) == 1) {
+    while (fread(&byte, 1, 1, fin) == 1 && !eof) {
         test += byte;
         switch (state) {
             case ReadingSize:
@@ -370,25 +378,30 @@ void decoder(const string &filename) {
                     fseek(fin,1,SEEK_CUR);
 
                     state = Decoding;
-#if DEBUG == 1
+#if GRAPH == 1
                     cout << generateGraphviz(root) << "\n\n\n";
 #endif
                 }
                 break;
             case Decoding:
                 unsigned char mask = 0b10000000;
-//               byte 0011 0101
-//               ] 010111000010
-//               1 10100011
                 for (int i = 0; i < 8; ++i, mask >>= 1) {
                     if (byte & mask) {
                         currentNode = currentNode->one.get();
+                        debugBits += "1";
                     } else {
                         currentNode = currentNode->zero.get();
+                        debugBits += "0";
                     }
                     if (currentNode->isLeaf) {
-                        decodedFile += currentNode->symbol;
-                        currentNode = &root;
+                        debugBits = "";
+                        if (currentNode->symbol == char_traits<char>::eof()){
+                            eof = true;
+                            break;
+                        }else{
+                            decodedFile += currentNode->symbol;
+                            currentNode = &root;
+                        }
                     }
                 }
                 break;
@@ -412,10 +425,14 @@ void decoder(const string &filename) {
 
 
 int main() {
+    auto start = chrono::high_resolution_clock::now();
     vector<char> source;
     map<char, string> symbolTable = sourceAnalysis("./../biblia.txt", source);
     encoder("./../biblia.txt", symbolTable, source);
     decoder("./../biblia_encoded.txt");
+    auto stop = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<chrono::milliseconds>(stop - start);
+    cout << "\nTempo de execucao: " << duration.count() << " ms\n";
 
     return 0;
 }
