@@ -1,4 +1,3 @@
-// Agradecimentos ao meu amigo de CC que sabe como a merda do leitor de arquivos do C++ funciona
 
 #include <iostream>
 #include <string>
@@ -427,9 +426,9 @@ void decoder(const string &filename) {
 int main() {
     auto start = chrono::high_resolution_clock::now();
     vector<char> source;
-    map<char, string> symbolTable = sourceAnalysis("./../biblia.txt", source);
-    encoder("./../biblia.txt", symbolTable, source);
-    decoder("./../biblia_encoded.txt");
+    map<char, string> symbolTable = sourceAnalysis("./biblia.txt", source);
+    encoder("./biblia.txt", symbolTable, source);
+    decoder("./biblia_encoded.txt");
     auto stop = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::milliseconds>(stop - start);
     cout << "\nTempo de execucao: " << duration.count() << " ms\n";
