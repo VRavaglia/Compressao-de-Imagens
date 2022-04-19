@@ -1,0 +1,22 @@
+Para compilar basta executar:
+
+$ make
+
+Uso dos programas:
+
+Codificador:
+Codifica um arquivo e gera o arquivo nomeArquivo_encoded.txt:
+
+encoder.out [-v] [-t] nomeArquivo
+
+[-v] Exibe informacoes sobre a execucao na tela.
+[-t] Exibe o tempo de execucao
+nomeArquivo: Arquivo que sera codificado
+
+Decodificador
+Decodifica um arquivo e gera o arquivo nomeArquivo_encoded_decoded.txt:
+
+decoder.out [-v] [-t] nomeArquivo
+
+[-t] Exibe o tempo de execucao
+nomeArquivo: Arquivo que sera decodificado

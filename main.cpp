@@ -67,14 +67,12 @@ vector<vector<pair<string, float>>> createHuffmanTable(const map<char, float> &s
     vector<vector<pair<string, float>>> huffmanTree;
     vector<pair<string, float>> tempVec;
 
-    // Copy key-value pair from Map
-    // to vector of pairs
     for (auto &it: symbolProbabilities) {
         string s(1, it.first);
         tempVec.emplace_back(pair<string, float>(s, it.second));
     }
 
-    // Sort using comparator function
+    // Sort based on probabilities
     sort(tempVec.begin(), tempVec.end(), cmp);
 
     huffmanTree.push_back(tempVec);
