@@ -1,0 +1,25 @@
+CC = cc
+CCOPTS = -g
+
+
+#CFLAGS = $(CCOPTS)
+CFLAGS = $(CCOPTS)
+
+#OBJTS = bit_input.o arithmetic_decode.o fixed_model.o
+OBJTS = bit_input.o arithmetic_decode.o adaptive_model.o
+
+# LIBS = 
+
+# ===========<<<  Main >>>=============
+
+
+
+.c.o:	; $(CC) -c $(CFLAGS) -o $@ $*.c
+
+
+all: adecode
+
+
+adecode : decode.o $(OBJTS)
+	$(CC) $(CFLAGS) decode.o $(OBJTS) -o adecode $(LIBS)
+
