@@ -12,108 +12,107 @@
 using namespace std;
 
 
-static void encodeSymbol(Ppm &model, const vector<uint32_t> &contexto, uint32_t symbol, ArithmeticEncoder &enc);
+static void encodeSymbol(Ppm &model, const vector <uint32_t> &contexto, uint32_t symbol, ArithmeticEncoder &enc);
 
 
 int main(int argc, char *argv[]) {
-	if (argc != 4) {
-		cerr << "Modo de Uso " << argv[0] << " Arquivo a Codificar, Arquivo Codificado, Ordem do Contexto" << endl;
-		return 1;
-	}
-	const char *inputFile  = argv[1];
-	const char *outputFile = argv[2];
-	static int model_order = stoi(argv[3]);
+    if (argc != 4) {
+        cerr << "Modo de Uso " << argv[0] << " Arquivo a Codificar, Arquivo Codificado, Ordem do Contexto" << endl;
+        return 1;
+    }
+    const char *inputFile = argv[1];
+    const char *outputFile = argv[2];
+    static int model_order = stoi(argv[3]);
 
-	ifstream in(inputFile, ios::binary);
-	ofstream out(outputFile, ios::binary);
+    ifstream in(inputFile, ios::binary);
+    ofstream out(outputFile, ios::binary);
 
-	BitOutputStream bout(out);
+    BitOutputStream bout(out);
 
-	ArithmeticEncoder enc(32, bout);
-	Ppm model(model_order, 257, 256);
+    ArithmeticEncoder enc(32, bout);
+    Ppm model(model_order, 257, 256);
 
-	vector<uint32_t> contexto;
+    vector <uint32_t> contexto;
 
-	while (true) {
+    while (true) {
 
-		int symbol = in.get();
+        int symbol = in.get();
 
-		if (symbol == EOF)
-			break;
+        if (symbol == EOF)
+            break;
 
-		uint32_t sym = static_cast<uint32_t>(symbol);
+        uint32_t sym = static_cast<uint32_t>(symbol);
 
-		encodeSymbol(model, contexto, sym, enc);
-		model.incContext(contexto, sym);
+        encodeSymbol(model, contexto, sym, enc);
+        model.incContext(contexto, sym);
 
-		if (model.modelOrder >= 1) {
-			/*Atualizar contexto guardando chars anteriores */
-			if (contexto.size() >= static_cast<unsigned int>(model.modelOrder))
-				contexto.erase(contexto.end() - 1);
-			contexto.insert(contexto.begin(), sym);
-		}
-	}
+        if (model.modelOrder >= 1) {
+            /*Atualizar contexto guardando chars anteriores */
+            if (contexto.size() >= static_cast<unsigned int>(model.modelOrder))
+                contexto.erase(contexto.end() - 1);
+            contexto.insert(contexto.begin(), sym);
+        }
+    }
 
-	encodeSymbol(model, contexto, 256, enc);  /* EOF no caso do contexto -1 e Escape para os outros */
-	enc.finish();
-	bout.finish();
+    encodeSymbol(model, contexto, 256, enc);  /* EOF no caso do contexto -1 e Escape para os outros */
+    enc.finish();
+    bout.finish();
 
-	return 0;
+    return 0;
 }
 
-void encodeSymbol(Ppm &model, const vector<uint32_t> &contexto, uint32_t symbol, ArithmeticEncoder &enc) {
+void encodeSymbol(Ppm &model, const vector <uint32_t> &contexto, uint32_t symbol, ArithmeticEncoder &enc) {
 
-	vector<int64_t> excluded(257,1);
-	vector<uint32_t> excluded_u(257,0);
-
-
-	for (int order = static_cast<int>(contexto.size()); order >= 0; order--) {
-
-		Context *ctx = model.rootContext.get();
-		int skip = 0;
+    vector <int64_t> excluded(257, 1);
+    vector <uint32_t> excluded_u(257, 0);
 
 
-		for (int i = 0; i < order; i++) {
-			ctx = ctx->subcontexts.at(contexto.at(i)).get();
-			if (ctx == nullptr){
-				skip = 1;
-				break;
-			}
-		}
+    for (int order = static_cast<int>(contexto.size()); order >= 0; order--) {
 
-		if (skip == 0){
+        Context *ctx = model.rootContext.get();
+        int skip = 0;
 
-			for(size_t i=0; i<excluded.size(); i++){
-					if(excluded.at(i)==-1){
-						excluded_u.at(i) = 0;
-					}
-					else{
-						excluded_u.at(i) = ctx->frequencies.get(i);
-					}
-				}
 
-			SimpleFrequencyTable exclusionlist(excluded_u);
+        for (int i = 0; i < order; i++) {
+            ctx = ctx->subcontexts.at(contexto.at(i)).get();
+            if (ctx == nullptr) {
+                skip = 1;
+                break;
+            }
+        }
 
-			if (symbol != 256 && ctx->frequencies.get(symbol) > 0) {
+        if (skip == 0) {
 
-				enc.write(exclusionlist, symbol);
-				return;
+            for (size_t i = 0; i < excluded.size(); i++) {
+                if (excluded.at(i) == -1) {
+                    excluded_u.at(i) = 0;
+                } else {
+                    excluded_u.at(i) = ctx->frequencies.get(i);
+                }
+            }
 
-			}
+            SimpleFrequencyTable exclusionlist(excluded_u);
 
-		/*Escape e diminuir ordem do contexto */
-			enc.write(exclusionlist, 256);
+            if (symbol != 256 && ctx->frequencies.get(symbol) > 0) {
 
-			for(size_t i=0; i<excluded.size()-1; i++){
-				if(ctx->frequencies.get(i)>0){
-					excluded.at(i) = -1;
-				}
-			}
+                enc.write(exclusionlist, symbol);
+                return;
 
-		}
-	}
+            }
 
-	/*Senao ordem -1*/
-	enc.write(model.ordemn1, symbol);
+            /*Escape e diminuir ordem do contexto */
+            enc.write(exclusionlist, 256);
+
+            for (size_t i = 0; i < excluded.size() - 1; i++) {
+                if (ctx->frequencies.get(i) > 0) {
+                    excluded.at(i) = -1;
+                }
+            }
+
+        }
+    }
+
+    /*Senao ordem -1*/
+    enc.write(model.ordemn1, symbol);
 }
 

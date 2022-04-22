@@ -6,37 +6,36 @@
 #include "FrequencyTable.hpp"
 
 
-
 class Context {
 
-		public:
+public:
 
-		SimpleFrequencyTable frequencies;
+    SimpleFrequencyTable frequencies;
 
-		std::vector<std::unique_ptr<Context> > subcontexts;
+    std::vector <std::unique_ptr<Context>> subcontexts;
 
 
-		Context(std::uint32_t symbols, int order);
+    Context(std::uint32_t symbols, int order);
 
-	};
+};
 
 class Ppm {
 
-	public:
+public:
 
 
-	Ppm(int order, std::uint32_t symLimit, std::uint32_t escapeSym);
+    Ppm(int order, std::uint32_t symLimit, std::uint32_t escapeSym);
 
-	int modelOrder;
+    int modelOrder;
 
-	std::uint32_t symbolLimit;
-	std::uint32_t escapeSymbol;
+    std::uint32_t symbolLimit;
+    std::uint32_t escapeSymbol;
 
-	SimpleFrequencyTable ordemn1;
+    SimpleFrequencyTable ordemn1;
 
-	std::unique_ptr<Context> rootContext;
+    std::unique_ptr <Context> rootContext;
 
 
-	void incContext(const std::vector<std::uint32_t> &contexto, std::uint32_t symbol);
+    void incContext(const std::vector <std::uint32_t> &contexto, std::uint32_t symbol);
 
 };

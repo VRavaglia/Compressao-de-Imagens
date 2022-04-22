@@ -22,3 +22,4 @@ all: acode
 acode : encode.o $(OBJTS)
 	$(CC) $(CFLAGS) encode.o $(OBJTS) -o acode $(LIBS)
 
+

@@ -18,82 +18,98 @@
  */
 class FrequencyTable {
 
-	public: virtual ~FrequencyTable() = 0;
+public:
+    virtual ~FrequencyTable() = 0;
 
 
-	// Returns the number of symbols in this frequency table, which is a positive number.
-	public: virtual std::uint32_t getSymbolLimit() const = 0;
+    // Returns the number of symbols in this frequency table, which is a positive number.
+public:
+    virtual std::uint32_t getSymbolLimit() const = 0;
 
 
-	// Returns the frequency of the given symbol.
-	public: virtual std::uint32_t get(std::uint32_t symbol) const = 0;
+    // Returns the frequency of the given symbol.
+public:
+    virtual std::uint32_t get(std::uint32_t symbol) const = 0;
 
 
-	// Sets the frequency of the given symbol to the given value.
-	public: virtual void set(std::uint32_t symbol, std::uint32_t freq) = 0;
+    // Sets the frequency of the given symbol to the given value.
+public:
+    virtual void set(std::uint32_t symbol, std::uint32_t freq) = 0;
 
 
-	// Increments the frequency of the given symbol.
-	public: virtual void increment(std::uint32_t symbol) = 0;
+    // Increments the frequency of the given symbol.
+public:
+    virtual void increment(std::uint32_t symbol) = 0;
 
 
-	// Returns the total of all symbol frequencies. The returned
-	// value is always equal to getHigh(getSymbolLimit() - 1).
-	public: virtual std::uint32_t getTotal() const = 0;
+    // Returns the total of all symbol frequencies. The returned
+    // value is always equal to getHigh(getSymbolLimit() - 1).
+public:
+    virtual std::uint32_t getTotal() const = 0;
 
 
-	// Returns the sum of the frequencies of all the symbols strictly below the given symbol value.
-	public: virtual std::uint32_t getLow(std::uint32_t symbol) const = 0;
+    // Returns the sum of the frequencies of all the symbols strictly below the given symbol value.
+public:
+    virtual std::uint32_t getLow(std::uint32_t symbol) const = 0;
 
 
-	// Returns the sum of the frequencies of the given symbol and all the symbols below.
-	public: virtual std::uint32_t getHigh(std::uint32_t symbol) const = 0;
+    // Returns the sum of the frequencies of the given symbol and all the symbols below.
+public:
+    virtual std::uint32_t getHigh(std::uint32_t symbol) const = 0;
 
 };
-
 
 
 class FlatFrequencyTable final : public FrequencyTable {
 
-	/*---- Fields ----*/
+    /*---- Fields ----*/
 
-	// Total number of symbols, which is at least 1.
-	private: std::uint32_t numSymbols;
-
-
-	/*---- Constructor ----*/
-
-	// Constructs a flat frequency table with the given number of symbols.
-	public: explicit FlatFrequencyTable(std::uint32_t numSyms);
+    // Total number of symbols, which is at least 1.
+private:
+    std::uint32_t numSymbols;
 
 
-	/*---- Methods ----*/
+    /*---- Constructor ----*/
 
-	public: std::uint32_t getSymbolLimit() const override;
-
-
-	public: std::uint32_t get(std::uint32_t symbol) const override;
-
-
-	public: std::uint32_t getTotal() const override;
+    // Constructs a flat frequency table with the given number of symbols.
+public:
+    explicit FlatFrequencyTable(std::uint32_t numSyms);
 
 
-	public: std::uint32_t getLow(std::uint32_t symbol) const override;
+    /*---- Methods ----*/
+
+public:
+    std::uint32_t getSymbolLimit() const override;
 
 
-	public: std::uint32_t getHigh(std::uint32_t symbol) const override;
+public:
+    std::uint32_t get(std::uint32_t symbol) const override;
 
 
-	public: void set(std::uint32_t symbol, std::uint32_t freq) override;
+public:
+    std::uint32_t getTotal() const override;
 
 
-	public: void increment(std::uint32_t symbol) override;
+public:
+    std::uint32_t getLow(std::uint32_t symbol) const override;
 
 
-	private: void checkSymbol(std::uint32_t symbol) const;
+public:
+    std::uint32_t getHigh(std::uint32_t symbol) const override;
+
+
+public:
+    void set(std::uint32_t symbol, std::uint32_t freq) override;
+
+
+public:
+    void increment(std::uint32_t symbol) override;
+
+
+private:
+    void checkSymbol(std::uint32_t symbol) const;
 
 };
-
 
 
 /*
@@ -103,58 +119,72 @@ class FlatFrequencyTable final : public FrequencyTable {
  */
 class SimpleFrequencyTable final : public FrequencyTable {
 
-	/*---- Fields ----*/
+    /*---- Fields ----*/
 
-	// The frequency for each symbol. Its length is at least 1.
-	private: std::vector<std::uint32_t> frequencies;
+    // The frequency for each symbol. Its length is at least 1.
+private:
+    std::vector <std::uint32_t> frequencies;
 
-	// cumulative[i] is the sum of 'frequencies' from 0 (inclusive) to i (exclusive).
-	// Initialized lazily. When its length is not zero, the data is valid.
-	private: mutable std::vector<std::uint32_t> cumulative;
+    // cumulative[i] is the sum of 'frequencies' from 0 (inclusive) to i (exclusive).
+    // Initialized lazily. When its length is not zero, the data is valid.
+private:
+    mutable std::vector <std::uint32_t> cumulative;
 
-	// Always equal to the sum of 'frequencies'.
-	private: std::uint32_t total;
-
-
-	/*---- Constructors ----*/
-
-	// Constructs a frequency table from the given array of symbol frequencies.
-	// There must be at least 1 symbol, and the total must not exceed UINT32_MAX.
-	public: explicit SimpleFrequencyTable(const std::vector<std::uint32_t> &freqs);
+    // Always equal to the sum of 'frequencies'.
+private:
+    std::uint32_t total;
 
 
-	// Constructs a frequency table by copying the given frequency table.
-	public: explicit SimpleFrequencyTable(const FrequencyTable &freqs);
+    /*---- Constructors ----*/
+
+    // Constructs a frequency table from the given array of symbol frequencies.
+    // There must be at least 1 symbol, and the total must not exceed UINT32_MAX.
+public:
+    explicit SimpleFrequencyTable(const std::vector <std::uint32_t> &freqs);
 
 
-	/*---- Methods ----*/
-
-	public: std::uint32_t getSymbolLimit() const override;
-
-
-	public: std::uint32_t get(std::uint32_t symbol) const override;
+    // Constructs a frequency table by copying the given frequency table.
+public:
+    explicit SimpleFrequencyTable(const FrequencyTable &freqs);
 
 
-	public: void set(std::uint32_t symbol, std::uint32_t freq) override;
+    /*---- Methods ----*/
+
+public:
+    std::uint32_t getSymbolLimit() const override;
 
 
-	public: void increment(std::uint32_t symbol) override;
+public:
+    std::uint32_t get(std::uint32_t symbol) const override;
 
 
-	public: std::uint32_t getTotal() const override;
+public:
+    void set(std::uint32_t symbol, std::uint32_t freq) override;
 
 
-	public: std::uint32_t getLow(std::uint32_t symbol) const override;
+public:
+    void increment(std::uint32_t symbol) override;
 
 
-	public: std::uint32_t getHigh(std::uint32_t symbol) const override;
+public:
+    std::uint32_t getTotal() const override;
 
 
-	// Recomputes the array of cumulative symbol frequencies.
-	private: void initCumulative(bool checkTotal=true) const;
+public:
+    std::uint32_t getLow(std::uint32_t symbol) const override;
 
 
-	// Adds the given integers, or throws an exception if the result cannot be represented as a uint32_t (i.e. overflow).
-	private: static std::uint32_t checkedAdd(std::uint32_t x, std::uint32_t y);
+public:
+    std::uint32_t getHigh(std::uint32_t symbol) const override;
+
+
+    // Recomputes the array of cumulative symbol frequencies.
+private:
+    void initCumulative(bool checkTotal = true) const;
+
+
+    // Adds the given integers, or throws an exception if the result cannot be represented as a uint32_t (i.e. overflow).
+private:
+    static std::uint32_t checkedAdd(std::uint32_t x, std::uint32_t y);
 
 };
