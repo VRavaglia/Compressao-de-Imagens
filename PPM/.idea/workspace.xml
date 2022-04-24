@@ -14,8 +14,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dc9fa75f-d252-4831-8832-25c254870d6c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/adaptive_model.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Hufmann/.idea/Huffman.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/.idea/Huffman.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Hufmann/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Hufmann/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/.idea/modules.xml" afterDir="false" />
@@ -27,30 +25,18 @@
       <change beforePath="$PROJECT_DIR$/../Hufmann/decoder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/decoder.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Hufmann/encoder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/encoder.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Hufmann/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Makefile.ac" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile.ac" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ReferenciaAlternativa/ArithmeticCoder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ReferenciaAlternativa/ArithmeticCoder.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ReferenciaAlternativa/ArithmeticCoder.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/ReferenciaAlternativa/ArithmeticCoder.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ReferenciaAlternativa/BitIoStream.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ReferenciaAlternativa/BitIoStream.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ReferenciaAlternativa/BitIoStream.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/ReferenciaAlternativa/BitIoStream.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ReferenciaAlternativa/FrequencyTable.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ReferenciaAlternativa/FrequencyTable.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ReferenciaAlternativa/FrequencyTable.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/ReferenciaAlternativa/FrequencyTable.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ReferenciaAlternativa/Ppm.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ReferenciaAlternativa/Ppm.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ReferenciaAlternativa/Ppm.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/ReferenciaAlternativa/Ppm.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ReferenciaAlternativa/PpmDecode.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ReferenciaAlternativa/PpmDecode.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ReferenciaAlternativa/PpmEncode.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ReferenciaAlternativa/PpmEncode.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/adaptive_model.c" beforeDir="false" afterPath="$PROJECT_DIR$/adaptive_model.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/arithmetic_coding.h" beforeDir="false" afterPath="$PROJECT_DIR$/arithmetic_coding.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/arithmetic_decode.c" beforeDir="false" afterPath="$PROJECT_DIR$/arithmetic_decode.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/arithmetic_decode.h" beforeDir="false" afterPath="$PROJECT_DIR$/arithmetic_decode.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/arithmetic_encode.c" beforeDir="false" afterPath="$PROJECT_DIR$/arithmetic_encode.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/arithmetic_encode.h" beforeDir="false" afterPath="$PROJECT_DIR$/arithmetic_encode.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/biblia_facil.txt" beforeDir="false" afterPath="$PROJECT_DIR$/biblia_facil.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bit_input.c" beforeDir="false" afterPath="$PROJECT_DIR$/bit_input.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bit_input.h" beforeDir="false" afterPath="$PROJECT_DIR$/bit_input.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bit_output.c" beforeDir="false" afterPath="$PROJECT_DIR$/bit_output.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bit_output.h" beforeDir="false" afterPath="$PROJECT_DIR$/bit_output.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/decode.c" beforeDir="false" afterPath="$PROJECT_DIR$/decode.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/encode.c" beforeDir="false" afterPath="$PROJECT_DIR$/encode.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fixed_model.c" beforeDir="false" afterPath="$PROJECT_DIR$/fixed_model.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model.h" beforeDir="false" afterPath="$PROJECT_DIR$/model.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,9 +52,6 @@
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
-  </component>
-  <component name="OCResolveContextSettings">
-    <option name="configuration" value="0-Debug-encode" />
   </component>
   <component name="ProjectApplicationVersion">
     <option name="ide" value="CLion" />
@@ -94,12 +77,7 @@
     <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
     <property name="settings.editor.selected.configurable" value="vcs.Git" />
   </component>
-  <component name="RunManager" selected="CMake Application.PPM">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
-      </method>
-    </configuration>
+  <component name="RunManager" selected="CMake Application.decode">
     <configuration name="PPM" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PPM" TARGET_NAME="PPM" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PPM" RUN_TARGET_NAME="PPM">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -130,6 +108,8 @@
       <option name="presentableId" value="Default" />
       <updated>1650664515841</updated>
       <workItem from="1650664517913" duration="4268000" />
+      <workItem from="1650750376645" duration="1455000" />
+      <workItem from="1650800668278" duration="2682000" />
     </task>
     <servers />
   </component>
@@ -146,5 +126,16 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/bit_output.c</url>
+          <line>22</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

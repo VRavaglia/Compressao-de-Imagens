@@ -23,9 +23,10 @@ void start_encoding() {
 
 /* ENCODE A SYMBOL */
 
-void encode_symbol(symbol, cum_freq)
+void encode_symbol(symbol, cum_freq, file)
         int symbol;                        /* Symbol to encode 				*/
         int cum_freq[];                    /* Cummulative symbol frequencies	*/
+        FILE *file;
 {
     long range;                    /* size of the current_code region	*/
     range = (long) (high - low) + 1;                            /* Narrow the code  */
@@ -37,11 +38,11 @@ void encode_symbol(symbol, cum_freq)
     {                                            /* Loop to output bits	*/
         if (high<Half)
         {
-            bit_plus_follow(0);                    /* Output 0 if in low half */
+            bit_plus_follow(0, file);                    /* Output 0 if in low half */
         }
         else if (low>=Half)
         {                                    /* Output 1 if in high half	*/
-            bit_plus_follow(1);
+            bit_plus_follow(1, file);
             low -= Half;
             high -= Half;                        /* Subtract offset to top */
         }
@@ -60,21 +61,20 @@ void encode_symbol(symbol, cum_freq)
 
 /* FINISH ENCODING THE STREAM */
 
-void done_encoding() {
+void done_encoding(FILE *file) {
     bits_to_follow += 1;                        /* Output two bits that 		*/
-    if (low < First_qtr) bit_plus_follow(0);    /* select the quarter that 		*/
-    else bit_plus_follow(1);                    /* the current code range		*/
+    if (low < First_qtr) bit_plus_follow(0, file);    /* select the quarter that 		*/
+    else bit_plus_follow(1, file);                    /* the current code range		*/
 }                                            /* contains						*/
 
 
 /* OUTPUT BITS PLUS THE FOLLOWING OPPOSITE BITS */
 
-static void bit_plus_follow(bit)
-        int bit;
+static void bit_plus_follow(int bit, FILE *file)
 {
-    output_bit(bit);                            /* Output the bit				*/
+    output_bit(bit, file);                            /* Output the bit				*/
     while (bits_to_follow > 0) {
-        output_bit(!bit);                        /* Ouput bits_to_follow			*/
+        output_bit(!bit, file);                        /* Ouput bits_to_follow			*/
         bits_to_follow -= 1;                    /* opposite bits. Set			*/
     }                                        /* bits_to_follow to zero		*/
 }

@@ -21,11 +21,11 @@ void start_inputing_bits() {
 
 /* INPUT A BIT  */
 
-int input_bit() {
+int input_bit(FILE *file) {
     int t;
     if (bits_to_go == 0)                            /* read the next byte if no	*/
     {
-        buffer = getc(stdin);                        /* bits are left in buffer	*/
+        buffer = getc(file);                        /* bits are left in buffer	*/
         if (buffer == EOF) {
             garbage_bits += 1;                        /* Return arbitrary bits 	*/
             if (garbage_bits > Code_value_bits - 2)    /* after EOF, but check		*/

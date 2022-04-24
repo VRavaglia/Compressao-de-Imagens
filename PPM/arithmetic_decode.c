@@ -11,11 +11,11 @@ static code_value low, high;        /* Ends of current code region 		*/
 
 /* START DECODING A STREAM OF SYMBOLS */
 
-void start_decoding() {
+void start_decoding(FILE *file) {
     int i;
     value = 0;
     for (i = 1; i <= Code_value_bits; i++) {                                    /* input bits to fill the 		*/
-        value = 2 * value + input_bit();        /* code value    				*/
+        value = 2 * value + input_bit(file);        /* code value    				*/
     }
     low = 0;                                /* full code range   			*/
     high = Top_value;
@@ -24,7 +24,8 @@ void start_decoding() {
 
 /* DECODE THE NEXT SYMBOL */
 
-int decode_symbol(cum_freq)
+int decode_symbol(cum_freq, file)
+        FILE *file;
         int cum_freq[];                /* cummulative symbol frequencies	*/
 {
     long range;                /* size of surrent code region		*/
@@ -53,7 +54,7 @@ int decode_symbol(cum_freq)
         } else break;                        /* Otherwise exit loop 		 */
         low = 2 * low;
         high = 2 * high + 1;                            /* Scale up code range		 */
-        value = 2 * value + input_bit();                /* Move in next input bit	 */
+        value = 2 * value + input_bit(file);                /* Move in next input bit	 */
     }
     return (symbol);
 }

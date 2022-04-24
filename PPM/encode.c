@@ -16,18 +16,40 @@ int main() {
     start_outputing_bits();
     start_encoding();
 
+    char *inputFilename = "biblia_facil.txt";
+    char *outputFilename = "biblia_encoded.txt";
+    FILE *fin = fopen(inputFilename, "rb");
+
+    if(fin == NULL)
+    {
+        printf("Nao foi possivel abrir o arquivo de entrada!");
+        exit(1);
+    }
+
+    FILE *fout = fopen(outputFilename, "wb");
+
+    if(fout == NULL)
+    {
+        printf("Nao foi possivel abrir o arquivo de saida!");
+        exit(1);
+    }
+
     for (;;) {
         int ch;
         int symbol;
-        ch = getc(stdin);                     /* Reads the next character */
+        ch = getc(fin);
         if (ch == EOF) break;                 /* Exit loop on end-of-file */
         symbol = char_to_index[ch];         /* Translates to an index 	 */
-        encode_symbol(symbol, cum_freq);     /* Encode that symbol.	 	 */
+        encode_symbol(symbol, cum_freq, fout);     /* Encode that symbol.	 	 */
         update_model(symbol);                 /* Update the model 	 	 */
     }
-    encode_symbol(EOF_symbol, cum_freq);     /* Encodes the EOF symbol 	 */
-    done_encoding();                         /* Send the last few bits	 */
-    done_outputing_bits();
+    encode_symbol(EOF_symbol, cum_freq, fout);     /* Encodes the EOF symbol 	 */
+    done_encoding(fout);                         /* Send the last few bits	 */
+    done_outputing_bits(fout);
+
+    fclose(fin);
+    fclose(fout);
+
     exit(0);
 }
 
