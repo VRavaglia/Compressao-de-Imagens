@@ -2,6 +2,7 @@
 
 #include "arithmetic_coding.h"
 #include "bit_output.h"
+#include "model.h"
 
 static void bit_plus_follow();        /* Routine that follows	*/
 
@@ -25,13 +26,14 @@ void start_encoding() {
 
 void encode_symbol(symbol, cum_freq, file)
         int symbol;                        /* Symbol to encode 				*/
-        int cum_freq[];                    /* Cummulative symbol frequencies	*/
+        struct cum_freqs cum_freq[];                    /* Cummulative symbol frequencies	*/
         FILE *file;
 {
+//    printf("%i",symbol);
     long range;                    /* size of the current_code region	*/
     range = (long) (high - low) + 1;                            /* Narrow the code  */
-    high = low + (range * cum_freq[symbol - 1]) / cum_freq[0] - 1; /* region to that   */
-    low = low + (range * cum_freq[symbol]) / cum_freq[0];     /* allotted to this */
+    high = low + (range * cum_freq[symbol - 1].freq) / cum_freq[0].freq - 1; /* region to that   */
+    low = low + (range * cum_freq[symbol].freq) / cum_freq[0].freq;     /* allotted to this */
 /* symbol           */
 
     for (;;)

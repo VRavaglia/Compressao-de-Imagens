@@ -7,7 +7,7 @@
       <config projectName="PPM" targetName="decode" />
     </generated>
   </component>
-  <component name="CMakeSettings">
+  <component name="CMakeSettings" AUTO_RELOAD="true">
     <configurations>
       <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
     </configurations>
@@ -26,17 +26,19 @@
       <change beforePath="$PROJECT_DIR$/../Hufmann/encoder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/encoder.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Hufmann/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/main.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/adaptive_model.c" beforeDir="false" afterPath="$PROJECT_DIR$/adaptive_model.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/adaptive_model.h" beforeDir="false" afterPath="$PROJECT_DIR$/adaptive_model.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/arithmetic_decode.c" beforeDir="false" afterPath="$PROJECT_DIR$/arithmetic_decode.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/arithmetic_decode.h" beforeDir="false" afterPath="$PROJECT_DIR$/arithmetic_decode.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/arithmetic_encode.c" beforeDir="false" afterPath="$PROJECT_DIR$/arithmetic_encode.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/arithmetic_encode.h" beforeDir="false" afterPath="$PROJECT_DIR$/arithmetic_encode.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/biblia_decoded.txt" beforeDir="false" afterPath="$PROJECT_DIR$/biblia_decoded.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/biblia_encoded.txt" beforeDir="false" afterPath="$PROJECT_DIR$/biblia_encoded.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/biblia_facil.txt" beforeDir="false" afterPath="$PROJECT_DIR$/biblia_facil.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bit_input.c" beforeDir="false" afterPath="$PROJECT_DIR$/bit_input.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bit_input.h" beforeDir="false" afterPath="$PROJECT_DIR$/bit_input.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bit_output.c" beforeDir="false" afterPath="$PROJECT_DIR$/bit_output.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bit_output.h" beforeDir="false" afterPath="$PROJECT_DIR$/bit_output.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/decode.c" beforeDir="false" afterPath="$PROJECT_DIR$/decode.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/encode.c" beforeDir="false" afterPath="$PROJECT_DIR$/encode.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model.h" beforeDir="false" afterPath="$PROJECT_DIR$/model.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,8 +79,13 @@
     <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
     <property name="settings.editor.selected.configurable" value="vcs.Git" />
   </component>
-  <component name="RunManager" selected="CMake Application.decode">
+  <component name="RunManager" selected="CMake Application.encode">
     <configuration name="PPM" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PPM" TARGET_NAME="PPM" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PPM" RUN_TARGET_NAME="PPM">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -109,7 +116,8 @@
       <updated>1650664515841</updated>
       <workItem from="1650664517913" duration="4268000" />
       <workItem from="1650750376645" duration="1455000" />
-      <workItem from="1650800668278" duration="2682000" />
+      <workItem from="1650800668278" duration="9114000" />
+      <workItem from="1650889086224" duration="17485000" />
     </task>
     <servers />
   </component>
@@ -131,9 +139,9 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/bit_output.c</url>
-          <line>22</line>
-          <option name="timeStamp" value="3" />
+          <url>file://$PROJECT_DIR$/encode.c</url>
+          <line>72</line>
+          <option name="timeStamp" value="17" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -6,7 +6,7 @@
 #define PPM_ARITHMETIC_ENCODE_H
 
 void start_encoding();
-void encode_symbol(int symbol, int *cum_freq, FILE *file);
+void encode_symbol(int symbol, struct cum_freqs *cum_freq, FILE *file);
 void done_encoding(FILE *file);
 
 #endif //PPM_ARITHMETIC_ENCODE_H
