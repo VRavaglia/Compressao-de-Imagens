@@ -14,13 +14,34 @@ unsigned char index_to_char[No_of_symbols + 1];  /* To character from index */
 struct cum_freqs cum_freq[No_of_symbols + 2];           /* Cummulative symbol frequencies 	*/
 struct freqs freq[No_of_symbols + 2];        /* Symbol frequencies		*/
 
+void printFreqs(){
+    for (int i = 0; i < No_of_symbols + 2; ++i) {
+        if(freq[i].freq > 1) {
+            printf("\n%c | %i", index_to_char[i], freq[i].freq);
+            if(freq[i].next != NULL){
+                for (int j = 0; j < No_of_symbols + 2; ++j) {
+                    if (freq[i].next[j].freq > 0){
+                        printf("\n%c%c | %i", index_to_char[i], index_to_char[j],  freq[i].next[j].freq );
+                        if(freq[i].next[j].next != NULL){
+                            for (int k = 0; k < No_of_symbols + 2; ++k) {
+                                if (freq[i].next[j].next[k].freq > 0){
+                                    printf("\n%c%c%c | %i", index_to_char[i], index_to_char[j], index_to_char[k],  freq[i].next[j].next[k].freq );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 int main() {
     clock_t start, end;
     double cpu_time_used;
     start = clock();
 
-    int maxContext = 1;
+    int maxContext = 2;
     int currentContext[maxContext];
     int ccSize = 0;
 
@@ -68,18 +89,7 @@ int main() {
 
     printf("\nTempo consumido: %f", cpu_time_used);
 
-    for (int i = 0; i < No_of_symbols + 2; ++i) {
-        if(freq[i].freq > 1) {
-            printf("\n%c | %i", index_to_char[i], freq[i].freq);
-            if(freq[i].next != NULL){
-                for (int j = 0; j < No_of_symbols + 2; ++j) {
-                    if (freq[i].next[j].freq > 0){
-                        printf("\n%c%c | %i", index_to_char[i], index_to_char[j],  freq[i].next[j].freq );
-                    }
-                }
-            }
-        }
-    }
+    printFreqs();
 
     exit(0);
 }

@@ -29,7 +29,7 @@ void initTables(struct cum_freqs cum_freq[], struct freqs freq[], const int curr
             currentPointerF->next = (struct freqs*)malloc(sizeof(struct freqs)*(No_of_symbols + 2));
             currentPointerCF->next = (struct cum_freqs*)malloc(sizeof(struct cum_freqs)*(No_of_symbols + 2));
 
-            currentPointerF->next[currentContext[i+1]].freq = 2;
+            currentPointerF->next[currentContext[i+1]].freq = 1;
             currentPointerCF->next[currentContext[i+1]].freq = 2;
 
             currentPointerF = currentPointerF->next;
