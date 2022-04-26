@@ -5,7 +5,6 @@
 #include "model.h"
 #include "bit_input.h"
 #include "arithmetic_decode.h"
-#include "adaptive_model.h"
 #include <time.h>
 #include "ppm.h"
 

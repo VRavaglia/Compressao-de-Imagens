@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "model.h"
-#include "adaptive_model.h"
 #include "bit_output.h"
 #include "arithmetic_encode.h"
 #include <time.h>
@@ -49,7 +48,7 @@ int main() {
     start_outputing_bits();
     start_encoding();
 
-    char *inputFilename = "biblia_facil2.txt";
+    char *inputFilename = "biblia.txt";
     char *outputFilename = "biblia_encoded.txt";
     FILE *fin = fopen(inputFilename, "rb");
 
