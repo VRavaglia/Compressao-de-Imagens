@@ -10,8 +10,8 @@
 
 int char_to_index[No_of_chars];                   /* To index from charater */
 unsigned char index_to_char[No_of_symbols + 1];  /* To character from index */
-struct cum_freqs cum_freq[No_of_symbols + 2];           /* Cummulative symbol frequencies 	*/
-struct freqs freq[No_of_symbols + 2];        /* Symbol frequencies		*/
+struct cum_freqs cum_freq[No_of_symbols + 1];           /* Cummulative symbol frequencies 	*/
+struct freqs freq[No_of_symbols + 1];        /* Symbol frequencies		*/
 
 void printFreqs(){
     for (int i = 0; i < No_of_symbols + 2; ++i) {
@@ -33,12 +33,19 @@ void printFreqs(){
             }
         }
     }
+    printf("\n\n");
+    for (int i = 0; i < No_of_symbols+1; ++i) {
+        printf("\n%c | %i", index_to_char[i], cum_freq[i].freq);
+    }
 }
 
 int main() {
     clock_t start, end;
     double cpu_time_used;
     start = clock();
+
+    index_to_char[ESC_symbol] = '<';
+    index_to_char[EOF_symbol] = '>';
 
     int maxContext = 2;
     int currentContext[maxContext];
@@ -48,7 +55,7 @@ int main() {
     start_outputing_bits();
     start_encoding();
 
-    char *inputFilename = "biblia.txt";
+    char *inputFilename = "biblia_facil2.txt";
     char *outputFilename = "biblia_encoded.txt";
     FILE *fin = fopen(inputFilename, "rb");
 
@@ -72,7 +79,14 @@ int main() {
         ch = getc(fin);
         if (ch == EOF) break;                 /* Exit loop on end-of-file */
         check_context(ch, cum_freq, maxContext, currentContext, &ccSize);
-        symbol = char_to_index[ch];         /* Translates to an index 	 */
+        symbol = char_to_index[ch];
+        for (int i = 0; i < escape_count(symbol, freq, maxContext, currentContext, ccSize); ++i) {
+            encode_symbol(ESC_symbol, cum_freq, fout);
+            printf("%c", index_to_char[ESC_symbol]);
+            printf("%i ", ESC_symbol);
+        }
+        printf("%c", index_to_char[symbol]);
+        printf("%i ", symbol);
         encode_symbol(symbol, cum_freq, fout);     /* Encode that symbol.	 	 */
         update_model(symbol, freq, cum_freq, currentContext, ccSize);                 /* Update the model 	 	 */
     }
@@ -88,7 +102,7 @@ int main() {
 
     printf("\nTempo consumido: %f", cpu_time_used);
 
-    printFreqs();
+//    printFreqs();
 
     exit(0);
 }

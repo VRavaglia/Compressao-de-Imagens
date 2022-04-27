@@ -49,12 +49,21 @@ int main() {
     {
         int ch;
         int symbol;
-        symbol = decode_symbol(cum_freq, fin);      /* decode next symbol 		*/
-        check_context(symbol, cum_freq, maxContext, currentContext, &ccSize);
-        if (symbol == EOF_symbol) break;          /* Exit loop if EOF symbol 	*/
-        ch = index_to_char[symbol];          /* translate to a character 	*/
-        putc(ch, fout);                      /* write that character 		*/
-        update_model(symbol, freq, cum_freq, currentContext, ccSize);                 /* Update the model 			*/
+        symbol = decode_symbol(cum_freq, fin);
+        printf("%c", index_to_char[symbol]);
+        printf("%i ", symbol);
+        if (symbol == EOF_symbol) break;
+        if(symbol == ESC_symbol){
+            putc('<', fout);
+            putc('E', fout);
+            putc('>', fout);
+        }
+        else {
+            check_context(symbol, cum_freq, maxContext, currentContext, &ccSize);
+            ch = index_to_char[symbol];          /* translate to a character 	*/
+            putc(ch, fout);                      /* write that character 		*/
+            update_model(symbol, freq, cum_freq, currentContext, ccSize);                 /* Update the model 			*/
+        }
     }
 
     end = clock();

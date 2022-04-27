@@ -7,7 +7,7 @@
 
 #define No_of_chars    256                        /* Number of character symbols */
 
-#define ESC_symbol    (No_of_chars + 1)        /* Index of ESCAPE symbol	*/
+#define ESC_symbol    (1)        /* Index of ESCAPE symbol	*/
 #define EOF_symbol    (No_of_chars + 2)        /* Index of EOF symbol	*/
 
 #define No_of_symbols    (No_of_chars + 2)    /* Total number of symbols */
