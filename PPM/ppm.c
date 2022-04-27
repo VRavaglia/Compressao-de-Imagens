@@ -18,7 +18,7 @@ void check_context(int ch, struct cum_freqs cum_freq[], int maxContext, int curr
     }
 }
 
-// Se necessario, inicializa as tabelas que indicam as frequencias de cada sequencia de simbolos
+//// Se necessario, inicializa as tabelas que indicam as frequencias de cada sequencia de simbolos
 //void initTables(struct cum_freqs cum_freq[], struct freqs freq[], const int currentContext[], int ccSize){
 //    struct freqs *currentPointerF = &freq[currentContext[0]];
 //    struct cum_freqs *currentPointerCF = &cum_freq[currentContext[0]];
@@ -42,9 +42,42 @@ void check_context(int ch, struct cum_freqs cum_freq[], int maxContext, int curr
 //    }
 //}
 
-int escape_count(int symbol, struct freqs freq[], int maxContext, int *currentContext, int ccSize){
-    if(symbol == char_to_index['K']) return 1;
-    return 0;
+void create_table(struct freqs freq[], struct cum_freqs cum_freq[]) {
+    freq->next = (struct freqs*)malloc(sizeof(struct freqs)*(No_of_symbols + 2));
+    cum_freq->next = (struct cum_freqs*)malloc(sizeof(struct cum_freqs)*(No_of_symbols + 2));
+
+    struct freqs *fPointer = freq->next;
+    struct cum_freqs *fcPointer = cum_freq->next;
+
+    for (int i = 0; i <= No_of_symbols; i++) {
+        fPointer[i].freq = 0;
+        fPointer[i].next = NULL;
+        fcPointer[i].freq = No_of_symbols - i;
+        fcPointer[i].next = NULL;
+    }
+}
+
+int escape_count(struct freqs freq[], const int currentContext[], int ccSize, int maxContext){
+    int escapes = maxContext;
+
+    struct freqs *freqPointer = freq[currentContext[ccSize-1]].next;
+    if(freqPointer == NULL) return  escapes;
+
+    for (int i = ccSize-2; i > 0; --i) {
+        if(freqPointer[currentContext[i]].freq > 0){
+            escapes -= 1;
+            if(freqPointer[currentContext[i]].next != NULL){
+                freqPointer = freqPointer[currentContext[i]].next;
+            }
+            else{
+                return escapes;
+            }
+        }
+        else{
+            return escapes;
+        }
+    }
+    return escapes;
 }
 
 void start_model(struct freqs freq[], struct cum_freqs cum_freq[]) {
@@ -67,10 +100,22 @@ void start_model(struct freqs freq[], struct cum_freqs cum_freq[]) {
 /* UPDATE THE MODEL TO ACCOUNT FOR A NEW SYMBOL */
 
 
-void update_model(int symbol, struct freqs freq[], struct cum_freqs cum_freq[], int context[], int cSize)
+void update_model(int symbol, struct freqs freq[], struct cum_freqs cum_freq[], const int context[], int cSize)
 {
 
-//    int i;                                            /* New index for symbol		*/
+    if(cSize > 0){
+        struct freqs *freqPointer = freq;
+        struct cum_freqs *cumPointer = cum_freq;
+        for (int i = 0; i < cSize; ++i) {
+//            if (i > 0) freqPointer[context[i]].freq += 1;
+            if(freqPointer[context[i]].next == NULL){
+                create_table(&freqPointer[context[i]], &cumPointer[context[i]]);
+            }
+
+            freqPointer = freqPointer[context[i]].next;
+        }
+    }
+
     if (cum_freq[0].freq == Max_frequency)                /* See if frequency counts	*/
     {                                            /* are at their maximum		*/
         int cum;
@@ -82,24 +127,11 @@ void update_model(int symbol, struct freqs freq[], struct cum_freqs cum_freq[], 
             cum += freq[i].freq;
         }
     }
-//    for (i = symbol; freq[i].freq == freq[i - 1].freq; i--);    /* Find symbol's new index	*/
-//    if (i < symbol) {
-//
-//        int ch_i, ch_symbol;
-//        ch_i = index_to_char[i];                    /* Update the translation 	*/
-//        ch_symbol = index_to_char[symbol];            /* tables if the symbol has	*/
-//        index_to_char[i] = ch_symbol;                /* moved					*/
-//        index_to_char[symbol] = ch_i;
-//        char_to_index[ch_i] = symbol;
-//        char_to_index[ch_symbol] = i;
-//
-//    }
 
     freq[symbol].freq += 1;
     if (freq[symbol].freq == 2){
         cum_freq[ESC_symbol].freq += 1;
         cum_freq[0].freq += 1;
-//        cum_freq[EOF_symbol].freq += 1;
         freq[ESC_symbol].freq += 1;
     }
                                        /* Increment the frequency	*/

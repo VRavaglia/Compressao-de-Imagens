@@ -31,7 +31,6 @@
       <change beforePath="$PROJECT_DIR$/biblia_facil2.txt" beforeDir="false" afterPath="$PROJECT_DIR$/biblia_facil2.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/decode.c" beforeDir="false" afterPath="$PROJECT_DIR$/decode.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/encode.c" beforeDir="false" afterPath="$PROJECT_DIR$/encode.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model.h" beforeDir="false" afterPath="$PROJECT_DIR$/model.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ppm.c" beforeDir="false" afterPath="$PROJECT_DIR$/ppm.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ppm.h" beforeDir="false" afterPath="$PROJECT_DIR$/ppm.h" afterDir="false" />
     </list>
@@ -74,13 +73,13 @@
     <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
     <property name="settings.editor.selected.configurable" value="vcs.Git" />
   </component>
-  <component name="RunManager" selected="CMake Application.encode">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+  <component name="RunManager" selected="CMake Application.decode">
+    <configuration name="PPM" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PPM" TARGET_NAME="PPM" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PPM" RUN_TARGET_NAME="PPM">
       <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="PPM" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PPM" TARGET_NAME="PPM" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PPM" RUN_TARGET_NAME="PPM">
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -116,6 +115,7 @@
       <workItem from="1650922164602" duration="93000" />
       <workItem from="1650922699412" duration="1014000" />
       <workItem from="1651079470567" duration="11526000" />
+      <workItem from="1651091292052" duration="5965000" />
     </task>
     <servers />
   </component>

@@ -19,7 +19,7 @@ int main() {
     double cpu_time_used;
     start = clock();
 
-    int maxContext = 2;
+    int maxContext = 5;
     int currentContext[maxContext];
     int ccSize = 0;
 
@@ -50,8 +50,8 @@ int main() {
         int ch;
         int symbol;
         symbol = decode_symbol(cum_freq, fin);
-        printf("%c", index_to_char[symbol]);
-        printf("%i ", symbol);
+//        printf("%c", index_to_char[symbol]);
+//        printf("%i ", symbol);
         if (symbol == EOF_symbol) break;
         if(symbol == ESC_symbol){
             putc('<', fout);
