@@ -21,9 +21,10 @@ int main() {
     double cpu_time_used;
     start = clock();
 
-    int maxContext = 5;
+    int maxContext = 2;
     int currentContext[maxContext];
     int ccSize = 0;
+    int maxDepth = 0;
 
     char *inputFilename = "biblia_encoded.txt";
     char *outputFilename = "biblia_decoded.txt";
@@ -48,27 +49,29 @@ int main() {
     start_decoding(fin);
 
     struct cum_freqs *currentTable;
-
+    currentTable = cum_freq_1;
     for (;;)                                  /* Loop through characters	*/
     {
         int ch;
         int symbol;
-        currentTable = cum_freq_1;
+
         symbol = decode_symbol(currentTable, fin);
 //        printf("%c", index_to_char[symbol]);
 //        printf("%i ", symbol);
         if (symbol == EOF_symbol) break;
         if(symbol == ESC_symbol){
-            putc('<', fout);
-            putc('E', fout);
-            putc('>', fout);
-            currentTable = currentTable[]next;
+//            putc('<', fout);
+//            putc('E', fout);
+//            putc('>', fout);
+//            currentTable = currentTable[]next;
         }
         else {
-            check_context(symbol, cum_freq_1, maxContext, currentContext, &ccSize);
-            ch = index_to_char[symbol];          /* translate to a character 	*/
+            ch = index_to_char[symbol];
+            check_context(ch, maxContext, currentContext, &ccSize);
             putc(ch, fout);                      /* write that character 		*/
-            update_model(symbol, freq_1, cum_freq_1, currentContext, ccSize);                 /* Update the model 			*/
+            update_model(freq, cum_freq, currentContext, ccSize);                /* Update the model 			*/
+            maxDepth += 1;
+            if(maxDepth > maxContext) maxDepth = maxContext;
         }
     }
 

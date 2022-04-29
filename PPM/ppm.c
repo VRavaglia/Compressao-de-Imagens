@@ -3,21 +3,35 @@
 #include "model.h"
 
 
-struct cum_freqs *gotoTable(int escapeCount, struct cum_freqs cum_freq[], struct cum_freqs cum_freq_1[], const int context[], int maxContext){
-    if (escapeCount == maxContext){
-        return cum_freq_1;
-    }
+struct cum_freqs [*]gotoTable(int escapeCount, struct cum_freqs cum_freq[], struct cum_freqs cum_freq_1[], const int context[], int maxContext, int maxDepth){
+
+    int tabIndex = maxDepth - escapeCount;
+
+    if (tabIndex == 0) return cum_freq_1;
 
     struct cum_freqs *currentPointer = cum_freq;
-    for (int i = 0; i < maxContext - escapeCount -1; ++i) {
-        currentPointer = currentPointer[context[i]].next;
+
+    for (int i = 0; i < tabIndex-1; ++i) {
+        currentPointer = currentPointer[context[maxDepth - i - 1]].next;
     }
-    return currentPointer;
+    return lsita de tabelas percorridas
+
+
+    //    if (escapeCount == maxDepth){
+//        return cum_freq_1;
+//    }
+//
+//    struct cum_freqs *currentPointer = cum_freq;
+//    for (int i = maxDepth-escapeCount-1; i >= 0; --i) {
+//        currentPointer = currentPointer[context[i]].next;
+//    }
+//    return currentPointer;
+
 }
 
 void check_context(int ch, int maxContext, int currentContext[], int *ccSize){
     if (maxContext > 0){
-        if(*ccSize < maxContext + 1){
+        if(*ccSize < maxContext){
             currentContext[*ccSize] = char_to_index[ch];
             *ccSize = *ccSize + 1;
         }
@@ -25,7 +39,7 @@ void check_context(int ch, int maxContext, int currentContext[], int *ccSize){
             for (int i = 0; i < maxContext; ++i) {
                 currentContext[i] = currentContext[i+1];
             }
-            currentContext[maxContext] = char_to_index[ch];
+            currentContext[maxContext-1] = char_to_index[ch];
         }
     }
 }
@@ -72,13 +86,16 @@ void create_table(struct freqs freq[], struct cum_freqs cum_freq[]) {
     fcPointer[ESC_symbol-1].freq = 2;
 }
 
-int escape_count(struct freqs freq[], const int currentContext[], int ccSize, int maxContext){
-    int escapes = maxContext;
+int escape_count(struct freqs freq[], const int currentContext[], int ccSize, int maxContext, int maxDepth){
+    int escapes = maxDepth;
+    if (maxDepth < 1){
+        return 0;
+    }
 
-    struct freqs *freqPointer = freq[currentContext[ccSize-1]].next;
-    if(freqPointer == NULL) return  escapes;
+    struct freqs *freqPointer = freq;
+//    if(freqPointer == NULL) return  escapes;
 
-    for (int i = ccSize-2; i > 0; --i) {
+    for (int i = ccSize-1; i >= 0; --i) {
         if(freqPointer[currentContext[i]].freq > 0){
             escapes -= 1;
             if(freqPointer[currentContext[i]].next != NULL){
@@ -115,15 +132,16 @@ void start_model(struct freqs freq[], struct cum_freqs cum_freq[]) {
 /* UPDATE THE MODEL TO ACCOUNT FOR A NEW SYMBOL */
 
 
-void update_model(int symbol, struct freqs freq[], struct cum_freqs cum_freq[], const int context[], int cSize)
+void update_model(struct freqs freq[], struct cum_freqs cum_freq[], const int context[], int cSize)
 {
     struct freqs *freqPointer = freq;
     struct cum_freqs *cumPointer = cum_freq;
 
-    for (int i = 0; i < cSize; ++i) {
+    for (int i = cSize-1; i >= 0; --i) {
 //            if (i > 0) freqPointer[context[i]].freq_1 += 1;
-        if(freqPointer[context[i]].next == NULL){
-            create_table(&freqPointer[context[i]], &cumPointer[context[i]]);
+        int symbol =  context[i];
+        if(freqPointer[symbol].next == NULL){
+            create_table(&freqPointer[symbol], &cumPointer[symbol]);
         }
 
 
@@ -140,7 +158,7 @@ void update_model(int symbol, struct freqs freq[], struct cum_freqs cum_freq[], 
         }
 
         freqPointer[symbol].freq += 1;
-        if (freqPointer[symbol].freq == 2){
+        if (freqPointer[symbol].freq == 1){
             cumPointer[ESC_symbol].freq += 1;
             cumPointer[0].freq += 1;
             freqPointer[ESC_symbol].freq += 1;
@@ -154,8 +172,8 @@ void update_model(int symbol, struct freqs freq[], struct cum_freqs cum_freq[], 
             cumPointer[j].freq += 1;
         }
 
-        freqPointer = freqPointer[context[i]].next;
-        cumPointer = cumPointer[context[i]].next;
+        freqPointer = freqPointer[symbol].next;
+        cumPointer = cumPointer[symbol].next;
     }
 }
 

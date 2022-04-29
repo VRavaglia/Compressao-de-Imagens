@@ -48,12 +48,10 @@ int main() {
     double cpu_time_used;
     start = clock();
 
-    index_to_char[ESC_symbol] = '<';
-    index_to_char[EOF_symbol] = '>';
-
     int maxContext = 2;
     int currentContext[maxContext];
     int ccSize = 0;
+    int maxDepth = 0;
 
     start_model(freq_1, cum_freq_1);                             /* set up other modules.	*/
     start_outputing_bits();
@@ -78,6 +76,7 @@ int main() {
     }
 
     struct cum_freqs *currentTable = cum_freq_1;
+    struct cum_freqs [*] lsitatabelas;
     for (;;) {
         int ch;
         int symbol;
@@ -85,26 +84,25 @@ int main() {
         if (ch == EOF) break;                 /* Exit loop on end-of-file */
 
         check_context(ch, maxContext, currentContext, &ccSize);
-        int escapes = escape_count(freq, currentContext, ccSize, maxContext);
+        int escapes = escape_count(freq, currentContext, ccSize, maxContext, maxDepth);
         symbol = char_to_index[ch];
 
-        for (int i = 0; i < escapes-ccSize; ++i) {
-            currentTable = gotoTable(i, cum_freq, cum_freq_1, currentContext, maxContext);
-            encode_symbol(ESC_symbol, currentTable, fout);
-//#ifdef DEBUG
-//            printf("%c", index_to_char[ESC_symbol]);
-//            printf("%i ", ESC_symbol);
-//#endif
+        lsitatabelas = getTables(tamanholista, ecscapes)
+        for (i = 0; i < tamanholista; ++i) {
+            encode_symbol(ESC_symbol, lsitatabelas[i], fout);
         }
-//#ifdef DEBUG
-//        printf("%c", index_to_char[symbol]);
-//        printf("%i ", symbol);
-//#endif
-        encode_symbol(symbol, currentTable, fout);     /* Encode that symbol.	 	 */
-        update_model(symbol, freq, cum_freq, currentContext, ccSize);                 /* Update the model 	 	 */
+
+
+        encode_symbol(symbol, listaTabelas[end], fout);     /* Encode that symbol.	 	 */
+        free(listatabelas)
+
+        update_model(freq, cum_freq, currentContext, ccSize);                 /* Update the model 	 	 */
+        maxDepth += 1;
+        if(maxDepth > maxContext) maxDepth = maxContext;
 //        printf("\n");
     }
-    encode_symbol(EOF_symbol, currentTable, fout);     /* Encodes the EOF symbol 	 */
+
+    encode_symbol(EOF_symbol, cum_freq_1, fout);     /* Encodes the EOF symbol 	 */
     done_encoding(fout);                         /* Send the last few bits	 */
     done_outputing_bits(fout);
 
