@@ -3,7 +3,19 @@
 #include "model.h"
 
 
-void check_context(int ch, struct cum_freqs cum_freq[], int maxContext, int currentContext[], int *ccSize){
+struct cum_freqs *gotoTable(int escapeCount, struct cum_freqs cum_freq[], struct cum_freqs cum_freq_1[], const int context[], int maxContext){
+    if (escapeCount == maxContext){
+        return cum_freq_1;
+    }
+
+    struct cum_freqs *currentPointer = cum_freq;
+    for (int i = 0; i < maxContext - escapeCount -1; ++i) {
+        currentPointer = currentPointer[context[i]].next;
+    }
+    return currentPointer;
+}
+
+void check_context(int ch, int maxContext, int currentContext[], int *ccSize){
     if (maxContext > 0){
         if(*ccSize < maxContext + 1){
             currentContext[*ccSize] = char_to_index[ch];
@@ -19,25 +31,25 @@ void check_context(int ch, struct cum_freqs cum_freq[], int maxContext, int curr
 }
 
 //// Se necessario, inicializa as tabelas que indicam as frequencias de cada sequencia de simbolos
-//void initTables(struct cum_freqs cum_freq[], struct freqs freq[], const int currentContext[], int ccSize){
-//    struct freqs *currentPointerF = &freq[currentContext[0]];
-//    struct cum_freqs *currentPointerCF = &cum_freq[currentContext[0]];
+//void initTables(struct cum_freqs cum_freq_1[], struct freqs freq_1[], const int currentContext[], int ccSize){
+//    struct freqs *currentPointerF = &freq_1[currentContext[0]];
+//    struct cum_freqs *currentPointerCF = &cum_freq_1[currentContext[0]];
 //
 //    for (int i = 0; i < ccSize-1; ++i) {
 //        if(currentPointerF->next == NULL){
 //            currentPointerF->next = (struct freqs*)malloc(sizeof(struct freqs)*(No_of_symbols + 2));
 //            currentPointerCF->next = (struct cum_freqs*)malloc(sizeof(struct cum_freqs)*(No_of_symbols + 2));
 //
-//            currentPointerF->next[currentContext[i+1]].freq = 1;
-//            currentPointerCF->next[currentContext[i+1]].freq = 2;
+//            currentPointerF->next[currentContext[i+1]].freq_1 = 1;
+//            currentPointerCF->next[currentContext[i+1]].freq_1 = 2;
 //
 //            currentPointerF = currentPointerF->next;
 //            currentPointerCF = currentPointerCF->next;
 //
 //
 //        }else{
-//            currentPointerF->next[currentContext[i+1]].freq += 1;
-//            currentPointerCF->next[currentContext[i+1]].freq += 1;
+//            currentPointerF->next[currentContext[i+1]].freq_1 += 1;
+//            currentPointerCF->next[currentContext[i+1]].freq_1 += 1;
 //        }
 //    }
 //}
@@ -52,9 +64,12 @@ void create_table(struct freqs freq[], struct cum_freqs cum_freq[]) {
     for (int i = 0; i <= No_of_symbols; i++) {
         fPointer[i].freq = 0;
         fPointer[i].next = NULL;
-        fcPointer[i].freq = No_of_symbols - i;
+        fcPointer[i].freq = 0;
         fcPointer[i].next = NULL;
     }
+    fPointer[ESC_symbol].freq = 1;
+    fcPointer[ESC_symbol].freq = 1;
+    fcPointer[ESC_symbol-1].freq = 2;
 }
 
 int escape_count(struct freqs freq[], const int currentContext[], int ccSize, int maxContext){
@@ -93,8 +108,8 @@ void start_model(struct freqs freq[], struct cum_freqs cum_freq[]) {
         cum_freq[i].freq = No_of_symbols - i;        /* symbols					*/
         cum_freq[i].next = NULL;
     }
-    freq[0].freq = 0;                                        /* freq[0] must not be the	*/
-}                                                /* same as freq[1]			*/
+    freq[0].freq = 0;                                        /* freq_1[0] must not be the	*/
+}                                                /* same as freq_1[1]			*/
 
 
 /* UPDATE THE MODEL TO ACCOUNT FOR A NEW SYMBOL */
@@ -102,45 +117,45 @@ void start_model(struct freqs freq[], struct cum_freqs cum_freq[]) {
 
 void update_model(int symbol, struct freqs freq[], struct cum_freqs cum_freq[], const int context[], int cSize)
 {
+    struct freqs *freqPointer = freq;
+    struct cum_freqs *cumPointer = cum_freq;
 
-    if(cSize > 0){
-        struct freqs *freqPointer = freq;
-        struct cum_freqs *cumPointer = cum_freq;
-        for (int i = 0; i < cSize; ++i) {
-//            if (i > 0) freqPointer[context[i]].freq += 1;
-            if(freqPointer[context[i]].next == NULL){
-                create_table(&freqPointer[context[i]], &cumPointer[context[i]]);
+    for (int i = 0; i < cSize; ++i) {
+//            if (i > 0) freqPointer[context[i]].freq_1 += 1;
+        if(freqPointer[context[i]].next == NULL){
+            create_table(&freqPointer[context[i]], &cumPointer[context[i]]);
+        }
+
+
+        if (cumPointer[0].freq == Max_frequency)                /* See if frequency counts	*/
+        {                                            /* are at their maximum		*/
+            int cum;
+            cum = 0;
+            for (int j = No_of_symbols; j >= 0; j--)        /* If so, halve all the 	*/
+            {                                        /* counts ( keeping them	*/
+                freqPointer[j].freq = (freqPointer[j].freq + 1) / 2;                /* non-zero).				*/
+                cumPointer[j].freq = cum;
+                cum += freqPointer[j].freq;
             }
-
-            freqPointer = freqPointer[context[i]].next;
         }
-    }
 
-    if (cum_freq[0].freq == Max_frequency)                /* See if frequency counts	*/
-    {                                            /* are at their maximum		*/
-        int cum;
-        cum = 0;
-        for (int i = No_of_symbols; i >= 0; i--)        /* If so, halve all the 	*/
-        {                                        /* counts ( keeping them	*/
-            freq[i].freq = (freq[i].freq + 1) / 2;                /* non-zero).				*/
-            cum_freq[i].freq = cum;
-            cum += freq[i].freq;
+        freqPointer[symbol].freq += 1;
+        if (freqPointer[symbol].freq == 2){
+            cumPointer[ESC_symbol].freq += 1;
+            cumPointer[0].freq += 1;
+            freqPointer[ESC_symbol].freq += 1;
         }
-    }
+        /* Increment the frequency	*/
+        int j = symbol+1;
 
-    freq[symbol].freq += 1;
-    if (freq[symbol].freq == 2){
-        cum_freq[ESC_symbol].freq += 1;
-        cum_freq[0].freq += 1;
-        freq[ESC_symbol].freq += 1;
-    }
-                                       /* Increment the frequency	*/
-    int i = symbol+1;
+        while (j > 0)                                    /* count for the symbol and	*/
+        {                                            /* update the cumulative	*/
+            j -= 1;                                    /* frequencies 				*/
+            cumPointer[j].freq += 1;
+        }
 
-    while (i > 0)                                    /* count for the symbol and	*/
-    {                                            /* update the cumulative	*/
-        i -= 1;                                    /* frequencies 				*/
-        cum_freq[i].freq += 1;
+        freqPointer = freqPointer[context[i]].next;
+        cumPointer = cumPointer[context[i]].next;
     }
 }
 

@@ -12,21 +12,23 @@
 
 int char_to_index[No_of_chars];                   /* To index from charater */
 unsigned char index_to_char[No_of_symbols + 1];  /* To character from index */
-struct cum_freqs cum_freq[No_of_symbols + 1];           /* Cummulative symbol frequencies 	*/
-struct freqs freq[No_of_symbols + 1];        /* Symbol frequencies		*/
+struct cum_freqs cum_freq_1[No_of_symbols + 1];
+struct freqs freq_1[No_of_symbols + 1];
+struct cum_freqs cum_freq[No_of_symbols + 1];
+struct freqs freq[No_of_symbols + 1];
 
 void printFreqs(){
     for (int i = 0; i < No_of_symbols + 2; ++i) {
-        if(freq[i].freq > 1) {
-            printf("\n%c | %i", index_to_char[i], freq[i].freq);
-            if(freq[i].next != NULL){
+        if(freq_1[i].freq > 1) {
+            printf("\n%c | %i", index_to_char[i], freq_1[i].freq);
+            if(freq_1[i].next != NULL){
                 for (int j = 0; j < No_of_symbols + 2; ++j) {
-                    if (freq[i].next[j].freq > 0){
-                        printf("\n%c%c | %i", index_to_char[i], index_to_char[j],  freq[i].next[j].freq );
-                        if(freq[i].next[j].next != NULL){
+                    if (freq_1[i].next[j].freq > 0){
+                        printf("\n%c%c | %i", index_to_char[i], index_to_char[j], freq_1[i].next[j].freq );
+                        if(freq_1[i].next[j].next != NULL){
                             for (int k = 0; k < No_of_symbols + 2; ++k) {
-                                if (freq[i].next[j].next[k].freq > 0){
-                                    printf("\n%c%c%c | %i", index_to_char[i], index_to_char[j], index_to_char[k],  freq[i].next[j].next[k].freq );
+                                if (freq_1[i].next[j].next[k].freq > 0){
+                                    printf("\n%c%c%c | %i", index_to_char[i], index_to_char[j], index_to_char[k], freq_1[i].next[j].next[k].freq );
                                 }
                             }
                         }
@@ -37,7 +39,7 @@ void printFreqs(){
     }
 //    printf("\n\n");
 //    for (int i = 0; i < No_of_symbols+1; ++i) {
-//        printf("\n%c | %i", index_to_char[i], cum_freq[i].freq);
+//        printf("\n%c | %i", index_to_char[i], cum_freq_1[i].freq_1);
 //    }
 }
 
@@ -49,15 +51,15 @@ int main() {
     index_to_char[ESC_symbol] = '<';
     index_to_char[EOF_symbol] = '>';
 
-    int maxContext = 5;
+    int maxContext = 2;
     int currentContext[maxContext];
     int ccSize = 0;
 
-    start_model(freq, cum_freq);                             /* set up other modules.	*/
+    start_model(freq_1, cum_freq_1);                             /* set up other modules.	*/
     start_outputing_bits();
     start_encoding();
 
-    char *inputFilename = "biblia.txt";
+    char *inputFilename = "biblia_facil2.txt";
     char *outputFilename = "biblia_encoded.txt";
     FILE *fin = fopen(inputFilename, "rb");
 
@@ -75,22 +77,24 @@ int main() {
         exit(1);
     }
 
+    struct cum_freqs *currentTable = cum_freq_1;
     for (;;) {
         int ch;
         int symbol;
         ch = getc(fin);
         if (ch == EOF) break;                 /* Exit loop on end-of-file */
 
-        check_context(ch, cum_freq, maxContext, currentContext, &ccSize);
+        check_context(ch, maxContext, currentContext, &ccSize);
+        int escapes = escape_count(freq, currentContext, ccSize, maxContext);
         symbol = char_to_index[ch];
-        struct cum_freqs *currentTable = cum_freq;
-        for (int i = 0; i < escape_count(freq, currentContext, ccSize, maxContext); ++i) {
-            encode_symbol(ESC_symbol, cum_freq, fout);
+
+        for (int i = 0; i < escapes-ccSize; ++i) {
+            currentTable = gotoTable(i, cum_freq, cum_freq_1, currentContext, maxContext);
+            encode_symbol(ESC_symbol, currentTable, fout);
 //#ifdef DEBUG
 //            printf("%c", index_to_char[ESC_symbol]);
 //            printf("%i ", ESC_symbol);
 //#endif
-//            currentTable = currentTable[currentContext[ccSize - i]].next;
         }
 //#ifdef DEBUG
 //        printf("%c", index_to_char[symbol]);
@@ -100,7 +104,7 @@ int main() {
         update_model(symbol, freq, cum_freq, currentContext, ccSize);                 /* Update the model 	 	 */
 //        printf("\n");
     }
-    encode_symbol(EOF_symbol, cum_freq, fout);     /* Encodes the EOF symbol 	 */
+    encode_symbol(EOF_symbol, currentTable, fout);     /* Encodes the EOF symbol 	 */
     done_encoding(fout);                         /* Send the last few bits	 */
     done_outputing_bits(fout);
 
