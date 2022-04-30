@@ -76,7 +76,6 @@ int main() {
     }
 
     struct cum_freqs *currentTable = cum_freq_1;
-    struct cum_freqs [*] lsitatabelas;
     for (;;) {
         int ch;
         int symbol;
@@ -84,17 +83,17 @@ int main() {
         if (ch == EOF) break;                 /* Exit loop on end-of-file */
 
         check_context(ch, maxContext, currentContext, &ccSize);
-        int escapes = escape_count(freq, currentContext, ccSize, maxContext, maxDepth);
+//        int escapes = escape_count(freq, currentContext, ccSize, maxContext, maxDepth);
         symbol = char_to_index[ch];
+        int tSize;
 
-        lsitatabelas = getTables(tamanholista, ecscapes)
-        for (i = 0; i < tamanholista; ++i) {
-            encode_symbol(ESC_symbol, lsitatabelas[i], fout);
+        struct cum_freqs **escapeTableList = getTables(maxDepth, freq, cum_freq, cum_freq_1, currentContext, ccSize, &tSize);
+        for (int i = 0; i < tSize; ++i) {
+            encode_symbol(ESC_symbol, escapeTableList[i], fout);
         }
 
-
-        encode_symbol(symbol, listaTabelas[end], fout);     /* Encode that symbol.	 	 */
-        free(listatabelas)
+        encode_symbol(symbol, escapeTableList[tSize-1], fout);     /* Encode that symbol.	 	 */
+        free(escapeTableList);
 
         update_model(freq, cum_freq, currentContext, ccSize);                 /* Update the model 	 	 */
         maxDepth += 1;

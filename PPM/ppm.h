@@ -11,5 +11,6 @@ void start_model(struct freqs *freq, struct cum_freqs *cum_freq);
 void create_table(struct freqs freq[], struct cum_freqs cum_freq[]);
 void update_model(struct freqs *freq, struct cum_freqs *cum_freq, const int *context, int cSize);
 struct cum_freqs *gotoTable(int escapeCount, struct cum_freqs *cum_freq, struct cum_freqs *cum_freq_1, const int *context, int maxContext, int maxDepth);
-
+struct cum_freqs *gotoLastTable(struct cum_freqs cum_freq[], struct cum_freqs cum_freq_1[], struct freqs freq[], const int context[], int cSize);
+struct cum_freqs **getTables(int maxDepth, struct freqs *freq, struct cum_freqs *cum_freq, struct cum_freqs *cum_freq_1, const int context[], int ccSize, int *tSize);
 #endif //PPM_PPM_H
