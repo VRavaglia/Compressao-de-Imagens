@@ -128,6 +128,11 @@ int main() {
 
         update_model(freq, cum_freq, currentContext, ccSize, symbol, maxDepth);                 /* Update the model 	 	 */
 
+        if (its == 1){
+//            printSFreq(cum_freq);
+//            exit(0);
+        }
+
         lastChar = currentContext[0];
         check_context(ch, maxContext, currentContext, &ccSize);
 
