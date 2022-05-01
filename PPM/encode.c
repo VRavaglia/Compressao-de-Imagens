@@ -18,20 +18,20 @@ struct cum_freqs cum_freq[No_of_symbols + 1];
 struct freqs freq[No_of_symbols + 1];
 
 void printFreqs(){
-    for (int i = 0; i < No_of_symbols + 2; ++i) {
-        if(freq_1[i].freq > 1) {
-            printf("\n%c | %i", index_to_char[i], freq_1[i].freq);
-            if(freq_1[i].next != NULL){
-                for (int j = 0; j < No_of_symbols + 2; ++j) {
-                    if (freq_1[i].next[j].freq > 0){
-                        printf("\n%c%c | %i", index_to_char[i], index_to_char[j], freq_1[i].next[j].freq );
-                        if(freq_1[i].next[j].next != NULL){
-                            for (int k = 0; k < No_of_symbols + 2; ++k) {
-                                if (freq_1[i].next[j].next[k].freq > 0){
-                                    printf("\n%c%c%c | %i", index_to_char[i], index_to_char[j], index_to_char[k], freq_1[i].next[j].next[k].freq );
-                                }
-                            }
-                        }
+    for (int i = 0; i < No_of_symbols + 1; ++i) {
+        if(freq[i].freq > 0) {
+            printf("\n%c | %i", index_to_char[i], freq[i].freq);
+            if(freq[i].next != NULL){
+                for (int j = 0; j < No_of_symbols + 1; ++j) {
+                    if (freq[i].next[j].freq > 0){
+                        printf("\n%c%c | %i", index_to_char[i], index_to_char[j], freq[i].next[j].freq );
+//                        if(freq[i].next[j].next != NULL){
+//                            for (int k = 0; k < No_of_symbols + 2; ++k) {
+//                                if (freq[i].next[j].next[k].freq > 0){
+//                                    printf("\n%c%c%c | %i", index_to_char[i], index_to_char[j], index_to_char[k], freq[i].next[j].next[k].freq );
+//                                }
+//                            }
+//                        }
                     }
                 }
             }
@@ -39,8 +39,15 @@ void printFreqs(){
     }
 //    printf("\n\n");
 //    for (int i = 0; i < No_of_symbols+1; ++i) {
-//        printf("\n%c | %i", index_to_char[i], cum_freq_1[i].freq_1);
+//        printf("\n%c | %i", index_to_char[i], cum_freq[i].freq);
 //    }
+}
+
+void printSFreq(struct cum_freqs *sfreq){
+    printf("\n\n");
+    for (int i = 0; i < No_of_symbols+1; ++i) {
+        printf("\n%c | %i", index_to_char[i], sfreq[i].freq);
+    }
 }
 
 int main() {
@@ -48,17 +55,15 @@ int main() {
     double cpu_time_used;
     start = clock();
 
-    int maxContext = 2;
+    int maxContext = 1;
     int currentContext[maxContext];
     int ccSize = 0;
     int maxDepth = 0;
 
-    start_model(freq_1, cum_freq_1);                             /* set up other modules.	*/
-    start_outputing_bits();
-    start_encoding();
 
     char *inputFilename = "biblia_facil2.txt";
     char *outputFilename = "biblia_encoded.txt";
+    int  encodedText[1000];
     FILE *fin = fopen(inputFilename, "rb");
 
     if(fin == NULL)
@@ -75,29 +80,54 @@ int main() {
         exit(1);
     }
 
-    struct cum_freqs *currentTable = cum_freq_1;
+    start_model(freq_1, cum_freq_1);                             /* set up other modules.	*/
+    start_outputing_bits();
+    start_encoding();
+
+    int its = 0;
     for (;;) {
         int ch;
         int symbol;
         ch = getc(fin);
         if (ch == EOF) break;                 /* Exit loop on end-of-file */
 
-        check_context(ch, maxContext, currentContext, &ccSize);
+
 //        int escapes = escape_count(freq, currentContext, ccSize, maxContext, maxDepth);
         symbol = char_to_index[ch];
-        int tSize;
+        encodedText[its] = symbol;
 
-        struct cum_freqs **escapeTableList = getTables(maxDepth, freq, cum_freq, cum_freq_1, currentContext, ccSize, &tSize);
-        for (int i = 0; i < tSize; ++i) {
-            encode_symbol(ESC_symbol, escapeTableList[i], fout);
+
+//        struct cum_freqs **escapeTableList = getTables(maxDepth, freq, cum_freq, cum_freq_1, currentContext, ccSize, &tSize);
+        int escapes = 0;
+        for (int i = 0; i < maxDepth; ++i) {
+            int subContextSize = ccSize - i - maxContext - 1 + maxDepth;
+            int tempContext[subContextSize];
+            for (int j = 0; j < subContextSize; ++j) {
+                tempContext[j] = currentContext[i+j];
+            }
+            if (findInTable(freq, cum_freq, cum_freq_1, tempContext, subContextSize, symbol)) break;
+            struct cum_freqs *encodeTable = gotoTable(freq, cum_freq, cum_freq_1, tempContext, maxDepth - i);
+            if (encodeTable != NULL) encode_symbol(ESC_symbol,encodeTable, fout);
+            escapes += 1;
         }
+//        if (maxDepth == 2) printSFreq(gotoTable(freq, cum_freq, cum_freq_1, currentContext, maxDepth - escapes));
+//        if (its == 2){
+//            printSFreq(gotoTable(freq, cum_freq, cum_freq_1, currentContext, maxDepth - escapes));
+//            exit(0);
+//        }
+        encode_symbol(symbol, gotoTable(freq, cum_freq, cum_freq_1, currentContext, maxDepth - escapes), fout);     /* Encode that symbol.	 	 */
 
-        encode_symbol(symbol, escapeTableList[tSize-1], fout);     /* Encode that symbol.	 	 */
-        free(escapeTableList);
 
-        update_model(freq, cum_freq, currentContext, ccSize);                 /* Update the model 	 	 */
+//        free(escapeTableList);
         maxDepth += 1;
-        if(maxDepth > maxContext) maxDepth = maxContext;
+        if(maxDepth > maxContext) maxDepth = maxContext+1;
+
+        update_model(freq, cum_freq, currentContext, ccSize, symbol, maxDepth);                 /* Update the model 	 	 */
+
+
+        check_context(ch, maxContext, currentContext, &ccSize);
+
+        its += 1;
 //        printf("\n");
     }
 

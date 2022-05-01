@@ -26,6 +26,7 @@
       <change beforePath="$PROJECT_DIR$/../Hufmann/encoder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/encoder.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Hufmann/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/main.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/biblia_encoded.txt" beforeDir="false" afterPath="$PROJECT_DIR$/biblia_encoded.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/encode.c" beforeDir="false" afterPath="$PROJECT_DIR$/encode.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ppm.c" beforeDir="false" afterPath="$PROJECT_DIR$/ppm.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ppm.h" beforeDir="false" afterPath="$PROJECT_DIR$/ppm.h" afterDir="false" />
@@ -112,7 +113,9 @@
       <workItem from="1651091292052" duration="5965000" />
       <workItem from="1651264205671" duration="7077000" />
       <workItem from="1651271418497" duration="9000" />
-      <workItem from="1651317938893" duration="5580000" />
+      <workItem from="1651317938893" duration="5644000" />
+      <workItem from="1651333426105" duration="160000" />
+      <workItem from="1651407550823" duration="19311000" />
     </task>
     <servers />
   </component>
