@@ -55,13 +55,13 @@ int main() {
     double cpu_time_used;
     start = clock();
 
-    int maxContext = -1;
+    int maxContext = Max_context;
     int currentContext[maxContext];
     int ccSize = 0;
     int maxDepth = 0;
 
 
-    char *inputFilename = "biblia_facil2.txt";
+    char *inputFilename = "biblia.txt";
     char *outputFilename = "biblia_encoded.txt";
     int  encodedText[1000];
     FILE *fin = fopen(inputFilename, "rb");
@@ -95,7 +95,7 @@ int main() {
 
 //        int escapes = escape_count(freq, currentContext, ccSize, maxContext, maxDepth);
         symbol = char_to_index[ch];
-        encodedText[its] = symbol;
+        if(its < 1000) encodedText[its] = symbol;
 
 
 //        struct cum_freqs **escapeTableList = getTables(maxDepth, freq, cum_freq, cum_freq_1, currentContext, ccSize, &tSize);
@@ -120,7 +120,7 @@ int main() {
 //            exit(0);
 //        }
         encode_symbol(symbol, gotoTable(freq, cum_freq, cum_freq_1, currentContext, maxDepth - escapes), fout);     /* Encode that symbol.	 	 */
-        printf("%c", index_to_char[symbol]);
+//        printf("%c", index_to_char[symbol]);
 
 //        free(escapeTableList);
         maxDepth += 1;
@@ -164,7 +164,7 @@ int main() {
 
     printf("\nTempo consumido: %f", cpu_time_used);
 
-    printFreqs();
+//    printFreqs();
 
     exit(0);
 }

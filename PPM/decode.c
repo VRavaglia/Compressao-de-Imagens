@@ -28,7 +28,7 @@ int main() {
     double cpu_time_used;
     start = clock();
 
-    int maxContext = -1;
+    int maxContext = Max_context;
     int currentContext[maxContext];
     int ccSize = 0;
     int maxDepth = 0;
@@ -82,13 +82,13 @@ int main() {
 //            putc('<', fout);
 //            putc('E', fout);
 //            putc('>', fout);
-            printf("<esc> ");
+//            printf("<esc> ");
             escapes += 1;
             if(escapes > maxDepth) break;
         }
         else {
-            printf("%c", index_to_char[symbol]);
-            printf("%i ", symbol);
+//            printf("%c", index_to_char[symbol]);
+//            printf("%i ", symbol);
             ch = index_to_char[symbol];
             putc(ch, fout);                      /* write that character 		*/
             maxDepth += 1;
