@@ -109,8 +109,8 @@ int main() {
             if (findInTable(freq, cum_freq, cum_freq_1, tempContext, subContextSize, symbol)) break;
             struct cum_freqs *encodeTable = gotoTable(freq, cum_freq, cum_freq_1, tempContext, maxDepth - i);
             if (encodeTable != NULL) encode_symbol(ESC_symbol,encodeTable, fout);
-            if (encodeTable != NULL) printf("<esc>");
-            if (encodeTable == NULL) printf("<null>");
+//            if (encodeTable != NULL) printf("<esc>");
+//            if (encodeTable == NULL) printf("<null>");
 
             escapes += 1;
         }

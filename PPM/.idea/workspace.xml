@@ -25,11 +25,6 @@
       <change beforePath="$PROJECT_DIR$/../Hufmann/decoder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/decoder.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Hufmann/encoder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/encoder.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Hufmann/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/biblia_encoded.txt" beforeDir="false" afterPath="$PROJECT_DIR$/biblia_encoded.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/encode.c" beforeDir="false" afterPath="$PROJECT_DIR$/encode.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model.h" beforeDir="false" afterPath="$PROJECT_DIR$/model.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ppm.c" beforeDir="false" afterPath="$PROJECT_DIR$/ppm.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -120,6 +115,7 @@
       <workItem from="1651434392947" duration="471000" />
       <workItem from="1651435017593" duration="663000" />
       <workItem from="1651435697835" duration="10000" />
+      <workItem from="1651435758359" duration="1000" />
     </task>
     <servers />
   </component>
