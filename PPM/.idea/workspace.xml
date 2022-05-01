@@ -13,7 +13,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dc9fa75f-d252-4831-8832-25c254870d6c" name="Changes" comment="">
+    <list default="true" id="dc9fa75f-d252-4831-8832-25c254870d6c" name="Changes" comment="Funciona para todos os casos contexto [-1, 1];">
       <change beforePath="$PROJECT_DIR$/../Hufmann/.idea/Huffman.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/.idea/Huffman.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Hufmann/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Hufmann/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/.idea/modules.xml" afterDir="false" />
@@ -25,11 +25,22 @@
       <change beforePath="$PROJECT_DIR$/../Hufmann/decoder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/decoder.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Hufmann/encoder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/encoder.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Hufmann/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/biblia_encoded.txt" beforeDir="false" afterPath="$PROJECT_DIR$/biblia_encoded.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/decode.c" beforeDir="false" afterPath="$PROJECT_DIR$/decode.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/encode.c" beforeDir="false" afterPath="$PROJECT_DIR$/encode.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model.h" beforeDir="false" afterPath="$PROJECT_DIR$/model.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ppm.h" beforeDir="false" afterPath="$PROJECT_DIR$/ppm.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager">
+    <option name="groupingKeys">
+      <option value="directory" />
+    </option>
   </component>
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
@@ -115,8 +126,17 @@
       <workItem from="1651434392947" duration="471000" />
       <workItem from="1651435017593" duration="663000" />
       <workItem from="1651435697835" duration="10000" />
-      <workItem from="1651435758359" duration="1000" />
+      <workItem from="1651435758359" duration="379000" />
+      <workItem from="1651436178932" duration="5803000" />
     </task>
+    <task id="LOCAL-00001" summary="Funciona para todos os casos contexto [-1, 1];">
+      <created>1651436114989</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1651436114989</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -132,5 +152,30 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Funciona para todos os casos contexto [-1, 1];" />
+    <option name="LAST_COMMIT_MESSAGE" value="Funciona para todos os casos contexto [-1, 1];" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/decode.c</url>
+          <line>88</line>
+          <option name="timeStamp" value="10" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/encode.c</url>
+          <line>154</line>
+          <option name="timeStamp" value="12" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/encode.c</url>
+          <line>163</line>
+          <option name="timeStamp" value="13" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

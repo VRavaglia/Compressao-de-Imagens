@@ -74,9 +74,6 @@ int main() {
             symbol = decode_symbol(decodeTable, fin);
         }
 
-
-
-
 //        if (symbol == EOF_symbol) break;
         if(symbol == ESC_symbol){
 //            putc('<', fout);

@@ -101,7 +101,9 @@ int main() {
 //        struct cum_freqs **escapeTableList = getTables(maxDepth, freq, cum_freq, cum_freq_1, currentContext, ccSize, &tSize);
         int escapes = 0;
         for (int i = 0; i < maxDepth; ++i) {
-            int subContextSize = ccSize - i - maxContext - 1 + maxDepth;
+//            int subContextSize = ccSize - i - maxContext - 1 + maxDepth;
+//            printf("\nFunciona: %i, nao funciona: %i", subContextSize, maxDepth - i - 1);
+            int subContextSize = maxDepth - i - 1;
             int tempContext[subContextSize];
             for (int j = 0; j < subContextSize; ++j) {
                 tempContext[j] = currentContext[i+j];
@@ -119,7 +121,13 @@ int main() {
 //            printSFreq(gotoTable(freq, cum_freq, cum_freq_1, currentContext, maxDepth - escapes));
 //            exit(0);
 //        }
-        encode_symbol(symbol, gotoTable(freq, cum_freq, cum_freq_1, currentContext, maxDepth - escapes), fout);     /* Encode that symbol.	 	 */
+        int subContextSize = ccSize - escapes;
+        int tempContext[subContextSize];
+        for (int j = 0; j < subContextSize; ++j) {
+            tempContext[j] = currentContext[escapes+ j];
+        }
+        struct cum_freqs *encodeTable = gotoTable(freq, cum_freq, cum_freq_1, tempContext, maxDepth - escapes);
+        encode_symbol(symbol, encodeTable, fout);     /* Encode that symbol.	 	 */
 //        printf("%c", index_to_char[symbol]);
 
 //        free(escapeTableList);
@@ -142,22 +150,24 @@ int main() {
 
     int escapes = 0;
     for (int i = 0; i < maxDepth+1; ++i) {
-        int subContextSize = ccSize - i - maxContext - 1 + maxDepth;
+        int subContextSize = maxDepth - i - 1;
         int tempContext[subContextSize];
         for (int j = 0; j < subContextSize; ++j) {
-            if (j == 0) {
-                tempContext[j] = lastChar;
-            }
-            else{
-                tempContext[j] = currentContext[i+j+1];
-            }
+//            if (j == 0) {
+//                tempContext[j] = lastChar;
+//            }
+//            else{
+//                tempContext[j] = currentContext[i+j-1];
+//            }
+            tempContext[j] = currentContext[i+j];
         }
         struct cum_freqs *encodeTable = gotoTable(freq, cum_freq, cum_freq_1, tempContext, maxDepth - i);
         if (encodeTable != NULL) encode_symbol(ESC_symbol,encodeTable, fout);
+//        printf("\nFinal ESCAPE");
         escapes += 1;
     }
 
-    encode_symbol(EOF_symbol, cum_freq_1, fout);     /* Encodes the EOF symbol 	 */
+//    encode_symbol(EOF_symbol, cum_freq_1, fout);     /* Encodes the EOF symbol 	 */
     done_encoding(fout);                         /* Send the last few bits	 */
     done_outputing_bits(fout);
 
