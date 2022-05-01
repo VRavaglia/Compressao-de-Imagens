@@ -51,6 +51,9 @@ void printSFreq(struct cum_freqs *sfreq){
 }
 
 int main() {
+
+
+
     clock_t start, end;
     double cpu_time_used;
     start = clock();
@@ -80,11 +83,16 @@ int main() {
         exit(1);
     }
 
+    fseek(fin, 0, SEEK_END);
+    long file_size = ftell(fin);
+    fseek(fin, 0, SEEK_SET);
+
     start_model(freq_1, cum_freq_1);                             /* set up other modules.	*/
     start_outputing_bits();
     start_encoding();
 
-    int its = 0;
+    unsigned its = 0;
+    unsigned percent = 0;
     int lastChar;
     for (;;) {
         int ch;
@@ -145,6 +153,11 @@ int main() {
         check_context(ch, maxContext, currentContext, &ccSize);
 
         its += 1;
+        if(its*4 > file_size/5){
+            its = 0;
+            percent += 5;
+            printf("\nCodificando: %i", percent);
+        }
 //        printf("\n");
     }
 

@@ -30,7 +30,6 @@
       <change beforePath="$PROJECT_DIR$/decode.c" beforeDir="false" afterPath="$PROJECT_DIR$/decode.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/encode.c" beforeDir="false" afterPath="$PROJECT_DIR$/encode.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model.h" beforeDir="false" afterPath="$PROJECT_DIR$/model.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ppm.h" beforeDir="false" afterPath="$PROJECT_DIR$/ppm.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -128,6 +127,7 @@
       <workItem from="1651435697835" duration="10000" />
       <workItem from="1651435758359" duration="379000" />
       <workItem from="1651436178932" duration="5803000" />
+      <workItem from="1651442102008" duration="983000" />
     </task>
     <task id="LOCAL-00001" summary="Funciona para todos os casos contexto [-1, 1];">
       <created>1651436114989</created>
@@ -161,18 +161,13 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/decode.c</url>
-          <line>88</line>
-          <option name="timeStamp" value="10" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/encode.c</url>
-          <line>154</line>
+          <line>167</line>
           <option name="timeStamp" value="12" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/encode.c</url>
-          <line>163</line>
+          <line>176</line>
           <option name="timeStamp" value="13" />
         </line-breakpoint>
       </breakpoints>

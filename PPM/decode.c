@@ -51,12 +51,17 @@ int main() {
         exit(1);
     }
 
+    fseek(fin, 0, SEEK_END);
+    long file_size = ftell(fin);
+    fseek(fin, 0, SEEK_SET);
+
     start_model(freq_1, cum_freq_1);                              /* Set up other modules		*/
     start_inputing_bits();
     start_decoding(fin);
 
     int its = 0;
     int escapes = 0;
+    unsigned percent = 0;
     for (;;)                                  /* Loop through characters	*/
     {
         int ch;
@@ -73,6 +78,8 @@ int main() {
         }else{
             symbol = decode_symbol(decodeTable, fin);
         }
+
+
 
 //        if (symbol == EOF_symbol) break;
         if(symbol == ESC_symbol){
@@ -95,13 +102,22 @@ int main() {
             check_context(ch, maxContext, currentContext, &ccSize);
             escapes = 0;
             its += 1;
+
+        }
+
+
+        if(its > file_size/5){
+            its = 0;
+            percent += 5;
+            printf("\nDecodificando: %i", percent);
         }
     }
 
     end = clock();
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
 
-    printf("Tempo consumido: %f", cpu_time_used);
+
+    printf("T\nempo consumido: %f", cpu_time_used);
 
     exit(0);
 }
