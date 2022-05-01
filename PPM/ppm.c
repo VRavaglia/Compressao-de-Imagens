@@ -248,7 +248,7 @@ bool findInTable(struct freqs freq[], struct cum_freqs cum_freq[], struct cum_fr
     if(cfPointer == NULL){
         return false;
     }
-    if(cfPointer[symbol].freq == 0) return false;
+    if(cfPointer[symbol-1].freq == 0) return false;
 
     return true;
 }

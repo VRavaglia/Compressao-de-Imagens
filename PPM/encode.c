@@ -55,7 +55,7 @@ int main() {
     double cpu_time_used;
     start = clock();
 
-    int maxContext = 1;
+    int maxContext = -1;
     int currentContext[maxContext];
     int ccSize = 0;
     int maxDepth = 0;
@@ -85,6 +85,7 @@ int main() {
     start_encoding();
 
     int its = 0;
+    int lastChar;
     for (;;) {
         int ch;
         int symbol;
@@ -108,6 +109,9 @@ int main() {
             if (findInTable(freq, cum_freq, cum_freq_1, tempContext, subContextSize, symbol)) break;
             struct cum_freqs *encodeTable = gotoTable(freq, cum_freq, cum_freq_1, tempContext, maxDepth - i);
             if (encodeTable != NULL) encode_symbol(ESC_symbol,encodeTable, fout);
+            if (encodeTable != NULL) printf("<esc>");
+            if (encodeTable == NULL) printf("<null>");
+
             escapes += 1;
         }
 //        if (maxDepth == 2) printSFreq(gotoTable(freq, cum_freq, cum_freq_1, currentContext, maxDepth - escapes));
@@ -116,7 +120,7 @@ int main() {
 //            exit(0);
 //        }
         encode_symbol(symbol, gotoTable(freq, cum_freq, cum_freq_1, currentContext, maxDepth - escapes), fout);     /* Encode that symbol.	 	 */
-
+        printf("%c", index_to_char[symbol]);
 
 //        free(escapeTableList);
         maxDepth += 1;
@@ -124,11 +128,28 @@ int main() {
 
         update_model(freq, cum_freq, currentContext, ccSize, symbol, maxDepth);                 /* Update the model 	 	 */
 
-
+        lastChar = currentContext[0];
         check_context(ch, maxContext, currentContext, &ccSize);
 
         its += 1;
 //        printf("\n");
+    }
+
+    int escapes = 0;
+    for (int i = 0; i < maxDepth+1; ++i) {
+        int subContextSize = ccSize - i - maxContext - 1 + maxDepth;
+        int tempContext[subContextSize];
+        for (int j = 0; j < subContextSize; ++j) {
+            if (j == 0) {
+                tempContext[j] = lastChar;
+            }
+            else{
+                tempContext[j] = currentContext[i+j+1];
+            }
+        }
+        struct cum_freqs *encodeTable = gotoTable(freq, cum_freq, cum_freq_1, tempContext, maxDepth - i);
+        if (encodeTable != NULL) encode_symbol(ESC_symbol,encodeTable, fout);
+        escapes += 1;
     }
 
     encode_symbol(EOF_symbol, cum_freq_1, fout);     /* Encodes the EOF symbol 	 */
