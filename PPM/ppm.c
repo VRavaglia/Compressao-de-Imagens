@@ -142,3 +142,35 @@ bool findInTable(struct freqs freq[], struct cum_freqs cum_freq[], struct cum_fr
 
     return true;
 }
+
+bool *getNonZeroChars(struct cum_freqs cum_freq[]){
+    bool *ignoredSymbols = (bool *)malloc(No_of_symbols + 1 * sizeof(bool));
+
+    for (int i = 0; i <= No_of_symbols; ++i) {
+        ignoredSymbols[i] = (cum_freq[i].freq != cum_freq[i+1].freq);
+    }
+
+    return ignoredSymbols;
+}
+
+struct cum_freqs *createExludedTable(const bool *excludedSymbols, struct cum_freqs *inputTable){
+    struct cum_freqs *newTable = (struct cum_freqs*)malloc(sizeof(struct cum_freqs)*(No_of_symbols + 1));
+
+
+    for (int i = 1; i < No_of_symbols; i++) {
+        if(excludedSymbols[i]){
+            newTable[i].freq = inputTable[i+1].freq;
+        }else{
+            newTable[i].freq = inputTable[i].freq;
+        }
+        newTable[i].next = NULL;
+    }
+    if(excludedSymbols[No_of_symbols]) {
+        newTable[No_of_symbols].freq = 0;
+    }
+    else{
+        newTable[No_of_symbols].freq = inputTable[No_of_symbols].freq;
+    }
+
+    return newTable;
+}
