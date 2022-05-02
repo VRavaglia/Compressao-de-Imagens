@@ -1,60 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "model.h"
-#include <string.h>
 #include <stdbool.h>
-
-struct cum_freqs *gotoLastTable(struct cum_freqs cum_freq[], struct cum_freqs cum_freq_1[], struct freqs freq[], const int context[], int cSize, int *depth){
-    *depth = 0;
-    struct cum_freqs *currentPointerCF = cum_freq;
-    struct freqs *currentPointerF = freq;
-
-    for (int i = cSize-1; i >= 0; --i) {
-        int symbol = context[i];
-        if(currentPointerF[symbol].freq == 0){
-            break;
-        }
-        *depth+=1;
-        if(currentPointerF[symbol].next == NULL){
-            break;
-        }
-        currentPointerF = currentPointerF[symbol].next;
-        currentPointerCF = currentPointerCF[symbol].next;
-    }
-
-    if (*depth == 0) return cum_freq_1;
-
-    return currentPointerCF;
-}
-
-struct cum_freqs **getTables(int maxDepth, struct freqs *freq, struct cum_freqs *cum_freq, struct cum_freqs *cum_freq_1, const int context[], int ccSize, int *tSize){
-    *tSize = 0;
-    struct cum_freqs **tableList = malloc((maxDepth+1) * sizeof(struct cum_freqs *));
-
-    int depth;
-
-    struct cum_freqs *currentPointerCF;
-    for (int i = 0; i < maxDepth; ++i) {
-        int currentContext[ccSize - i];
-        for (int j = 0; j < ccSize - i; ++j) {
-            currentContext[j] = context[i+j];
-        }
-        currentPointerCF = gotoLastTable(cum_freq, cum_freq_1, freq, currentContext, ccSize, &depth);
-        if(depth < maxDepth){
-            tableList[i] = currentPointerCF;
-            *tSize += 1;
-        }
-        else{
-            break;
-        }
-    }
-    *tSize += 1;
-    tableList[*tSize - 1] = gotoLastTable(cum_freq, cum_freq_1, freq, context, ccSize, &depth);
-    return tableList;
-
-}
-
-
 
 
 
@@ -65,37 +12,13 @@ void check_context(int ch, int maxContext, int currentContext[], int *ccSize){
             *ccSize = *ccSize + 1;
         }
         else{
-            for (int i = 0; i < maxContext; ++i) {
+            for (int i = 0; i < maxContext-1; ++i) {
                 currentContext[i] = currentContext[i+1];
             }
             currentContext[maxContext-1] = char_to_index[ch];
         }
     }
 }
-
-//// Se necessario, inicializa as tabelas que indicam as frequencias de cada sequencia de simbolos
-//void initTables(struct cum_freqs cum_freq_1[], struct freqs freq_1[], const int currentContext[], int ccSize){
-//    struct freqs *currentPointerF = &freq_1[currentContext[0]];
-//    struct cum_freqs *currentPointerCF = &cum_freq_1[currentContext[0]];
-//
-//    for (int i = 0; i < ccSize-1; ++i) {
-//        if(currentPointerF->next == NULL){
-//            currentPointerF->next = (struct freqs*)malloc(sizeof(struct freqs)*(No_of_symbols + 2));
-//            currentPointerCF->next = (struct cum_freqs*)malloc(sizeof(struct cum_freqs)*(No_of_symbols + 2));
-//
-//            currentPointerF->next[currentContext[i+1]].freq_1 = 1;
-//            currentPointerCF->next[currentContext[i+1]].freq_1 = 2;
-//
-//            currentPointerF = currentPointerF->next;
-//            currentPointerCF = currentPointerCF->next;
-//
-//
-//        }else{
-//            currentPointerF->next[currentContext[i+1]].freq_1 += 1;
-//            currentPointerCF->next[currentContext[i+1]].freq_1 += 1;
-//        }
-//    }
-//}
 
 void create_table(struct freqs freq[], struct cum_freqs cum_freq[]) {
     freq->next = (struct freqs*)malloc(sizeof(struct freqs)*(No_of_symbols + 2));
@@ -110,36 +33,8 @@ void create_table(struct freqs freq[], struct cum_freqs cum_freq[]) {
         fcPointer[i].freq = 0;
         fcPointer[i].next = NULL;
     }
-//    fPointer[ESC_symbol].freq = 1;
-//    fcPointer[ESC_symbol].freq = 1;
-//    fcPointer[ESC_symbol-1].freq = 2;
 }
 
-//int escape_count(struct freqs freq[], const int currentContext[], int ccSize, int maxContext, int maxDepth){
-//    int escapes = maxDepth;
-//    if (maxDepth < 1){
-//        return 0;
-//    }
-//
-//    struct freqs *freqPointer = freq;
-////    if(freqPointer == NULL) return  escapes;
-//
-//    for (int i = ccSize-1; i >= 0; --i) {
-//        if(freqPointer[currentContext[i]].freq > 0){
-//            escapes -= 1;
-//            if(freqPointer[currentContext[i]].next != NULL){
-//                freqPointer = freqPointer[currentContext[i]].next;
-//            }
-//            else{
-//                return escapes;
-//            }
-//        }
-//        else{
-//            return escapes;
-//        }
-//    }
-//    return escapes;
-//}
 
 void start_model(struct freqs freq[], struct cum_freqs cum_freq[]) {
     int i;
@@ -167,7 +62,6 @@ void update_model(struct freqs freq[], struct cum_freqs cum_freq[], const int co
 
 
     for (int i = 0; i < maxDepth; ++i) {
-//            if (i > 0) freqPointer[context[i]].freq_1 += 1;
         struct freqs *freqPointer = freq;
         struct cum_freqs *cumPointer = cum_freq;
 
@@ -203,7 +97,6 @@ void update_model(struct freqs freq[], struct cum_freqs cum_freq[], const int co
 
         freqPointer[tempSymbol].freq += 1;
         if (freqPointer[tempSymbol].freq == 1){
-//            cumPointer[ESC_symbol].freq += 1;
             cumPointer[0].freq += 1;
             freqPointer[ESC_symbol].freq += 1;
         }
@@ -215,9 +108,7 @@ void update_model(struct freqs freq[], struct cum_freqs cum_freq[], const int co
             j -= 1;                                    /* frequencies 				*/
             cumPointer[j].freq += 1;
         }
-//        if(cumPointer[0].freq == cumPointer[ESC_symbol].freq){
-//            cumPointer[0].freq -= 1;
-//        }
+
     }
 }
 
@@ -233,7 +124,6 @@ struct cum_freqs *gotoTable(struct freqs freq[], struct cum_freqs cum_freq[], st
 
         if(currentPointerCF[tempSymbol].next == NULL){
             return NULL;
-//            create_table(&currentPointerF[tempSymbol], &currentPointerCF[tempSymbol]);
         }
 
         currentPointerCF = currentPointerCF[tempSymbol].next;

@@ -117,7 +117,7 @@ int main() {
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
 
 
-    printf("T\nempo consumido: %f", cpu_time_used);
+    printf("\nTempo consumido: %f", cpu_time_used);
 
     exit(0);
 }

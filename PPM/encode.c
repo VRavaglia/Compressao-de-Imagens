@@ -93,24 +93,17 @@ int main() {
 
     unsigned its = 0;
     unsigned percent = 0;
-    int lastChar;
     for (;;) {
         int ch;
         int symbol;
         ch = getc(fin);
         if (ch == EOF) break;                 /* Exit loop on end-of-file */
 
-
-//        int escapes = escape_count(freq, currentContext, ccSize, maxContext, maxDepth);
         symbol = char_to_index[ch];
         if(its < 1000) encodedText[its] = symbol;
 
-
-//        struct cum_freqs **escapeTableList = getTables(maxDepth, freq, cum_freq, cum_freq_1, currentContext, ccSize, &tSize);
         int escapes = 0;
         for (int i = 0; i < maxDepth; ++i) {
-//            int subContextSize = ccSize - i - maxContext - 1 + maxDepth;
-//            printf("\nFunciona: %i, nao funciona: %i", subContextSize, maxDepth - i - 1);
             int subContextSize = maxDepth - i - 1;
             int tempContext[subContextSize];
             for (int j = 0; j < subContextSize; ++j) {
@@ -124,11 +117,6 @@ int main() {
 
             escapes += 1;
         }
-//        if (maxDepth == 2) printSFreq(gotoTable(freq, cum_freq, cum_freq_1, currentContext, maxDepth - escapes));
-//        if (its == 2){
-//            printSFreq(gotoTable(freq, cum_freq, cum_freq_1, currentContext, maxDepth - escapes));
-//            exit(0);
-//        }
         int subContextSize = ccSize - escapes;
         int tempContext[subContextSize];
         for (int j = 0; j < subContextSize; ++j) {
@@ -149,7 +137,6 @@ int main() {
 //            exit(0);
         }
 
-        lastChar = currentContext[0];
         check_context(ch, maxContext, currentContext, &ccSize);
 
         its += 1;
@@ -166,12 +153,6 @@ int main() {
         int subContextSize = maxDepth - i - 1;
         int tempContext[subContextSize];
         for (int j = 0; j < subContextSize; ++j) {
-//            if (j == 0) {
-//                tempContext[j] = lastChar;
-//            }
-//            else{
-//                tempContext[j] = currentContext[i+j-1];
-//            }
             tempContext[j] = currentContext[i+j];
         }
         struct cum_freqs *encodeTable = gotoTable(freq, cum_freq, cum_freq_1, tempContext, maxDepth - i);
