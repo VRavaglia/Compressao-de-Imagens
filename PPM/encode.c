@@ -64,7 +64,7 @@ int main() {
     int maxDepth = 0;
 
 
-    char *inputFilename = "biblia.txt";
+    char *inputFilename = "biblia_facil2.txt";
     char *outputFilename = "biblia_encoded.txt";
     int  encodedText[1000];
     FILE *fin = fopen(inputFilename, "rb");
@@ -102,16 +102,35 @@ int main() {
         symbol = char_to_index[ch];
         if(its < 1000) encodedText[its] = symbol;
 
+        bool foundInTable;
+
+        bool ignoredSymbols[No_of_symbols + 1];
+        startIgnored(ignoredSymbols);
+
         int escapes = 0;
+        struct cum_freqs *encodeTable;
+        struct cum_freqs *newTable = NULL;
+
         for (int i = 0; i < maxDepth; ++i) {
             int subContextSize = maxDepth - i - 1;
             int tempContext[subContextSize];
             for (int j = 0; j < subContextSize; ++j) {
                 tempContext[j] = currentContext[i+j];
             }
-            if (findInTable(freq, cum_freq, cum_freq_1, tempContext, subContextSize, symbol)) break;
-            struct cum_freqs *encodeTable = gotoTable(freq, cum_freq, cum_freq_1, tempContext, maxDepth - i);
-            if (encodeTable != NULL) encode_symbol(ESC_symbol,encodeTable, fout);
+
+            struct cum_freqs *lastTable = findInTable(freq, cum_freq, cum_freq_1, tempContext, subContextSize, symbol, &foundInTable);
+            if (foundInTable) break;
+
+            if (i == 0){
+                newTable = gotoTable(freq, cum_freq, cum_freq_1, tempContext, maxDepth - i);
+            }
+            else{
+                getNonZeroChars(encodeTable, ignoredSymbols);
+                encodeTable = gotoTable(freq, cum_freq, cum_freq_1, tempContext, maxDepth - i);
+                newTable = createExludedTable(ignoredSymbols, encodeTable);
+            }
+
+            if (newTable != NULL) encode_symbol(ESC_symbol,newTable, fout);
 //            if (encodeTable != NULL) printf("<esc>");
 //            if (encodeTable == NULL) printf("<null>");
 
@@ -122,11 +141,18 @@ int main() {
         for (int j = 0; j < subContextSize; ++j) {
             tempContext[j] = currentContext[escapes+ j];
         }
-        struct cum_freqs *encodeTable = gotoTable(freq, cum_freq, cum_freq_1, tempContext, maxDepth - escapes);
-        encode_symbol(symbol, encodeTable, fout);     /* Encode that symbol.	 	 */
+        if (newTable != NULL){
+            getNonZeroChars(newTable, ignoredSymbols);
+        }
+
+        encodeTable = gotoTable(freq, cum_freq, cum_freq_1, tempContext, maxDepth - escapes);
+        newTable = createExludedTable(ignoredSymbols, encodeTable);
+
+        encode_symbol(symbol, newTable, fout);     /* Encode that symbol.	 	 */
 //        printf("%c", index_to_char[symbol]);
 
 //        free(escapeTableList);
+        free(newTable);
         maxDepth += 1;
         if(maxDepth > maxContext) maxDepth = maxContext+1;
 

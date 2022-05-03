@@ -72,6 +72,7 @@ int main() {
         for (int j = 0; j < subContextSize; ++j) {
             tempContext[j] = currentContext[escapes+j];
         }
+
         struct cum_freqs *decodeTable = gotoTable(freq, cum_freq, cum_freq_1, tempContext, maxDepth - escapes);
         if (decodeTable == NULL){
             symbol = ESC_symbol;
@@ -89,6 +90,8 @@ int main() {
 //            printf("<esc> ");
             escapes += 1;
             if(escapes > maxDepth) break;
+
+
         }
         else {
 //            printf("%c", index_to_char[symbol]);

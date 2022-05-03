@@ -133,24 +133,29 @@ struct cum_freqs *gotoTable(struct freqs freq[], struct cum_freqs cum_freq[], st
     return currentPointerCF;
 }
 
-bool findInTable(struct freqs freq[], struct cum_freqs cum_freq[], struct cum_freqs cum_freq_1[], const int context[], int cSize, int symbol){
+struct cum_freqs *findInTable(struct freqs freq[], struct cum_freqs cum_freq[], struct cum_freqs cum_freq_1[], const int context[], int cSize, int symbol, bool *found){
     struct cum_freqs *cfPointer = gotoTable(freq, cum_freq, cum_freq_1, context, cSize+1);
+    *found = true;
     if(cfPointer == NULL){
-        return false;
+        *found = false;
+        return NULL;
     }
-    if(cfPointer[symbol-1].freq == cfPointer[symbol].freq) return false;
-
-    return true;
+    if(cfPointer[symbol-1].freq == cfPointer[symbol].freq){
+        *found = false;
+    }
+    return cfPointer;
 }
 
-bool *getNonZeroChars(struct cum_freqs cum_freq[]){
-    bool *ignoredSymbols = (bool *)malloc(No_of_symbols + 1 * sizeof(bool));
+void startIgnored(bool ignoredSymbols[]){
+    for (int i = 0; i < No_of_symbols + 1; ++i) {
+        ignoredSymbols[i] = false;
+    }
+}
 
+void getNonZeroChars(struct cum_freqs cum_freq[], bool ignoredSymbols[]){
     for (int i = 0; i <= No_of_symbols; ++i) {
         ignoredSymbols[i] = (cum_freq[i].freq != cum_freq[i+1].freq);
     }
-
-    return ignoredSymbols;
 }
 
 struct cum_freqs *createExludedTable(const bool *excludedSymbols, struct cum_freqs *inputTable){
