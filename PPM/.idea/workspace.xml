@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="CMakeRunConfigurationManager">
+  <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
       <config projectName="PPM" targetName="encode" />
       <config projectName="PPM" targetName="PPM" />
@@ -14,24 +14,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dc9fa75f-d252-4831-8832-25c254870d6c" name="Changes" comment="Funciona para todos os casos contexto [-1, 1];">
-      <change beforePath="$PROJECT_DIR$/../Hufmann/.idea/Huffman.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/.idea/Huffman.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Hufmann/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Hufmann/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Hufmann/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Hufmann/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Hufmann/Leiame.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/Leiame.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Hufmann/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Hufmann/check_files.sh" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/check_files.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Hufmann/decoder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/decoder.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Hufmann/encoder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/encoder.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Hufmann/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/main.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/biblia_decoded.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/biblia_encoded.txt" beforeDir="false" afterPath="$PROJECT_DIR$/biblia_encoded.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bit_output.c" beforeDir="false" afterPath="$PROJECT_DIR$/bit_output.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/decode.c" beforeDir="false" afterPath="$PROJECT_DIR$/decode.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/encode.c" beforeDir="false" afterPath="$PROJECT_DIR$/encode.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model.h" beforeDir="false" afterPath="$PROJECT_DIR$/model.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.c" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,18 +52,19 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;cmake.loaded.for.project&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
-    &quot;structure.view.defaults.are.configured&quot;: &quot;true&quot;
-  }
-}</component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.cidr.known.project.marker" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="cf.first.check.clang-format" value="false" />
+    <property name="cidr.known.project.marker" value="true" />
+    <property name="cmake.loaded.for.project" value="true" />
+  </component>
   <component name="RunManager" selected="CMake Application.decode">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="PPM" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PPM" TARGET_NAME="PPM" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PPM" RUN_TARGET_NAME="PPM">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -131,6 +118,7 @@
       <workItem from="1651449846138" duration="2278000" />
       <workItem from="1651526698064" duration="1291000" />
       <workItem from="1651688208433" duration="8865000" />
+      <workItem from="1651699145235" duration="1854000" />
     </task>
     <task id="LOCAL-00001" summary="Funciona para todos os casos contexto [-1, 1];">
       <created>1651436114989</created>

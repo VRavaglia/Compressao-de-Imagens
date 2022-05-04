@@ -8,6 +8,8 @@
 #include <time.h>
 #include <string.h>
 #include <inttypes.h>
+#include <asm-generic/errno.h>
+#include <errno.h>
 #include "ppm.h"
 
 #define DEBUG 0
