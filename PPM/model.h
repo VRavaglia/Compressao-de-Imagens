@@ -14,7 +14,7 @@
 
 #define Max_frequency    16383            /* Maximum allowed frequency count 	*/
 
-#define Max_context 2
+#define Max_context 5
 
 struct cum_freqs{
     int freq;

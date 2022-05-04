@@ -38,6 +38,6 @@ void output_bit(int bit, FILE *file)
 
 void done_outputing_bits(FILE *file) {
     putc(buffer >> bits_to_go, file);
-    fprintf(stderr, "\nTotal Bits count : %d \n", Bits_Count);
+//    printf("\nTotal Bits count : %d \n", Bits_Count);
 }
 

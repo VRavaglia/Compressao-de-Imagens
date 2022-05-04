@@ -26,8 +26,12 @@
       <change beforePath="$PROJECT_DIR$/../Hufmann/encoder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/encoder.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Hufmann/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/main.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ppm.c" beforeDir="false" afterPath="$PROJECT_DIR$/ppm.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ppm.h" beforeDir="false" afterPath="$PROJECT_DIR$/ppm.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/biblia_decoded.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/biblia_encoded.txt" beforeDir="false" afterPath="$PROJECT_DIR$/biblia_encoded.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bit_output.c" beforeDir="false" afterPath="$PROJECT_DIR$/bit_output.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/decode.c" beforeDir="false" afterPath="$PROJECT_DIR$/decode.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/encode.c" beforeDir="false" afterPath="$PROJECT_DIR$/encode.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model.h" beforeDir="false" afterPath="$PROJECT_DIR$/model.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,12 +83,12 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="decode" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PPM" TARGET_NAME="decode" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PPM" RUN_TARGET_NAME="decode">
+    <configuration name="decode" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="-v -t biblia_encoded" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PPM" TARGET_NAME="decode" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PPM" RUN_TARGET_NAME="decode">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="encode" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PPM" TARGET_NAME="encode" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PPM" RUN_TARGET_NAME="encode">
+    <configuration name="encode" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="-v -t biblia 5" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PPM" TARGET_NAME="encode" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PPM" RUN_TARGET_NAME="encode">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -126,6 +130,7 @@
       <workItem from="1651443705697" duration="291000" />
       <workItem from="1651449846138" duration="2278000" />
       <workItem from="1651526698064" duration="1291000" />
+      <workItem from="1651688208433" duration="8865000" />
     </task>
     <task id="LOCAL-00001" summary="Funciona para todos os casos contexto [-1, 1];">
       <created>1651436114989</created>

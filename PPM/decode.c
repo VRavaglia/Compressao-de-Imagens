@@ -6,6 +6,7 @@
 #include "bit_input.h"
 #include "arithmetic_decode.h"
 #include <time.h>
+#include <string.h>
 #include "ppm.h"
 
 int char_to_index[No_of_chars];                   /* To index from charater */
@@ -23,24 +24,55 @@ void printSFreq(struct cum_freqs *sfreq){
 }
 
 
-int main() {
+int main(int argc, char**argv) {
+    // Instrucoes para o uso do programa
+    if (argc <= 1){
+        printf("\nDecodifica um arquivo e gera o arquivo nomeArquivo_decoded.txt:)");
+        printf("\n\ndecoder.out [-v] [-t] nomeArquivo");
+        printf("\n\n[-v] Exibe informacoes sobre a execucao na tela.");
+        printf("\n[-t] Exibe o tempo de execucao");
+        printf("\nnomeArquivo: Arquivo que sera codificado sem o tipo (assume-se .txt)\n");
+        return 0;
+    }
+
+    bool v = false;
+    bool t = false;
+
+    // Checagem de argumentos de execucao
+    for (int i = 0; i < argc-1; ++i) {
+        if(strcmp("-v",argv[i]) == 0){
+            v = true;
+        }
+        if(strcmp("-t",argv[i]) == 0){
+            t = true;
+        }
+
+    }
+
+    char inputFilename[256];
+    char outputFilename[256];
+
+    snprintf(outputFilename, sizeof(outputFilename), "%s%s", argv[argc-1], "_decoded.txt");
+    snprintf(inputFilename, sizeof(inputFilename), "%s%s", argv[argc-1], ".txt");
+
+
     clock_t start, end;
     double cpu_time_used;
-    start = clock();
+    if (t){
+        start = clock();
+    }
 
-    int maxContext = Max_context;
-    int currentContext[maxContext];
-    int ccSize = 0;
-    int maxDepth = 0;
 
-    char *inputFilename = "biblia_encoded.txt";
-    char *outputFilename = "biblia_decoded.txt";
+
+//    char *inputFilename = "biblia_encoded.txt";
+//    char *outputFilename = "biblia_decoded.txt";
     FILE *fin = fopen(inputFilename, "rb");
 
     if(fin == NULL)
     {
         printf("Nao foi possivel abrir o arquivo de entrada!");
-        exit(1);
+        printf("\nNome fornecido: %s", inputFilename);
+        return -1;
     }
 
     FILE *fout = fopen(outputFilename, "wb");
@@ -48,12 +80,26 @@ int main() {
     if(fout == NULL)
     {
         printf("Nao foi possivel abrir o arquivo de saida!");
-        exit(1);
+        printf("\nNome gerado: %s", outputFilename);
+        return -1;
     }
+
 
     fseek(fin, 0, SEEK_END);
     long file_size = ftell(fin);
     fseek(fin, 0, SEEK_SET);
+
+    int maxContext = getc(fin) - 1;
+    int currentContext[maxContext];
+    int ccSize = 0;
+    int maxDepth = 0;
+
+    printf("\nArgumentos: \n");
+    printf("\nT: %i", t);
+    printf("\nV: %i", v);
+    printf("\nInput: %s", inputFilename);
+    printf("\nOutput: %s", outputFilename);
+    printf("\nContexto: %i\n", maxContext);
 
     start_model(freq_1, cum_freq_1);                              /* Set up other modules		*/
     start_inputing_bits();
@@ -62,6 +108,14 @@ int main() {
     int its = 0;
     int escapes = 0;
     unsigned percent = 0;
+    struct cum_freqs *newTable = NULL;
+    bool ignoredSymbols[No_of_symbols + 1];
+    struct cum_freqs *decodeTable = NULL;
+
+    if (v){
+        printf("\nDecodificando: %i%%", percent);
+    }
+
     for (;;)                                  /* Loop through characters	*/
     {
         int ch;
@@ -73,31 +127,40 @@ int main() {
             tempContext[j] = currentContext[escapes+j];
         }
 
-        struct cum_freqs *decodeTable = gotoTable(freq, cum_freq, cum_freq_1, tempContext, maxDepth - escapes);
-        if (decodeTable == NULL){
-            symbol = ESC_symbol;
-        }else{
-            symbol = decode_symbol(decodeTable, fin);
+        if (escapes == 0){
+            startIgnored(ignoredSymbols);
+            newTable = gotoTable(freq, cum_freq, cum_freq_1, tempContext, maxDepth - escapes);
+            decodeTable = newTable;
+        }
+        else{
+            if (decodeTable != NULL){
+                getNonZeroChars(decodeTable, ignoredSymbols);
+            }
+            decodeTable = gotoTable(freq, cum_freq, cum_freq_1, tempContext, maxDepth - escapes);
+            newTable = createExludedTable(ignoredSymbols, decodeTable);
         }
 
+        if (newTable == NULL){
+            symbol = ESC_symbol;
+        }else{
+            symbol = decode_symbol(newTable, fin);
+            if (escapes > 0) free(newTable);
+        }
 
-
-//        if (symbol == EOF_symbol) break;
         if(symbol == ESC_symbol){
-//            putc('<', fout);
-//            putc('E', fout);
-//            putc('>', fout);
-//            printf("<esc> ");
+
             escapes += 1;
             if(escapes > maxDepth) break;
 
-
         }
         else {
-//            printf("%c", index_to_char[symbol]);
-//            printf("%i ", symbol);
+            decodeTable = NULL;
+
+            startIgnored(ignoredSymbols);
+
             ch = index_to_char[symbol];
             putc(ch, fout);                      /* write that character 		*/
+
             maxDepth += 1;
             if(maxDepth > maxContext) maxDepth = maxContext+1;
 
@@ -108,19 +171,23 @@ int main() {
 
         }
 
-
-        if(its > file_size/5){
-            its = 0;
-            percent += 5;
-            printf("\nDecodificando: %i", percent);
+        if (v){
+            if(its > file_size/5){
+                its = 0;
+                percent += 5;
+                printf("\nDecodificando: %i%%", percent);
+            }
         }
     }
 
-    end = clock();
-    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
 
+    if (t){
+        end = clock();
+        cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+        printf("\n\nTempo consumido: %.2f s", cpu_time_used);
+    }
 
-    printf("\nTempo consumido: %f", cpu_time_used);
+    printf("\n");
 
-    exit(0);
+    return 0;
 }
