@@ -153,29 +153,35 @@ void startIgnored(bool ignoredSymbols[]){
 }
 
 void getNonZeroChars(struct cum_freqs cum_freq[], bool ignoredSymbols[]){
-    for (int i = 0; i <= No_of_symbols; ++i) {
-        ignoredSymbols[i] = (cum_freq[i].freq != cum_freq[i+1].freq);
+    for (int i = 2; i <= No_of_symbols; ++i) {
+        if(!ignoredSymbols[i]){
+            ignoredSymbols[i] = (cum_freq[i-1].freq != cum_freq[i].freq);
+        }
     }
 }
 
 struct cum_freqs *createExludedTable(const bool *excludedSymbols, struct cum_freqs *inputTable){
+    if(inputTable == NULL) return NULL;
+
     struct cum_freqs *newTable = (struct cum_freqs*)malloc(sizeof(struct cum_freqs)*(No_of_symbols + 1));
 
-
-    for (int i = 1; i < No_of_symbols; i++) {
-        if(excludedSymbols[i]){
-            newTable[i].freq = inputTable[i+1].freq;
-        }else{
-            newTable[i].freq = inputTable[i].freq;
-        }
-        newTable[i].next = NULL;
-    }
+    newTable[No_of_symbols].freq = 0;
     if(excludedSymbols[No_of_symbols]) {
-        newTable[No_of_symbols].freq = 0;
+        newTable[No_of_symbols-1].freq = 0;
     }
     else{
-        newTable[No_of_symbols].freq = inputTable[No_of_symbols].freq;
+        newTable[No_of_symbols-1].freq = inputTable[No_of_symbols-1].freq;
     }
+
+    for (int i = No_of_symbols-1; i > 0; i--) {
+        if(excludedSymbols[i]){
+            newTable[i-1].freq = inputTable[i].freq;
+        }else{
+            newTable[i-1].freq = newTable[i].freq + (inputTable[i-1].freq - inputTable[i].freq);
+        }
+        newTable[i-1].next = NULL;
+    }
+
 
     return newTable;
 }

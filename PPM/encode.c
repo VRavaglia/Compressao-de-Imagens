@@ -148,6 +148,11 @@ int main() {
         encodeTable = gotoTable(freq, cum_freq, cum_freq_1, tempContext, maxDepth - escapes);
         newTable = createExludedTable(ignoredSymbols, encodeTable);
 
+        if (its == 1){
+//            printSFreq(newTable);
+//            exit(0);
+        }
+
         encode_symbol(symbol, newTable, fout);     /* Encode that symbol.	 	 */
 //        printf("%c", index_to_char[symbol]);
 
@@ -166,11 +171,12 @@ int main() {
         check_context(ch, maxContext, currentContext, &ccSize);
 
         its += 1;
-        if(its*4 > file_size/5){
-            its = 0;
-            percent += 5;
-            printf("\nCodificando: %i", percent);
-        }
+
+//        if(its*4 > file_size/5){
+//            its = 0;
+//            percent += 5;
+//            printf("\nCodificando: %i", percent);
+//        }
 //        printf("\n");
     }
 
