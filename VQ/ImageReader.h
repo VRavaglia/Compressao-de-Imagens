@@ -10,6 +10,8 @@
 
 using namespace std;
 
+using imageType = vector<vector<int>>;
+
 class ImageReader {
 private:
     static int vect2int(const vector<int> &in);
@@ -17,7 +19,8 @@ public:
     int H;
     int W;
     int G;
-    vector<vector<int>> read(const char *filename);
+    imageType read(const char *filename);
+    static vector<vector<int>> getBlocks(const unsigned size[2], imageType &image);
 };
 
 

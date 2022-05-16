@@ -21,46 +21,6 @@ int ImageReader::vect2int(const vector<int> &in){
 
 vector<vector<int>> ImageReader::read(const char *filename) {
     vector<vector<int>> image;
-//    int row = 0, col = 0, numrows = 0, numcols = 0;
-//    ifstream infile(filename);
-//    stringstream ss;
-//    string inputLine;
-//
-//    // First line : version
-//    getline(infile,inputLine);
-//    if(inputLine != "P5") cerr << "Version error" << endl;
-//    else cout << "Version : " << inputLine << endl;
-//
-//
-//    // Continue with a stringstream
-//    ss << infile.rdbuf();
-//    // Third line : size
-//    ss >> numcols >> numrows;
-//    cout << numcols << " columns and " << numrows << " rows" << endl;
-//
-//    // Third line : gray
-//    getline(infile,inputLine);
-//    cout << "GrayLvl : " << inputLine << endl;
-//
-//    int array[numrows][numcols];
-//
-//    // Following lines : data
-//    for(row = 0; row < numrows; ++row)
-//        for (col = 0; col < numcols; ++col) ss >> array[row][col];
-//
-//    // Now print the array to see the result
-//    for(row = 0; row < numrows; ++row) {
-//        vector<int> rowVec;
-//        for(col = 0; col < numcols; ++col) {
-//            cout << array[row][col] << " ";
-//            rowVec.push_back(array[row][col]);
-//        }
-//        cout << endl;
-//        image.push_back(rowVec);
-//    }
-//    infile.close();
-
-
     vector<int> temp;
 
     FILE *fin = fopen(filename, "rb");
@@ -142,5 +102,32 @@ vector<vector<int>> ImageReader::read(const char *filename) {
     }
 
     return image;
+};
+
+
+vector<vector<int>> ImageReader::getBlocks(const unsigned size[2], imageType &image){
+    vector<vector<int>> blocks;
+    unsigned w = image[0].size();
+    unsigned h = image.size();
+    unsigned rRead = 0;
+    unsigned cRead = 0;
+
+    while(true){
+        vector<int> block;
+        for (unsigned r = rRead; r < rRead + size[0]; ++r) {
+            for (unsigned c = cRead; c < cRead + size[1]; ++c) {
+                block.push_back(image[r][c]);
+            }
+            cRead += size[1];
+        }
+        blocks.push_back(block);
+        if (cRead >= w){
+            rRead += size[0];
+            if (rRead*cRead == w*h) break;
+            cRead = 0;
+        }
+    }
+
+    return blocks;
 };
 
