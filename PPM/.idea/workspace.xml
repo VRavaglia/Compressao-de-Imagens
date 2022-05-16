@@ -26,10 +26,24 @@
       <change beforePath="$PROJECT_DIR$/../Hufmann/encoder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/encoder.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Hufmann/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../Hufmann/main.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/biblia_encoded.txt" beforeDir="false" afterPath="$PROJECT_DIR$/biblia_encoded.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/biblia_facil2.txt" beforeDir="false" afterPath="$PROJECT_DIR$/biblia_facil2.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/encode.c" beforeDir="false" afterPath="$PROJECT_DIR$/encode.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ppm.c" beforeDir="false" afterPath="$PROJECT_DIR$/ppm.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Envio/Makefile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Envio/arithmetic_coding.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Envio/arithmetic_decode.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Envio/arithmetic_decode.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Envio/arithmetic_encode.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Envio/arithmetic_encode.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Envio/biblia.7z" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Envio/biblia.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Envio/bit_input.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Envio/bit_input.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Envio/bit_output.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Envio/bit_output.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Envio/decode.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Envio/encode.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Envio/model.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Envio/ppm.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Envio/ppm.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Envio/readme.txt" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -133,6 +147,8 @@
       <workItem from="1651710452694" duration="468000" />
       <workItem from="1651929998942" duration="626000" />
       <workItem from="1652208154240" duration="5047000" />
+      <workItem from="1652229748582" duration="943000" />
+      <workItem from="1652707826094" duration="3000" />
     </task>
     <task id="LOCAL-00001" summary="Funciona para todos os casos contexto [-1, 1];">
       <created>1651436114989</created>
