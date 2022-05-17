@@ -175,13 +175,12 @@ struct cum_freqs *createExludedTable(const bool *excludedSymbols, struct cum_fre
 
     for (int i = No_of_symbols-1; i > 0; i--) {
         if(excludedSymbols[i]){
-            newTable[i-1].freq = inputTable[i].freq;
+            newTable[i-1].freq = newTable[i].freq;
         }else{
             newTable[i-1].freq = newTable[i].freq + (inputTable[i-1].freq - inputTable[i].freq);
         }
         newTable[i-1].next = NULL;
     }
-
 
     return newTable;
 }

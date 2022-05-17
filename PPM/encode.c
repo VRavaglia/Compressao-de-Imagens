@@ -208,6 +208,7 @@ int main(int argc, char**argv) {
         }
 
         encodeTable = gotoTable(freq, cum_freq, cum_freq_1, tempContext, maxDepth - escapes);
+
         newTable = createExludedTable(ignoredSymbols, encodeTable);
 
         encode_symbol(symbol, newTable, fout);     /* Encode that symbol.	 	 */
