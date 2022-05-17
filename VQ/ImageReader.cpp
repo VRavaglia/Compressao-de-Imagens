@@ -127,18 +127,18 @@ intMatrix ImageReader::read(const char *filename, int *dims) {
 };
 
 
-intMatrix ImageReader::getBlocks(const unsigned size[2], intMatrix &image){
-    intMatrix blocks;
+fMatrix ImageReader::getBlocks(const unsigned size[2], intMatrix &image){
+    fMatrix blocks;
     unsigned w = image[0].size();
     unsigned h = image.size();
     unsigned rRead = 0;
     unsigned cRead = 0;
 
     while(true){
-        vector<int> block;
+        vector<float> block;
         for (unsigned r = rRead; r < rRead + size[0]; ++r) {
             for (unsigned c = cRead; c < cRead + size[1]; ++c) {
-                block.push_back(image[r][c]);
+                block.push_back(float(image[r][c]));
             }
         }
         cRead += size[1];

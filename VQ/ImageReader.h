@@ -10,13 +10,14 @@
 using namespace std;
 
 using intMatrix = vector<vector<int>>;
+using fMatrix = vector<vector<float>>;
 
 class ImageReader {
 private:
     static int vect2int(const vector<int> &in);
 public:
     static intMatrix read(const char *filename, int *dims);
-    static vector<vector<int>> getBlocks(const unsigned size[2], intMatrix &image);
+    static fMatrix getBlocks(const unsigned size[2], intMatrix &image);
 };
 
 
