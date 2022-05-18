@@ -10,6 +10,8 @@ int main() {
     intMatrix image = ImageReader::read("./teste.pgm", dims);
     fMatrix blocks = ImageReader::getBlocks(vector_list[6], image);
 
+    ImageReader::save_csv("./teste.csv", image);
+
     printf("\nLinhas X Colunas X Max: %i x %i x %i", dims[0], dims[1], dims[2]);
 
     return 0;

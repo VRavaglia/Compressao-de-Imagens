@@ -153,3 +153,24 @@ fMatrix ImageReader::getBlocks(const unsigned size[2], intMatrix &image){
     return blocks;
 };
 
+void ImageReader::save_csv(const char *filename, const intMatrix &image) {
+    FILE *fout = fopen(filename, "w");
+
+    if (fout == nullptr){
+        printf("Problema ao criar CSV!");
+        return;
+    }
+
+    for (const vector<int>& row : image) {
+        for (int grey : row) {
+            string sGrey = to_string(grey);
+            for (char c : sGrey) {
+                putc(c, fout);
+            }
+            putc(',', fout);
+        }
+        putc('\n', fout);
+
+    }
+}
+

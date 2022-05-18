@@ -30,7 +30,6 @@ private:
     static double avg_dist_c_list(const map<unsigned , vector<float>> &c_list, const fMatrix &blocks, const unsigned &bSize);
 public:
     static fMatrix LGB(const fMatrix &blocks, unsigned cbSize, float eps);
-    static void save_csv(string filename, fMatrix);
 };
 
 

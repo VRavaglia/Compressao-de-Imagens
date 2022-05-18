@@ -18,6 +18,7 @@ private:
 public:
     static intMatrix read(const char *filename, int *dims);
     static fMatrix getBlocks(const unsigned size[2], intMatrix &image);
+    static void save_csv(const char *filename, const intMatrix &image);
 };
 
 
