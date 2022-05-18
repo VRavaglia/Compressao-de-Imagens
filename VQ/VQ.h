@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include "ImageReader.h"
+#include <map>
 
 using namespace std;
 
@@ -26,6 +27,7 @@ private:
     static double euclid_squared(const vector<float> &a, const vector<float> &b);
     static void split_codebook(const fMatrix &blocks, fMatrix &codebook, float eps, double &initial_avg_dist);
     static vector<float> new_codevector(const vector<float> &c, float e);
+    static double avg_dist_c_list(const map<unsigned , vector<float>> &c_list, const fMatrix &blocks, const unsigned &bSize);
 public:
     static fMatrix LGB(const fMatrix &blocks, unsigned cbSize, float eps);
     static void save_csv(string filename, fMatrix);
