@@ -77,8 +77,14 @@ void VQ::split_codebook(const fMatrix &blocks, fMatrix &codebook, const float ep
     double err = eps + 1;
     unsigned bSize = blocks.size();
     unsigned cSize = codebook.size();
+    double lastErr = err;
 
     while(err > eps){
+        if ((lastErr - err)/lastErr > 0.1){
+            lastErr = err;
+            printf("\nCalculando: %f", err);
+        }
+
         map<unsigned , vector<float>> closest_c_list;
         map<unsigned , vector<vector<float>>> vecs_near_c;
         map<unsigned , vector<unsigned >> vecs_idxs_near_c;
@@ -93,26 +99,18 @@ void VQ::split_codebook(const fMatrix &blocks, fMatrix &codebook, const float ep
                 double d = euclid_squared(blocks[i],codebook[j]);
                 if (min_dist < 0 || d < min_dist){
                     min_dist = d;
-                    closest_c_list.insert(pair<unsigned , vector<float>>(i, codebook[j]));
+                    closest_c_list[i] = codebook[j];
+//                        closest_c_list.insert(pair<unsigned , vector<float>>(i, codebook[j]));
                     closest_c_index = j;
                 }
             }
 
-            if (vecs_near_c.count(closest_c_index)){
-                vecs_near_c[closest_c_index].push_back(blocks[i]);
-            }
-            else{
-                vector<vector<float>> block;
-                block.push_back( blocks[i]);
-                vecs_near_c.insert(pair<unsigned , vector<vector<float>>>(closest_c_index,block));
-            }
-            if (vecs_idxs_near_c.count(closest_c_index)){
-                vecs_idxs_near_c[closest_c_index].push_back(i);
-            }else{
-                vector<unsigned> v;
-                v.push_back(i);
-                vecs_idxs_near_c.insert(pair<unsigned , vector<unsigned>>(closest_c_index, v));
-            }
+
+            vecs_near_c[closest_c_index].push_back(blocks[i]);
+
+
+            vecs_idxs_near_c[closest_c_index].push_back(i);
+
         }
 
         for (int i = 0; i < cSize; ++i) {
@@ -120,7 +118,7 @@ void VQ::split_codebook(const fMatrix &blocks, fMatrix &codebook, const float ep
             unsigned vSize = vecs.size();
 
             if (vSize > 0){
-                vector<float> new_c = vec_avg(vecs, bSize, vecs[0].size());
+                vector<float> new_c = vec_avg(vecs, vecs.size(), vecs[0].size());
                 codebook[i] = new_c;
 
                 for (unsigned j : vecs_idxs_near_c[i]) {

@@ -35,6 +35,7 @@ intMatrix ImageReader::read(const char *filename, int *dims) {
     int ch;
     int col = 0;
     int pgm[2] = {'P', '5'};
+    bool reading_comments = true;
 
     enum States {Type, Hs, Ws, Gs, Image};
 
@@ -51,7 +52,7 @@ intMatrix ImageReader::read(const char *filename, int *dims) {
 
         bool comment = false;
 
-        if(ch == '#'){
+        if(ch == '#' && reading_comments){
             comment = true;
         }
 
@@ -63,6 +64,8 @@ intMatrix ImageReader::read(const char *filename, int *dims) {
             comment = false;
             if(ch == '#') comment = true;
         }
+
+        reading_comments = false;
 
         switch (state) {
             case States::Type:

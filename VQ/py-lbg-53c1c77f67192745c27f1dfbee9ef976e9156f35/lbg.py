@@ -11,7 +11,8 @@ _size_data = 0
 _dim = 0
 
 
-def generate_codebook(data, size_codebook, epsilon=0.00001):
+# def generate_codebook(data, size_codebook, epsilon=0.00001):
+def generate_codebook(data, size_codebook, epsilon=0.1):
     """
     Generate codebook of size <size_codebook> with convergence value <epsilon>. Will return a tuple with the
     generated codebook, a vector with absolute weights and a vector with relative weights (the weight denotes how many
