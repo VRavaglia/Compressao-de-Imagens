@@ -120,7 +120,7 @@ void VQ::split_codebook(const fMatrix &blocks, fMatrix &codebook, const float ep
             unsigned vSize = vecs.size();
 
             if (vSize > 0){
-                vector<float> new_c = vec_avg(vecs, bSize, vecs.size());
+                vector<float> new_c = vec_avg(vecs, bSize, vecs[0].size());
                 codebook[i] = new_c;
 
                 for (unsigned j : vecs_idxs_near_c[i]) {
