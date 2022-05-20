@@ -30,6 +30,7 @@ private:
     static double avg_dist_c_list(const map<unsigned , vector<float>> &c_list, const fMatrix &blocks, const unsigned &bSize);
 public:
     static fMatrix LGB(const fMatrix &blocks, unsigned cbSize, float eps);
+    static fMatrix replaceBlocks(const fMatrix &blocks, const fMatrix &codebook, const unsigned *bDims, const unsigned *fDims);
 };
 
 

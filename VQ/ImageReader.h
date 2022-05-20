@@ -16,9 +16,10 @@ class ImageReader {
 private:
     static int vect2int(const vector<int> &in);
 public:
-    static intMatrix read(const char *filename, int *dims);
+    static intMatrix read(const char *filename, unsigned *dims);
     static fMatrix getBlocks(const unsigned size[2], intMatrix &image);
     static void save_csv(const char *filename, const fMatrix &blocks);
+    static void write(const char *filename, int *dims, const intMatrix &image);
 };
 
 

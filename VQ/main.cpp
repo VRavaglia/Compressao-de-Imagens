@@ -21,18 +21,22 @@ int main() {
         test_images.push_back(entry.path().string());
     }
 
-    int dims[3];
+    unsigned dims[3];
 //    intMatrix image = ImageReader::read("./teste.pgm", dims);
     intMatrix image = ImageReader::read(training_images[0].c_str(), dims);
+
+
     fMatrix blocks = ImageReader::getBlocks(vector_list[1], image);
 
     ImageReader::save_csv("./teste.csv", blocks);
 
     printf("\nLinhas X Colunas X Max: %i x %i x %i", dims[0], dims[1], dims[2]);
 
-    fMatrix clusters = VQ::LGB(blocks, 32, 0.01);
+    fMatrix codebook = VQ::LGB(blocks, 32, 0.1);
+    fMatrix newImage  = VQ::replaceBlocks(blocks, codebook, vector_list[1], dims);
 
-    ImageReader::save_csv("./testeC.csv", clusters);
+    ImageReader::save_csv("./testeC.csv", codebook);
+    ImageReader::save_csv("./testeR.csv", fMatrix (newImage.begin(),newImage.end()));
 
     return 0;
 }

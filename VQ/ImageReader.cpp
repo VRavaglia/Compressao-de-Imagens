@@ -21,7 +21,7 @@ int ImageReader::vect2int(const vector<int> &in){
     return out;
 }
 
-intMatrix ImageReader::read(const char *filename, int *dims) {
+intMatrix ImageReader::read(const char *filename, unsigned *dims) {
     intMatrix image;
     vector<int> temp;
 
@@ -65,7 +65,7 @@ intMatrix ImageReader::read(const char *filename, int *dims) {
             if(ch == '#') comment = true;
         }
 
-        reading_comments = false;
+
 
         switch (state) {
             case States::Type:
@@ -81,6 +81,7 @@ intMatrix ImageReader::read(const char *filename, int *dims) {
                 break;
 
             case States::Ws:
+                reading_comments = false;
                 if (ch == ' '){
                     dims[0] = vect2int(temp);
                     temp.clear();
@@ -176,5 +177,10 @@ void ImageReader::save_csv(const char *filename, const fMatrix &blocks) {
         putc('\n', fout);
 
     }
+}
+
+
+void ImageReader::write(const char *filename, int *dims, const intMatrix &image){
+
 }
 

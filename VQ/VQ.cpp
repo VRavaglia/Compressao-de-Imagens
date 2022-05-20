@@ -161,3 +161,54 @@ vector<float> VQ::new_codevector(const vector<float> &c, float e){
 
     return nc;
 }
+
+fMatrix VQ::replaceBlocks(const fMatrix &blocks, const fMatrix &codebook, const unsigned *bDims, const unsigned *iDims){
+
+    float teste[iDims[0]][iDims[1]];
+    fMatrix newBlocks;
+
+
+    for (const auto &block : blocks) {
+        double minD = -1;
+        unsigned minIdx = 0;
+        for (int c = 0; c < codebook.size(); c++) {
+            double d = euclid_squared(block, codebook[c]);
+            if (minD == -1 || minD > d){
+                minIdx = c;
+                minD = d;
+            }
+        }
+        newBlocks.push_back(codebook[minIdx]);
+    }
+
+    unsigned iWCounter = 0;
+    unsigned iHCounter = 0;
+
+
+    for (const auto &block : newBlocks){
+        unsigned i = 0;
+        for (unsigned r = iWCounter; r < iWCounter + bDims[0]; ++r) {
+            vector<float> row;
+            for (unsigned c = iHCounter; c < iHCounter + bDims[1]; ++c) {
+                teste[r][c] = block[i];
+                i += 1;
+            }
+        }
+        iHCounter += bDims[1];
+        if (iWCounter >= iDims[1]){
+            iHCounter += bDims[0];
+            iWCounter = 0;
+        }
+    }
+
+    fMatrix newImage;
+
+    for (int i = 0; i < iDims[0]; ++i) {
+        vector<float> row;
+        for (int j = 0; j < iDims[1]; ++j) {
+            row.push_back(teste[i][j]);
+        }
+        newImage.push_back(row);
+    }
+    return newImage;
+}
