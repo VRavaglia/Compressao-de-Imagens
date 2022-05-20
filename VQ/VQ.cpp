@@ -82,7 +82,7 @@ void VQ::split_codebook(const fMatrix &blocks, fMatrix &codebook, const float ep
     while(err > eps){
         if ((lastErr - err)/lastErr > 0.1){
             lastErr = err;
-            printf("\nCalculando: %f", err);
+//            printf("\nConvergindo eps: %f/%f", err, eps);
         }
 
         map<unsigned , vector<float>> closest_c_list;
@@ -164,7 +164,7 @@ vector<float> VQ::new_codevector(const vector<float> &c, float e){
 
 fMatrix VQ::replaceBlocks(const fMatrix &blocks, const fMatrix &codebook, const unsigned *bDims, const unsigned *iDims){
 
-    float teste[iDims[0]][iDims[1]];
+    float arrayImg[iDims[0]][iDims[1]];
     fMatrix newBlocks;
 
 
@@ -187,14 +187,17 @@ fMatrix VQ::replaceBlocks(const fMatrix &blocks, const fMatrix &codebook, const 
 
     for (const auto &block : newBlocks){
         unsigned i = 0;
-        for (unsigned r = iWCounter; r < iWCounter + bDims[0]; ++r) {
+        for (unsigned r = iHCounter; r < iHCounter + bDims[0]; ++r) {
             vector<float> row;
-            for (unsigned c = iHCounter; c < iHCounter + bDims[1]; ++c) {
-                teste[r][c] = block[i];
+            for (unsigned c = iWCounter; c < iWCounter + bDims[1]; ++c) {
+                arrayImg[r][c] = block[i];
                 i += 1;
+
             }
         }
-        iHCounter += bDims[1];
+//        printf("\n %i \n", iDims[1]);
+//        iHCounter += bDims[1];
+        iWCounter += bDims[1];
         if (iWCounter >= iDims[1]){
             iHCounter += bDims[0];
             iWCounter = 0;
@@ -205,10 +208,68 @@ fMatrix VQ::replaceBlocks(const fMatrix &blocks, const fMatrix &codebook, const 
 
     for (int i = 0; i < iDims[0]; ++i) {
         vector<float> row;
+
         for (int j = 0; j < iDims[1]; ++j) {
-            row.push_back(teste[i][j]);
+            row.push_back(arrayImg[i][j]);
+
         }
         newImage.push_back(row);
     }
     return newImage;
+}
+
+double VQ::MSE(const intMatrix &oldI, const fMatrix &newI){
+    double err = 0;
+    unsigned rows = oldI.size();
+    unsigned cols = oldI[0].size();
+    unsigned its = 0;
+
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            err += pow((float)oldI[i][j] - round(newI[i][j]), 2)/(cols*rows);
+        }
+    }
+
+    return err;
+}
+
+double VQ::PSNR(const intMatrix &oldI, const fMatrix &newI){
+    return 10*log10(255*255/MSE(oldI, newI));
+}
+
+unsigned VQ::best_codebook(const intMatrix &image, const vector<fMatrix> &block_list, const vector<fMatrix> &codebook_list, const unsigned *dims){
+    unsigned bcb = 0;
+    unsigned bcsize = 0;
+    unsigned bbSize = 0;
+    double maxPSNR = -1;
+    unsigned vIdx = 0;
+    unsigned cIdx = 0;
+
+    printf("\nCalculo do melhor codebook:");
+
+    for (int i = 0; i < block_list.size(); ++i) {
+        fMatrix newImage  = VQ::replaceBlocks(block_list[i], codebook_list[i], vector_list[vIdx], dims);
+        double psnr = VQ::PSNR(image, newImage);
+        unsigned bSize = vector_list[vIdx][0] * vector_list[vIdx][1];
+
+        printf("\nPSNR [%i] v = %i c = %i: %f", i, bSize, cb_size_list[cIdx], psnr);
+
+        if (psnr < 0 || (psnr > maxPSNR && maxPSNR < 40) || (psnr > 40 && bSize < bbSize)){
+            maxPSNR = psnr;
+            bcsize = cIdx;
+            bbSize = bSize;
+            bcb = i;
+        }
+
+        cIdx += 1;
+        if(cIdx > 3){
+            cIdx = 0;
+            vIdx += 1;
+        }
+
+    }
+
+    printf("\nMelhor: PSNR [%i] v = %i c = %i: %f", bcb, bbSize, cb_size_list[bcsize], maxPSNR);
+
+    return bcb;
 }

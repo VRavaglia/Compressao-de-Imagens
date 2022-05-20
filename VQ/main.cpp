@@ -23,20 +23,48 @@ int main() {
 
     unsigned dims[3];
 //    intMatrix image = ImageReader::read("./teste.pgm", dims);
-    intMatrix image = ImageReader::read(training_images[0].c_str(), dims);
-
-
-    fMatrix blocks = ImageReader::getBlocks(vector_list[1], image);
-
-    ImageReader::save_csv("./teste.csv", blocks);
-
+    intMatrix image = ImageReader::read(training_images[2].c_str(), dims);
     printf("\nLinhas X Colunas X Max: %i x %i x %i", dims[0], dims[1], dims[2]);
 
-    fMatrix codebook = VQ::LGB(blocks, 32, 0.1);
-    fMatrix newImage  = VQ::replaceBlocks(blocks, codebook, vector_list[1], dims);
+    vector<fMatrix> block_list;
+    vector<fMatrix> codebook_list;
+    vector<unsigned> idxTable;
+    unsigned vector_idx = 0;
 
-    ImageReader::save_csv("./testeC.csv", codebook);
-    ImageReader::save_csv("./testeR.csv", fMatrix (newImage.begin(),newImage.end()));
+    unsigned codebooks = 0;
+    float eps = 0.1;
+
+    for(const unsigned *block_size : vector_list){
+        for (auto cbSize : cb_size_list) {
+            fMatrix blocks = ImageReader::getBlocks(block_size, image);
+            block_list.push_back(blocks);
+            fMatrix codebook = VQ::LGB(blocks, cbSize, eps);
+            codebook_list.push_back(codebook);
+            idxTable.push_back(vector_idx);
+            codebooks += 1;
+            printf("\n Codebook calculado %i/%i", codebooks, 7*4);
+        }
+        vector_idx += 1;
+
+    }
+
+//    ImageReader::save_csv("./teste.csv", blocks);
+
+    unsigned bc = VQ::best_codebook(image, block_list, codebook_list, dims);
+
+    printf("\nMelhor codebook: %i", bc);
+
+    fMatrix newImage  = VQ::replaceBlocks(block_list[bc], codebook_list[bc], vector_list[idxTable[bc]], dims);
+
+//    double mse = VQ::MSE(image, newImage);
+//    double psnr = VQ::PSNR(image, newImage);
+
+//    printf("\n\n MSE: %f, PSNR: %f", mse, psnr);
+
+    ImageReader::write("./imagens_vq/rec/Cod.pgm", dims, newImage);
+
+//    ImageReader::save_csv("./testeC.csv", codebook);
+//    ImageReader::save_csv("./testeR.csv", fMatrix (newImage.begin(),newImage.end()));
 
     return 0;
 }

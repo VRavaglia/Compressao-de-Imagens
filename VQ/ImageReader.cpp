@@ -180,7 +180,27 @@ void ImageReader::save_csv(const char *filename, const fMatrix &blocks) {
 }
 
 
-void ImageReader::write(const char *filename, int *dims, const intMatrix &image){
+void ImageReader::write(const char *filename, unsigned *dims, const fMatrix &image){
+    FILE *fout = fopen(filename, "wb");
 
+    if (fout == nullptr){
+        printf("Arquivo de imagem novo nao encontrado!");
+        return;
+    }
+
+    string header = "P5\n" + to_string(dims[0]) + " " + to_string(dims[1]) + "\n" + to_string(dims[2]) + "\n";
+
+    for(char c : header){
+        putc(c, fout);
+    }
+
+    unsigned rows = image.size();
+    unsigned cols = image[0].size();
+
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            putc((int)round(image[i][j]), fout);
+        }
+    }
 }
 

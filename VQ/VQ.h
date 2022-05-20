@@ -19,6 +19,7 @@ static const unsigned vector_list[7][2] = {{1,1},
                                            {4,4},
                                            {8,4},
                                            {8,8},};
+static const unsigned cb_size_list[4] = {16, 32, 64, 128};
 
 class VQ {
 private:
@@ -31,6 +32,9 @@ private:
 public:
     static fMatrix LGB(const fMatrix &blocks, unsigned cbSize, float eps);
     static fMatrix replaceBlocks(const fMatrix &blocks, const fMatrix &codebook, const unsigned *bDims, const unsigned *fDims);
+    static unsigned best_codebook(const intMatrix &image, const vector<fMatrix> &block_list, const vector<fMatrix> &codebook_list, const unsigned *dims);
+    static double MSE(const intMatrix &oldI, const fMatrix &newI);
+    static double PSNR(const intMatrix &oldI, const fMatrix &newI);
 };
 
 
