@@ -21,9 +21,10 @@ int main() {
         test_images.push_back(entry.path().string());
     }
 
+    unsigned iIdx = 2;
     unsigned dims[3];
 //    intMatrix image = ImageReader::read("./teste.pgm", dims);
-    intMatrix image = ImageReader::read(training_images[2].c_str(), dims);
+    intMatrix image = ImageReader::read(training_images[iIdx].c_str(), dims);
     printf("\nLinhas X Colunas X Max: %i x %i x %i", dims[0], dims[1], dims[2]);
 
     vector<fMatrix> block_list;
@@ -36,7 +37,12 @@ int main() {
 
     for(const unsigned *block_size : vector_list){
         for (auto cbSize : cb_size_list) {
-            fMatrix blocks = ImageReader::getBlocks(block_size, image);
+            fMatrix blocks;
+            vector<intMatrix> all_images;
+            for (auto t_image : training_images) {
+                intMatrix temp_image = ImageReader::read(training_images[iIdx].c_str(), dims);
+            }
+            fMatrix temp_blocks = ImageReader::getBlocks(block_size, image);
             block_list.push_back(blocks);
             fMatrix codebook = VQ::LGB(blocks, cbSize, eps);
             codebook_list.push_back(codebook);
@@ -61,7 +67,7 @@ int main() {
 
 //    printf("\n\n MSE: %f, PSNR: %f", mse, psnr);
 
-    ImageReader::write("./imagens_vq/rec/Cod.pgm", dims, newImage);
+    ImageReader::write(("./imagens_vq/rec/Cod" + to_string(iIdx) + ".pgm").c_str(), dims, newImage);
 
 //    ImageReader::save_csv("./testeC.csv", codebook);
 //    ImageReader::save_csv("./testeR.csv", fMatrix (newImage.begin(),newImage.end()));

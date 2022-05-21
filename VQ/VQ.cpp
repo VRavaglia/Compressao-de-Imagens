@@ -239,11 +239,12 @@ double VQ::PSNR(const intMatrix &oldI, const fMatrix &newI){
 
 unsigned VQ::best_codebook(const intMatrix &image, const vector<fMatrix> &block_list, const vector<fMatrix> &codebook_list, const unsigned *dims){
     unsigned bcb = 0;
-    unsigned bcsize = 0;
     unsigned bbSize = 0;
     double maxPSNR = -1;
+    double maxR = 0;
     unsigned vIdx = 0;
     unsigned cIdx = 0;
+    fMatrix performance;
 
     printf("\nCalculo do melhor codebook:");
 
@@ -251,13 +252,18 @@ unsigned VQ::best_codebook(const intMatrix &image, const vector<fMatrix> &block_
         fMatrix newImage  = VQ::replaceBlocks(block_list[i], codebook_list[i], vector_list[vIdx], dims);
         double psnr = VQ::PSNR(image, newImage);
         unsigned bSize = vector_list[vIdx][0] * vector_list[vIdx][1];
+        double R = log2(cb_size_list[cIdx])/bSize;
 
-        printf("\nPSNR [%i] v = %i c = %i: %f", i, bSize, cb_size_list[cIdx], psnr);
+        printf("\n[%i] PSNR = %f R = %f", i, psnr, R);
+
+        vector<float> p_row = {(float)i, (float)psnr, (float)R};
+        performance.push_back(p_row);
+
 
         if (psnr < 0 || (psnr > maxPSNR && maxPSNR < 40) || (psnr > 40 && bSize < bbSize)){
             maxPSNR = psnr;
-            bcsize = cIdx;
             bbSize = bSize;
+            maxR = R;
             bcb = i;
         }
 
@@ -269,7 +275,9 @@ unsigned VQ::best_codebook(const intMatrix &image, const vector<fMatrix> &block_
 
     }
 
-    printf("\nMelhor: PSNR [%i] v = %i c = %i: %f", bcb, bbSize, cb_size_list[bcsize], maxPSNR);
+    ImageReader::save_csv("performance.csv", performance, false);
+
+    printf("\nMelhor: [%i] PSNR = %f R = %f", bcb, maxPSNR, maxR);
 
     return bcb;
 }
