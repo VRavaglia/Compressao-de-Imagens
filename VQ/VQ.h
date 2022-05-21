@@ -19,7 +19,9 @@ static const unsigned vector_list[7][2] = {{1,1},
                                            {4,4},
                                            {8,4},
                                            {8,8},};
+static const unsigned vl_size = 7;
 static const unsigned cb_size_list[4] = {16, 32, 64, 128};
+static const unsigned cb_size_size = 4;
 
 class VQ {
 private:
