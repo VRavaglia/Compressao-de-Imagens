@@ -83,7 +83,7 @@ intMatrix ImageReader::read(const char *filename, unsigned *dims) {
             case States::Ws:
                 reading_comments = false;
                 if (ch == ' '){
-                    dims[0] = vect2int(temp);
+                    dims[1] = vect2int(temp);
                     temp.clear();
                     state = States::Hs;
                 }
@@ -94,7 +94,7 @@ intMatrix ImageReader::read(const char *filename, unsigned *dims) {
 
             case States::Hs:
                 if (ch == '\n' || ch == '\r') {
-                    dims[1] = vect2int(temp);
+                    dims[0] = vect2int(temp);
                     temp.clear();
                     state = States::Gs;
                 }
@@ -118,7 +118,7 @@ intMatrix ImageReader::read(const char *filename, unsigned *dims) {
                 temp.push_back(ch);
                 col += 1;
 
-                if (col == dims[0]){
+                if (col == dims[1]){
                     col = 0;
                     image.push_back(temp);
                     temp.clear();
@@ -194,7 +194,7 @@ void ImageReader::write(const char *filename, unsigned *dims, const fMatrix &ima
         return;
     }
 
-    string header = "P5\n" + to_string(dims[0]) + " " + to_string(dims[1]) + "\n" + to_string(dims[2]) + "\n";
+    string header = "P5\n" + to_string(dims[1]) + " " + to_string(dims[0]) + "\n" + to_string(dims[2]) + "\n";
 
     for(char c : header){
         putc(c, fout);

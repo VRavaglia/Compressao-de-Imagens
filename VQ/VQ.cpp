@@ -166,6 +166,7 @@ fMatrix VQ::replaceBlocks(const fMatrix &blocks, const fMatrix &codebook, const 
 
     float arrayImg[iDims[0]][iDims[1]];
     fMatrix newBlocks;
+//    printf("\nDims: %i/%i", iDims[0], iDims[1]);
 
 
     for (const auto &block : blocks) {
@@ -237,47 +238,48 @@ double VQ::PSNR(const intMatrix &oldI, const fMatrix &newI){
     return 10*log10(255*255/MSE(oldI, newI));
 }
 
-unsigned VQ::best_codebook(const intMatrix &image, const vector<fMatrix> &block_list, const vector<fMatrix> &codebook_list, const unsigned *dims){
+vector<unsigned> VQ::best_codebook(const intMatrix &image, const vector<fMatrix> &block_list, const vector<fMatrix> &codebook_list, const unsigned *dims, unsigned testIdx){
     unsigned bcb = 0;
     unsigned bbSize = 0;
     double maxPSNR = -1;
     double maxR = 0;
-    unsigned vIdx = 0;
     unsigned cIdx = 0;
     fMatrix performance;
 
     printf("\nCalculo do melhor codebook:");
 
     for (int i = 0; i < block_list.size(); ++i) {
-        fMatrix newImage  = VQ::replaceBlocks(block_list[i], codebook_list[i], vector_list[vIdx], dims);
-        double psnr = VQ::PSNR(image, newImage);
-        unsigned bSize = vector_list[vIdx][0] * vector_list[vIdx][1];
-        double R = log2(cb_size_list[cIdx])/bSize;
+        for (unsigned int cb_size : cb_size_list) {
+//            printf("\n i: %i j: %i", i, j);
 
-        printf("\n[%i] PSNR = %f R = %f", i, psnr, R);
+            fMatrix newImage  = VQ::replaceBlocks(block_list[i], codebook_list[cIdx], vector_list[i], dims);
+//            printf("\n i: %i j: %i", image.size(), newImage.size());
+            double psnr = VQ::PSNR(image, newImage);
+            unsigned bSize = vector_list[i][0] * vector_list[i][1];
+            printf("\n i: %i j: %i", cb_size, bSize);
+            double R = log2(cb_size)/bSize;
 
-        vector<float> p_row = {(float)i, (float)psnr, (float)R};
-        performance.push_back(p_row);
+            printf("\n[%i] PSNR = %f R = %f", i, psnr, R);
+
+            vector<float> p_row = {(float)i, (float)psnr, (float)R};
+            performance.push_back(p_row);
 
 
-        if (psnr < 0 || (psnr > maxPSNR && maxPSNR < 40) || (psnr > 40 && bSize < bbSize)){
-            maxPSNR = psnr;
-            bbSize = bSize;
-            maxR = R;
-            bcb = i;
+            if (psnr < 0 || (psnr > maxPSNR && maxPSNR < 40) || (psnr > 40 && bSize < bbSize)){
+                maxPSNR = psnr;
+                bbSize = bSize;
+                maxR = R;
+                bcb = i;
+            }
+            cIdx += 1;
         }
-
-        cIdx += 1;
-        if(cIdx > 3){
-            cIdx = 0;
-            vIdx += 1;
-        }
-
     }
 
-    ImageReader::save_csv("performance.csv", performance, false);
+    ImageReader::save_csv(("performance_" + to_string(testIdx) +".csv").c_str(), performance, false);
 
-    printf("\nMelhor: [%i] PSNR = %f R = %f", bcb, maxPSNR, maxR);
+    printf("\nMelhor codebook: [%i/%i] PSNR = %f R = %f", bcb, cIdx-1, maxPSNR, maxR);
 
-    return bcb;
+    vector<unsigned > best = {bcb, cIdx-1};
+
+    return best;
 }

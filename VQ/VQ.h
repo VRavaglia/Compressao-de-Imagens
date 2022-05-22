@@ -12,16 +12,20 @@
 
 using namespace std;
 
-static const unsigned vector_list[7][2] = {{1,1},
+static const unsigned vl_size = 7;
+static const unsigned vector_list[vl_size][2] = {{1,1},
                                            {1,2},
                                            {2,2},
                                            {2,4},
                                            {4,4},
                                            {8,4},
                                            {8,8},};
-static const unsigned vl_size = 7;
-static const unsigned cb_size_list[4] = {16, 32, 64, 128};
+//static const unsigned vector_list[2][2] = {{8,4},
+//                                           {8,8},};
 static const unsigned cb_size_size = 4;
+static const unsigned cb_size_list[cb_size_size] = {16, 32, 64, 128};
+//static const unsigned cb_size_list[2] = {16, 32};
+
 
 class VQ {
 private:
@@ -34,7 +38,7 @@ private:
 public:
     static fMatrix LGB(const fMatrix &blocks, unsigned cbSize, float eps);
     static fMatrix replaceBlocks(const fMatrix &blocks, const fMatrix &codebook, const unsigned *bDims, const unsigned *fDims);
-    static unsigned best_codebook(const intMatrix &image, const vector<fMatrix> &block_list, const vector<fMatrix> &codebook_list, const unsigned *dims);
+    static vector<unsigned> best_codebook(const intMatrix &image, const vector<fMatrix> &block_list, const vector<fMatrix> &codebook_list, const unsigned *dims, unsigned testIdx);
     static double MSE(const intMatrix &oldI, const fMatrix &newI);
     static double PSNR(const intMatrix &oldI, const fMatrix &newI);
 };
