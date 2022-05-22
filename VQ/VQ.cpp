@@ -261,7 +261,7 @@ vector<unsigned> VQ::best_codebook(const intMatrix &image, const vector<fMatrix>
 
             printf("\n[%i] PSNR = %f R = %f", i, psnr, R);
 
-            vector<float> p_row = {(float)i, (float)psnr, (float)R};
+            vector<float> p_row = {(float)bSize, (float)cb_size, (float)psnr, (float)R};
             performance.push_back(p_row);
 
 
