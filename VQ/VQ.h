@@ -26,6 +26,7 @@ static const unsigned cb_size_size = 4;
 static const unsigned cb_size_list[cb_size_size] = {16, 32, 64, 128};
 //static const unsigned cb_size_list[2] = {16, 32};
 
+static const unsigned minPSNR = 40;
 
 class VQ {
 private:

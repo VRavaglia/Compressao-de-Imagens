@@ -1,6 +1,5 @@
 //
 // Created by Victor on 16/05/2022.
-//https://github.com/internaut/py-lbg/blob/53c1c77f67192745c27f1dfbee9ef976e9156f35/lbg.py#L145
 //
 
 #include <cmath>
@@ -94,21 +93,16 @@ void VQ::split_codebook(const fMatrix &blocks, fMatrix &codebook, const float ep
         for (int i = 0; i < bSize; ++i) {
             double min_dist = -1;
             int closest_c_index;
-
             for (int j = 0; j < cSize; ++j) {
                 double d = euclid_squared(blocks[i],codebook[j]);
                 if (min_dist < 0 || d < min_dist){
                     min_dist = d;
                     closest_c_list[i] = codebook[j];
-//                        closest_c_list.insert(pair<unsigned , vector<float>>(i, codebook[j]));
                     closest_c_index = j;
                 }
             }
 
-
             vecs_near_c[closest_c_index].push_back(blocks[i]);
-
-
             vecs_idxs_near_c[closest_c_index].push_back(i);
 
         }
@@ -156,7 +150,10 @@ vector<float> VQ::new_codevector(const vector<float> &c, float e){
     vector<float> nc;
 
     for(float x : c){
-        nc.push_back(x * (1 + e));
+        float newVal = x * (1 + e);
+        if (newVal > 255) newVal = 0;
+        if (newVal < 0) newVal = 255;
+        nc.push_back(newVal);
     }
 
     return nc;
@@ -265,7 +262,7 @@ vector<unsigned> VQ::best_codebook(const intMatrix &image, const vector<fMatrix>
             performance.push_back(p_row);
 
 
-            if (psnr < 0 || (psnr > maxPSNR && maxPSNR < 40) || (psnr > 40 && bSize < bbSize)){
+            if (psnr < 0 || (psnr > maxPSNR && maxPSNR < minPSNR) || (psnr > minPSNR && R < maxR)){
                 maxPSNR = psnr;
                 bbSize = bSize;
                 maxR = R;

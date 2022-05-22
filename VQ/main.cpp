@@ -25,10 +25,6 @@ int main() {
         test_images.push_back(entry.path().string());
     }
 
-
-
-
-
     vector<fMatrix> codebook_list;
     vector<unsigned> idxTable;
 
@@ -73,8 +69,11 @@ int main() {
         }
 
         vector<unsigned> bc = VQ::best_codebook(test_image, block_list, codebook_list, dims, iIdx);
+        printf(("\n" + test_file).c_str());
 
         fMatrix newImage  = VQ::replaceBlocks(block_list[bc[0]], codebook_list[bc[1]], vector_list[bc[0]], dims);
+//        ImageReader::save_csv("./teste.csv", block_list[1], false);
+//        ImageReader::save_csv("./testeC.csv", codebook_list[6], false);
 
         auto stop = high_resolution_clock::now();
         auto duration = duration_cast<microseconds>(stop - start);
@@ -94,7 +93,7 @@ int main() {
 
 
 
-//    ImageReader::save_csv("./testeC.csv", codebook);
+
 //    ImageReader::save_csv("./testeR.csv", fMatrix (newImage.begin(),newImage.end()));
 
     return 0;
