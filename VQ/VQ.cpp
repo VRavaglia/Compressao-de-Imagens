@@ -150,9 +150,27 @@ vector<float> VQ::new_codevector(const vector<float> &c, float e){
     vector<float> nc;
 
     for(float x : c){
-        float newVal = x * (1 + e);
-        if (newVal > 255) newVal = 0;
-        if (newVal < 0) newVal = 255;
+        float newValtemp = x * (1 + e);
+        float newVal;
+        if (newValtemp > 255){
+            if(warp){
+                newVal = 0;
+            }else{
+                newVal = x * (1 - e);
+            }
+        }
+        else{
+            if(newValtemp < 0){
+                if (warp){
+                    newVal = 255;
+                }else{
+                    newVal = x * (1 - e);
+                }
+            }
+            else{
+                newVal = newValtemp;
+            }
+        }
         nc.push_back(newVal);
     }
 
@@ -253,7 +271,7 @@ vector<unsigned> VQ::best_codebook(const intMatrix &image, const vector<fMatrix>
 //            printf("\n i: %i j: %i", image.size(), newImage.size());
             double psnr = VQ::PSNR(image, newImage);
             unsigned bSize = vector_list[i][0] * vector_list[i][1];
-            printf("\n i: %i j: %i", cb_size, bSize);
+//            printf("\n i: %i j: %i", cb_size, bSize);
             double R = log2(cb_size)/bSize;
 
             printf("\n[%i] PSNR = %f R = %f", i, psnr, R);
