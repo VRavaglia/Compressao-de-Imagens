@@ -29,9 +29,12 @@ int main() {
     vector<unsigned> idxTable;
 
     unsigned codebooks = 0;
+    unsigned bSizeIdx = 0;
+    vector<bool> skips;
     float eps = 0.1;
 
     auto start = high_resolution_clock::now();
+    printf("\n Iniciando treinamento: %i/%i", codebooks, vl_size*cb_size_size);
     for(const unsigned *block_size : vector_list){
         fMatrix blocks;
         for (const auto& t_image : training_images) {
@@ -42,20 +45,31 @@ int main() {
                 blocks.push_back(block);
             }
         }
-
         for (auto cbSize : cb_size_list) {
-
-            fMatrix codebook = VQ::LGB(blocks, cbSize, eps);
-            codebook_list.push_back(codebook);
+//            printf("\n%i", cbSize);
+            unsigned bSize = block_size[0] * block_size[1];
+            double R = log2(cbSize)/bSize;
+//            if((cbSize <= 128 || (bSizeIdx > 0 && cbSize > 256))){
+            if((R > 2 && R <= 7)){
+                skips.push_back(false);
+                fMatrix codebook = VQ::LGB(blocks, cbSize, eps);
+                codebook_list.push_back(codebook);
+            }
+            else{
+                printf("\nTamanho de codebook ignorado.");
+                skips.push_back(true);
+            }
             codebooks += 1;
-            printf("\n Treinamento: %i/%i", codebooks, vl_size*cb_size_size);
+            printf("\n[%i/%i] Treinamento: %i/%i", bSizeIdx,cbSize, codebooks, vl_size*cb_size_size);
         }
+        bSizeIdx += 1;
     }
 
 //    ImageReader::save_csv("./teste.csv", blocks);
 
     unsigned iIdx = 0;
 
+    fMatrix best;
 
     for(const auto& test_file : test_images){
         vector<fMatrix> block_list;
@@ -68,22 +82,23 @@ int main() {
             block_list.push_back(test_blocks);
         }
 
-        vector<unsigned> bc = VQ::best_codebook(test_image, block_list, codebook_list, dims, iIdx);
+        vector<unsigned> bc = VQ::best_codebook(test_image, block_list, codebook_list, dims, iIdx, skips);
         printf(("\n" + test_file).c_str());
 
         fMatrix newImage  = VQ::replaceBlocks(block_list[bc[0]], codebook_list[bc[1]], vector_list[bc[0]], dims);
 //        ImageReader::save_csv("./teste.csv", block_list[1], false);
-//        ImageReader::save_csv("./testeC.csv", codebook_list[6], false);
 
-        auto stop = high_resolution_clock::now();
-        auto duration = duration_cast<microseconds>(stop - start);
-        cout << "\nTempo (s): " << float(duration.count())/pow(10,6) << endl;
+
+        best.push_back({(float)bc[0], (float)bc[2]});
 
         ImageReader::write(("./imagens_vq/rec/Cod" + to_string(iIdx) + ".pgm").c_str(), dims, newImage);
 
         iIdx += 1;
     }
-
+    ImageReader::save_csv("./BestCDBK.csv", best, false);
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+    cout << "\nTempo (s): " << float(duration.count())/pow(10,6) << endl;
 
 
 //    double mse = VQ::MSE(image, newImage);
