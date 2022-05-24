@@ -12,7 +12,7 @@
 
 using namespace std;
 
-static const unsigned vl_size = 4;
+static const unsigned vl_size = 2;
 //static const unsigned vector_list[vl_size][2] = {{1,1},
 //                                           {1,2},
 //                                           {2,2},
@@ -20,14 +20,15 @@ static const unsigned vl_size = 4;
 //                                           {4,4},
 //                                           {8,4},
 //                                           {8,8},};
+//static const unsigned vector_list[vl_size][2] = {{1,1},
+//                                                 {1,2},
+//                                                 {2,1},
+//                                                 {2,2}};
 static const unsigned vector_list[vl_size][2] = {{1,1},
-                                                 {1,2},
-                                                 {2,1},
-                                                 {2,2}};
-//static const unsigned vector_list[2][2] = {{8,4},
-//                                           {8,8},};
-static const unsigned cb_size_size = 6;
-static const unsigned cb_size_list[cb_size_size] = {512, 1024, 2048, 4096, 4096*2, 4096*4};
+                                           {2,2},};
+static const unsigned cb_size_size = 2;
+//static const unsigned cb_size_list[cb_size_size] = {512, 1024, 2048, 4096, 4096*2, 4096*4};
+static const unsigned cb_size_list[cb_size_size] = {256, 512};
 static const bool warp = false;
 //static const unsigned cb_size_list[2] = {16, 32};
 

@@ -1,7 +1,7 @@
 #include <iostream>
 #include "VQ.h"
 #include "ImageReader.h"
-#include <filesystem>
+//#include <filesystem>
 #include <string>
 #include <vector>
 #include <chrono>
@@ -12,18 +12,26 @@ using namespace std::chrono;
 int main() {
     using namespace std;
 
-    string training_path = "./imagens_vq/treino";
+    string training_path = "./imagens_vq/treino/";
+    vector <string> names = {"aerial.pgm", "boats.pgm", "bridge.pgm", "D108.pgm", "f16.pgm", "lena.256.pgm", "peppers.pgm", "pp1209.pgm", "zelda.pgm"};
     vector<string> training_images;
-    for (const auto & entry : filesystem::directory_iterator(training_path)){
-        training_images.push_back(entry.path().string());
-        break;
+    for(const auto& name : names){
+        training_images.push_back(training_path+name);
     }
+//    for (const auto & entry : filesystem::directory_iterator(training_path)){
+//        training_images.push_back(entry.path().string());
+//        break;
+//    }
 
-    string test_path = "./imagens_vq/teste";
+    string test_path = "./imagens_vq/teste/";
+    vector <string> names2 = {"barb.pgm", "cameraman.pgm", "gold.pgm", "lena.easy.pgm", "pp1205.pgm"};
     vector<string> test_images;
-    for (const auto & entry : filesystem::directory_iterator(test_path)){
-        test_images.push_back(entry.path().string());
+    for(const auto& name : names2){
+        test_images.push_back(test_path+name);
     }
+//    for (const auto & entry : filesystem::directory_iterator(test_path)){
+//        test_images.push_back(entry.path().string());
+//    }
 
     vector<fMatrix> codebook_list;
     vector<unsigned> idxTable;
@@ -64,6 +72,8 @@ int main() {
         }
         bSizeIdx += 1;
     }
+
+    return 0;
 
 //    ImageReader::save_csv("./teste.csv", blocks);
 

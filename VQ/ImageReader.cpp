@@ -28,7 +28,7 @@ intMatrix ImageReader::read(const char *filename, unsigned *dims) {
     FILE *fin = fopen(filename, "rb");
 
     if (fin == nullptr){
-        printf("Arquivo de imagem nao encontrado!");
+        printf("\nArquivo de imagem nao encontrado (leitura)!");
         return image;
     }
 
@@ -126,6 +126,7 @@ intMatrix ImageReader::read(const char *filename, unsigned *dims) {
                 break;
         }
     }
+    fclose(fin);
 
     return image;
 };
@@ -161,7 +162,7 @@ void ImageReader::save_csv(const char *filename, const fMatrix &blocks, const bo
     FILE *fout = fopen(filename, "wb");
 
     if (fout == nullptr){
-        printf("Problema ao criar CSV!");
+        printf("\nProblema ao criar CSV!");
         return;
     }
 
@@ -183,6 +184,7 @@ void ImageReader::save_csv(const char *filename, const fMatrix &blocks, const bo
         putc('\n', fout);
 
     }
+    fclose(fout);
 }
 
 
@@ -190,7 +192,7 @@ void ImageReader::write(const char *filename, unsigned *dims, const fMatrix &ima
     FILE *fout = fopen(filename, "wb");
 
     if (fout == nullptr){
-        printf("Arquivo de imagem novo nao encontrado!");
+        printf("\nArquivo de imagem novo nao encontrado (escrita)!");
         return;
     }
 
@@ -208,5 +210,7 @@ void ImageReader::write(const char *filename, unsigned *dims, const fMatrix &ima
             putc((int)round(image[i][j]), fout);
         }
     }
+
+    fclose(fout);
 }
 
