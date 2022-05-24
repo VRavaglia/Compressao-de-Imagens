@@ -158,7 +158,7 @@ fMatrix ImageReader::getBlocks(const unsigned size[2], intMatrix &image){
     return blocks;
 };
 
-void ImageReader::save_csv(const char *filename, const fMatrix &blocks, const bool convert) {
+void ImageReader::save_csv(const char *filename, const vector<vector<string>> &blocks, const bool convert) {
     FILE *fout = fopen(filename, "wb");
 
     if (fout == nullptr){
@@ -166,20 +166,14 @@ void ImageReader::save_csv(const char *filename, const fMatrix &blocks, const bo
         return;
     }
 
-    for (const vector<float>& row : blocks) {
-        for (float grey : row) {
-            string sGrey;
-            if (convert){
-                int iGrey = (int)round(grey);
-                sGrey = to_string(iGrey);
-            }else{
-                sGrey = to_string(grey);
+    for (const vector<string>& row : blocks) {
+        for (int i = 0; i < row.size(); i++) {
+            for (char c : row[i]) {
+                putc(c, fout);
             }
-
-            for (int i = 0; i < sGrey.length(); i++) {
-                putc(sGrey[i], fout);
+            if (i < row.size() - 1){
+                putc(',', fout);
             }
-            putc(',', fout);
         }
         putc('\n', fout);
 

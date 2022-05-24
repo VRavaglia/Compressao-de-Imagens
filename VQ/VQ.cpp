@@ -81,7 +81,7 @@ void VQ::split_codebook(const fMatrix &blocks, fMatrix &codebook, const float ep
     while(err > eps){
         if ((lastErr - err)/lastErr > 0.1){
             lastErr = err;
-//            printf("\nConvergindo eps: %f/%f", err, eps);
+            printf("\nConvergindo eps: %f/%f", err, eps);
         }
 
         map<unsigned , vector<float>> closest_c_list;
@@ -260,18 +260,14 @@ vector<unsigned> VQ::best_codebook(const intMatrix &image, const vector<fMatrix>
     double maxR = 0;
     unsigned cIdx = 0;
     unsigned skipIdx = 0;
-    fMatrix performance;
+    vector<vector<string>> performance;
 
     printf("\nCalculo do melhor codebook:");
 
     for (int i = 0; i < block_list.size(); ++i) {
         double lastPSNR = 0;
         for (unsigned int cb_size : cb_size_list) {
-            bool worthit = true;
-//            if(lastPSNR > 40){
-//                worthit = false;
-//            }
-            if(!skips[skipIdx] && worthit){
+            if(!skips[skipIdx]){
                 //            printf("\n i: %i j: %i", i, j);
                 fMatrix newImage  = VQ::replaceBlocks(block_list[i], codebook_list[cIdx], vector_list[i], dims);
 //            printf("\n i: %i j: %i", image.size(), newImage.size());
@@ -282,7 +278,7 @@ vector<unsigned> VQ::best_codebook(const intMatrix &image, const vector<fMatrix>
 
                 printf("\n[%i] PSNR = %f R = %f", i, psnr, R);
 
-                vector<float> p_row = {(float)bSize, (float)cb_size, (float)psnr, (float)R};
+                vector<string> p_row = {to_string(bSize), to_string(cb_size), to_string(psnr), to_string(R)};
                 performance.push_back(p_row);
                 lastPSNR = psnr;
 
@@ -308,4 +304,93 @@ vector<unsigned> VQ::best_codebook(const intMatrix &image, const vector<fMatrix>
     vector<unsigned > best = {bcb, cIdx-1, bestcbSize};
 
     return best;
+}
+
+ void VQ::save_codebooks(const string& filename, const vector<fMatrix> &codebook_list, const intMatrix& dims){
+     FILE *fout = fopen(filename.c_str(), "wb");
+
+     if (fout == nullptr){
+         printf("\nArquivo de codebooks nao encontrado (escrita)!");
+         return;
+     }
+
+     unsigned i = 0;
+     for(const auto &codebook : codebook_list){
+//         printf("\nDims: %i/%i", dims[i][0], dims[i][1]);
+         for(const char &c : to_string(dims[i][0])){
+             putc(c, fout);
+         }
+         putc(',', fout);
+         for(const char &c : to_string(dims[i][1])){
+             putc(c, fout);
+         }
+         putc(',', fout);
+         i += 1;
+         for (const auto & row : codebook) {
+             for(const auto &point : row){
+                 putc((int)round(point), fout);
+             }
+         }
+     }
+
+     fclose(fout);
+}
+
+vector<fMatrix> VQ::load_codebooks(const string& filename){
+    FILE *fin = fopen(filename.c_str(), "rb");
+    vector<fMatrix> codebook_list;
+
+    if (fin == nullptr){
+        printf("\nArquivo de codebooks nao encontrado (leitura)!");
+        return codebook_list;
+    }
+
+    enum States {bsize, csize, vect};
+    States state = States::bsize;
+    string buffer;
+    unsigned bsizeRead = 0;
+    unsigned csizeRead = 0;
+
+    while(true){
+        char ch = (char)getc(fin);
+        if(ch == EOF) break;
+
+        switch (state) {
+            case States::bsize:
+                if (ch == ','){
+                    state = States::csize;
+                    bsizeRead = stoi(buffer);
+                    buffer = "";
+                }
+                else{
+                    buffer += ch;
+                }
+                break;
+            case States::csize:
+                if (ch == ','){
+                    state = States::vect;
+                    bsizeRead = stoi(buffer);
+                    buffer = "";
+                }
+                else{
+                    buffer += ch;
+                }
+                break;
+            case States::vect:
+                fMatrix codebook;
+                for (int i = 0; i < csizeRead; i++) {
+                    vector<float> row;
+                    for (int j = 0; j < bsizeRead; j++) {
+                        row.push_back((float)getc(fin));
+                    }
+                    codebook.push_back(row);
+                }
+                codebook_list.push_back(codebook);
+                break;
+        }
+    }
+
+    fclose(fin);
+
+    return codebook_list;
 }

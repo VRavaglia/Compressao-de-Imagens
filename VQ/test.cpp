@@ -79,7 +79,7 @@ int main() {
 
     unsigned iIdx = 0;
 
-    fMatrix best;
+    vector<vector<string>> best;
 
     for(const auto& test_file : test_images){
         vector<fMatrix> block_list;
@@ -93,13 +93,13 @@ int main() {
         }
 
         vector<unsigned> bc = VQ::best_codebook(test_image, block_list, codebook_list, dims, iIdx, skips);
-        printf(("\n" + test_file).c_str());
+        printf("%s", ("\n" + test_file).c_str());
 
         fMatrix newImage  = VQ::replaceBlocks(block_list[bc[0]], codebook_list[bc[1]], vector_list[bc[0]], dims);
 //        ImageReader::save_csv("./teste.csv", block_list[1], false);
 
 
-        best.push_back({(float)bc[0], (float)bc[2]});
+        best.push_back({to_string(bc[0]), to_string(bc[2])});
 
         ImageReader::write(("./imagens_vq/rec/Cod" + to_string(iIdx) + ".pgm").c_str(), dims, newImage);
 

@@ -6,6 +6,7 @@
 #define VQ_IMAGEREADER_H
 
 #include <vector>
+#include <string>
 
 using namespace std;
 
@@ -18,7 +19,7 @@ private:
 public:
     static intMatrix read(const char *filename, unsigned *dims);
     static fMatrix getBlocks(const unsigned size[2], intMatrix &image);
-    static void save_csv(const char *filename, const fMatrix &blocks, const bool convert);
+    static void save_csv(const char *filename, const vector<vector<string>> &blocks, bool convert);
     static void write(const char *filename, unsigned *dims, const fMatrix &image);
 };
 
