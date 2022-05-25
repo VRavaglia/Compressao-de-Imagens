@@ -12,30 +12,30 @@
 
 using namespace std;
 
-static const unsigned vl_size = 4;
-//static const unsigned vector_list[vl_size][2] = {{1,1},
-//                                           {1,2},
-//                                           {2,1},
-//                                           {2,2},
-//                                           {2,4},
-//                                           {4,2},
-//                                           {4,4},
-//                                           {4,8},
-//                                           {8,4},
-//                                           {8,8},};
-static const unsigned vector_list[vl_size][2] = {{4,2},
-                                                 {2,4},
-                                                 {4,4},
-                                                 {8,8}};
+static const unsigned vl_size = 10;
+static const unsigned vector_list[vl_size][2] = {{1,1},
+                                           {1,2},
+                                           {2,1},
+                                           {2,2},
+                                           {2,4},
+                                           {4,2},
+                                           {4,4},
+                                           {4,8},
+                                           {8,4},
+                                           {8,8},};
+//static const unsigned vector_list[vl_size][2] = {{4,2},
+//                                                 {2,4},
+//                                                 {4,4},
+//                                                 {8,8}};
 //static const unsigned vector_list[vl_size][2] = {{1,1},
 //                                           {2,2},};
-static const unsigned cb_size_size = 2;
-//static const unsigned cb_size_list[cb_size_size] = {16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2, 4096*4};
-static const unsigned cb_size_list[cb_size_size] = {16, 32};
+static const unsigned cb_size_size = 11;
+static const unsigned cb_size_list[cb_size_size] = {16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2, 4096*4};
+//static const unsigned cb_size_list[cb_size_size] = {16, 32};
 static const bool warp = false;
 //static const unsigned cb_size_list[2] = {16, 32};
 
-static const unsigned minPSNR = 40;
+static const unsigned minPSNR = 38;
 
 class VQ {
 private:
@@ -50,7 +50,7 @@ public:
     static fMatrix replaceBlocks(const fMatrix &blocks, const fMatrix &codebook, const unsigned *bDims, const unsigned *fDims);
     static void save_codebooks(const string& filename, const vector<fMatrix> &codebook_list, const intMatrix& dims);
     static vector<fMatrix> load_codebooks(const string& filename);
-    static vector<unsigned> best_codebook(const intMatrix &image, const vector<fMatrix> &block_list, const vector<fMatrix> &codebook_list, const unsigned *dims, unsigned testIdx, const vector<bool> skips);
+    static vector<unsigned> best_codebook(const intMatrix &image, const vector<fMatrix> &block_list, const vector<fMatrix> &codebook_list, const unsigned *dims, unsigned testIdx);
     static double MSE(const intMatrix &oldI, const fMatrix &newI);
     static double PSNR(const intMatrix &oldI, const fMatrix &newI);
 };

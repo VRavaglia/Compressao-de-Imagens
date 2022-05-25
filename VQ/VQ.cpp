@@ -253,55 +253,52 @@ double VQ::PSNR(const intMatrix &oldI, const fMatrix &newI){
     return 10*log10(255*255/MSE(oldI, newI));
 }
 
-vector<unsigned> VQ::best_codebook(const intMatrix &image, const vector<fMatrix> &block_list, const vector<fMatrix> &codebook_list, const unsigned *dims, unsigned testIdx, const vector<bool> skips){
+vector<unsigned> VQ::best_codebook(const intMatrix &image, const vector<fMatrix> &block_list, const vector<fMatrix> &codebook_list, const unsigned *dims, unsigned testIdx){
     unsigned bcb = 0;
     unsigned bestcbSize;
     double maxPSNR = -1;
     double maxR = 0;
     unsigned cIdx = 0;
-    unsigned skipIdx = 0;
+    unsigned bcIdx = 0;
     vector<vector<string>> performance;
 
     printf("\nCalculo do melhor codebook:");
 
     for (int i = 0; i < block_list.size(); ++i) {
-        double lastPSNR = 0;
         for (unsigned int cb_size : cb_size_list) {
-            if(!skips[skipIdx]){
-                //            printf("\n i: %i j: %i", i, j);
-                fMatrix newImage  = VQ::replaceBlocks(block_list[i], codebook_list[cIdx], vector_list[i], dims);
-//            printf("\n i: %i j: %i", image.size(), newImage.size());
+            unsigned bSize = vector_list[i][0] * vector_list[i][1];
+            double R = log2(cb_size)/bSize;
+            if(R <= 7) {
+
+                fMatrix newImage = VQ::replaceBlocks(block_list[i], codebook_list[cIdx], vector_list[i], dims);
                 double psnr = VQ::PSNR(image, newImage);
-                unsigned bSize = vector_list[i][0] * vector_list[i][1];
-//            printf("\n i: %i j: %i", cb_size, bSize);
-                double R = log2(cb_size)/bSize;
 
-                printf("\n[%i] PSNR = %f R = %f", i, psnr, R);
 
-                vector<string> p_row = {to_string(bSize), to_string(cb_size), to_string(psnr), to_string(R)};
+                printf("\n[%i|%i] PSNR = %f R = %f", i,cIdx, psnr, R);
+
+                vector<string> p_row = {to_string(vector_list[i][0]), to_string(vector_list[i][1]), to_string(cb_size),
+                                        to_string(psnr), to_string(R)};
                 performance.push_back(p_row);
-                lastPSNR = psnr;
 
-                if (psnr < 0 || (psnr > maxPSNR && maxPSNR < minPSNR) || (psnr > minPSNR && R < maxR)){
+                if (psnr < 0 || (psnr > maxPSNR && maxPSNR < minPSNR) || (psnr > minPSNR && R < maxR)) {
                     maxPSNR = psnr;
                     bestcbSize = cb_size;
                     maxR = R;
                     bcb = i;
+                    bcIdx = cIdx;
                 }
                 cIdx += 1;
             }
-            else{
-                printf("\nCodebook ignorado.");
-            }
-            skipIdx += 1;
         }
+
     }
 
-    ImageReader::save_csv(("performance_" + to_string(testIdx) +".csv").c_str(), performance, false);
 
-    printf("\nMelhor codebook: [%i/%i] PSNR = %f R = %f", bcb, cIdx-1, maxPSNR, maxR);
+    ImageReader::save_csv(("./desempenhos/performance_" + to_string(testIdx) +".csv").c_str(), performance, false);
 
-    vector<unsigned > best = {bcb, cIdx-1, bestcbSize};
+    printf("\nMelhor codebook: [%i/%i] PSNR = %f R = %f", bcb, bcIdx, maxPSNR, maxR);
+
+    vector<unsigned > best = {bcb, bcIdx, bestcbSize, vector_list[bcb][0], vector_list[bcb][1]};
 
     return best;
 }
@@ -350,10 +347,14 @@ vector<fMatrix> VQ::load_codebooks(const string& filename){
     string buffer;
     unsigned bsizeRead = 0;
     unsigned csizeRead = 0;
+    bool first = false;
 
     while(true){
-        char ch = (char)getc(fin);
-        if(ch == EOF) break;
+        char ch;
+        if(state != States::vect){
+            ch = (char)getc(fin);
+            if(ch == EOF) break;
+        }
 
         switch (state) {
             case States::bsize:
@@ -369,7 +370,7 @@ vector<fMatrix> VQ::load_codebooks(const string& filename){
             case States::csize:
                 if (ch == ','){
                     state = States::vect;
-                    bsizeRead = stoi(buffer);
+                    csizeRead = stoi(buffer);
                     buffer = "";
                 }
                 else{
@@ -381,11 +382,13 @@ vector<fMatrix> VQ::load_codebooks(const string& filename){
                 for (int i = 0; i < csizeRead; i++) {
                     vector<float> row;
                     for (int j = 0; j < bsizeRead; j++) {
-                        row.push_back((float)getc(fin));
+                        int c = getc(fin);
+                        row.push_back((float)c);
                     }
                     codebook.push_back(row);
                 }
                 codebook_list.push_back(codebook);
+                state = States::bsize;
                 break;
         }
     }
