@@ -54,11 +54,11 @@ int main() {
 
         best.push_back({to_string(bc[3]), to_string(bc[4]), to_string(bc[0]), to_string(bc[2])});
 
-        ImageReader::write(("./imagens_vq/rec/Cod" + to_string(iIdx) + ".pgm").c_str(), dims, newImage);
+        ImageReader::write(("./imagens_vq/rec/Cod" + to_string(iIdx) + "_" + to_string(minPSNR) + ".pgm").c_str(), dims, newImage);
 
         iIdx += 1;
     }
-    ImageReader::save_csv("./desempenhos/BestCDBK.csv", best, false);
+    ImageReader::save_csv("./desempenhos/BestCDBK_20.csv", best, false);
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
     cout << "\nTempo de Teste (s): " << float(duration.count())/pow(10,6) << endl;

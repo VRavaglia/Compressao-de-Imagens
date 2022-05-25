@@ -35,7 +35,7 @@ static const unsigned cb_size_list[cb_size_size] = {16, 32, 64, 128, 256, 512, 1
 static const bool warp = false;
 //static const unsigned cb_size_list[2] = {16, 32};
 
-static const unsigned minPSNR = 38;
+static const unsigned minPSNR = 25;
 
 class VQ {
 private:

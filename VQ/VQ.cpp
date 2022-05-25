@@ -294,7 +294,7 @@ vector<unsigned> VQ::best_codebook(const intMatrix &image, const vector<fMatrix>
     }
 
 
-    ImageReader::save_csv(("./desempenhos/performance_" + to_string(testIdx) +".csv").c_str(), performance, false);
+    ImageReader::save_csv(("./desempenhos/performance_" + to_string(testIdx) + "_" + to_string(minPSNR) + ".csv").c_str(), performance, false);
 
     printf("\nMelhor codebook: [%i/%i] PSNR = %f R = %f", bcb, bcIdx, maxPSNR, maxR);
 
