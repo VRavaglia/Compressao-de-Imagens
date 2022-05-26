@@ -1,0 +1,17 @@
+Para compilar os programas de teste e treino execute:
+
+make all
+
+treino:
+
+O programa utiliza as imagens presentes em imagens_vq/treino para gerar os codebooks. Os codebooks sao salvos no arquivo codebook.txt
+
+O arquivo VQ.h tem as constates que representam as possibilidades de tamanho de codebook e dimensões dos blocos.
+
+teste:
+
+O programa le o arquivo codebooks.txt e utiliza os codebooks para quantizar as imagens presentes em imagens_vq/teste. As imagens resultantes são salvas em imagens_vq/rec. O desempenho obtido ao quantizar as imagens é salvo em ./desempenhos.
+
+O arquivo VQ.h define a constante minPSNR que é utilizada para classificar o melhor codebook para uma dada imagem.
+
+O os notebooks Image_comp.ipynb e Performance.ipynb foram utilizados para plotar os resultados.
