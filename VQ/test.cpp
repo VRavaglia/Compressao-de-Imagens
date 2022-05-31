@@ -1,7 +1,6 @@
 #include <iostream>
 #include "VQ.h"
 #include "ImageReader.h"
-//#include <filesystem>
 #include <string>
 #include <vector>
 #include <chrono>
@@ -28,7 +27,6 @@ int main() {
     auto start = high_resolution_clock::now();
     printf("\n Iniciando testes");
 
-//    ImageReader::save_csv("./teste.csv", blocks);
 
     unsigned iIdx = 0;
 
@@ -47,7 +45,6 @@ int main() {
 
         vector<unsigned> bc = VQ::best_codebook(test_image, block_list, codebook_list, dims, iIdx);
         printf("%s", ("\n" + test_file).c_str());
-//        printf("\n\n %i %i", bc[0], bc[1]);
 
         fMatrix newImage  = VQ::replaceBlocks(block_list[bc[0]], codebook_list[bc[1]], vector_list[bc[0]], dims);
 
@@ -58,7 +55,7 @@ int main() {
 
         iIdx += 1;
     }
-    ImageReader::save_csv("./desempenhos/BestCDBK_20.csv", best, false);
+    ImageReader::save_csv("./desempenhos/BestCDBK_30.csv", best, false);
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
     cout << "\nTempo de Teste (s): " << float(duration.count())/pow(10,6) << endl;
