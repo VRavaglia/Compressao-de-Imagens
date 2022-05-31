@@ -1,7 +1,7 @@
 //
 // Created by raposo on 5/31/22.
 //
-
+#pragma once
 #ifndef WAVELETS_SUB_H
 #define WAVELETS_SUB_H
 
@@ -11,15 +11,15 @@ void sub(int **Image_orig, int **Image_out, int **Image, int xsize, int ysize);
 int sub4anal(double *pSIMG[], int nstg, int l_f);
 int sub4synt(double *pSIMG[], int nstg, int l_f);
 
-int ximg;
-int yimg;
-int ylum;
-int xlowsize;
-int ylowsize;
-int skip;   /* number of pixels which will be skipped on each */
+static int ximg;
+static int yimg;
+static int ylum;
+static int xlowsize;
+static int ylowsize;
+static int skip;   /* number of pixels which will be skipped on each */
 /* side when reading or writing the image file */
 
-int ncomps; /* 0: B&W; 1: color */
+static int ncomps = 0; /* 0: B&W; 1: color */
 
 typedef struct {
     int xmin; /* minimum value of the x boundary */
@@ -28,6 +28,6 @@ typedef struct {
     int ymax; /* maximum value of the y boundary */
 } boundary; /* holds values of image boundaries */
 
-boundary bband[NBANDS][NCOMPS]; /* holds the boundary values of each band */
+static boundary bband[NBANDS][NCOMPS]; /* holds the boundary values of each band */
 
 #endif //WAVELETS_SUB_H

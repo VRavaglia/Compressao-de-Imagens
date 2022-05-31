@@ -15,18 +15,22 @@
 //#define XIMG      720    /* effective width of the image */
 //#define YIMG      864    /* effective height of the image */
 //#define YLUM      576    /* effective height of the luminance of the image*/
-#define XIMG      800    /* effective width of the image */
-#define YIMG      896    /* effective height of the image */
-#define YLUM      800    /* effective height of the luminance of the image*/
+#define XIMG      1000    /* effective width of the image */
+#define YIMG      1000    /* effective height of the image */
+#define YLUM      1000    /* effective height of the luminance of the image*/
+//#define XIMG      720    /* effective width of the image */
+//#define YIMG      576    /* effective height of the image */
+//#define YLUM      576    /* effective height of the luminance of the image*/
 #define DCTSIZE   8      /* the DCT is DCTSIZE in each direction */
 #define DCT2SIZE  64     /* DCTSIZE*DCTSIZE */
 //#define YDCTNO    54     /* YIMG/DCTSIZE -number of blocks in the y direction */
 //#define XDCTNO    44     /* XIMG/DCTSIZE -number of blocks in the x direction */
 #define YDCTNO    112     /* YIMG/DCTSIZE -number of blocks in the y direction */
 #define XDCTNO    100     /* XIMG/DCTSIZE -number of blocks in the x direction */
-#define NBANDS    7     /* number of bands */
+
 //#define NSTAGES   3
-#define NSTAGES   2
+#define NSTAGES   3
+#define NBANDS    NSTAGES*3+1     /* number of bands */
 #define NCOMPS    3      /* 3 image components - YUV */
 #define NLEVELS   48     /* number of levels of the non-negative part of the */
 /* non-linear quantizer used */

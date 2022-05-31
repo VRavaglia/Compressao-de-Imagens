@@ -267,7 +267,7 @@ void sub(int **Image_orig, int **Image_out, int **Image, int xsize, int ysize) {
 
     for (y = 0; y < ylum; y++) {
         for (x = 0; x < ximg; x++) {
-            Image[x][y] = pSY[x][y];
+            Image[y][x] = pSY[y][x];
         }
     }
 
@@ -281,7 +281,9 @@ void sub(int **Image_orig, int **Image_out, int **Image, int xsize, int ysize) {
     for (y = 0; y < ylum; y++) /* luminance */
     {
         for (x = 0; x < (ximg); x++) {
-            Image_out[x][y] = mpel(round(*(pSIMG[y] + x)));
+//            Image_out[y][x] = mpel(round(*(pSIMG[y] + x)));
+//            if(x > 720/2)
+            Image_out[y][x] = mpel(round(pSIMG[y][x]));
         }
     }
 

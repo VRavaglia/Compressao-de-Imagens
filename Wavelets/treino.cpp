@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "ImageReader.h"
+#include "WaveletHelper.h"
 extern "C"
 {
     #include "subdefs2.h"
@@ -19,7 +20,7 @@ int main() {
     }
 
     unsigned dims[3];
-    intMatrix image = ImageReader::read(training_images[2].c_str(), dims);
+    intMatrix image = ImageReader::read(training_images[8].c_str(), dims);
     int **Image_orig = ImageReader::imatrix2ipointer(image);
     int **Image_out = ImageReader::allocIntMatrix((int)dims[0], (int)dims[1]);
     int **Image = ImageReader::allocIntMatrix((int)dims[0], (int)dims[1]);
