@@ -49,6 +49,19 @@
 #include "fqmf16AS.h"
 #include <math.h>
 
+#define MAXDIM   896 /* maximum dimension in either horizontal or vertical */
+/* direction that the function will handle */
+#define LLENGTH  16   /* length of low band filter */
+#define HLENGTH  16  /* length of high band filter */
+#define LNORM    0.5     /* normalization constant of the low pass filter */
+#define HNORM    0.5 /* normalization constant of the high pass filter */
+#define ADVL     7   /* phase advance of the low pass filter in order to */
+/* compensate for the delay of the subband */
+/* analysis/synthesis process */
+#define ADVH     7   /* phase advance of the high pass filter in order to */
+/* compensate for the delay of the subband */
+/* analysis/synthesis process */
+
 /* THIS FUNCTION PERFORMS THE SUBBAND SYNTHESIS USING THE CASE (iii) FOR BOTH */
 /* THE LOW AND HIGHPASS FILTERS */
 /* both bands must be extended with type B */
@@ -68,15 +81,15 @@
 /* IMPORTANT! the matrixes passed as parameters must be of type int */
 
 int subsynt(double *pIMG[],
-             int xsize,
-             int ysize,
-             int xLsrc,
-             int yLsrc,
-             int xHsrc,
-             int yHsrc,
-             int xdst,
-             int ydst,
-             int h_v){
+            short int xsize,
+            short int ysize,
+            short int xLsrc,
+            short int yLsrc,
+            short int xHsrc,
+            short int yHsrc,
+            short int xdst,
+            short int ydst,
+            int h_v){
 
 /* pIMG   : pointer to the lines of the image */
 /* xsize  : length of the source bands in the horizontal */

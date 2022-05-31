@@ -48,6 +48,19 @@
 #include "fqmf16AA.h"
 #include <math.h>
 
+#define MAXDIM   896 /* maximum dimension in either horizontal or vertical */
+/* direction that the function will handle */
+#define LLENGTH  16  /* length of low band filter */
+#define HLENGTH  16   /* length of high band filter */
+#define LNORM    1.0 /* normalization constant of the low pass filter */
+#define HNORM    1.0     /* normalization constant of the high pass filter */
+#define ADVL     8   /* phase advance of the low pass filter in order to */
+/* compensate for the delay of the subband */
+/* analysis/synthesis process */
+#define ADVH     8   /* phase advance of the high pass filter in order to */
+/* compensate for the delay of the subband */
+/* analysis/synthesis process */
+
 /* THIS FUNCTION PERFORMS THE SUBBAND ANALYSIS USING BOTH THE CASE (iii) AND */
 /* CASE (iv) FILTERS */
 /* the input signal must be extended with type B */
@@ -63,15 +76,15 @@
 
 
 int subanal(double *pIMG[],
-        int xsize,
-        int ysize,
-        int xsrc,
-        int ysrc,
-        int xLdst,
-        int yLdst,
-        int xHdst,
-        int yHdst,
-        int h_v){
+            short int xsize,
+            short int ysize,
+            short int xsrc,
+            short int ysrc,
+            short int xLdst,
+            short int yLdst,
+            short int xHdst,
+            short int yHdst,
+            int h_v){
 
 /* pIMG   : pointer to the lines of the image */
 /* xsize  : length of the band to be decomposed in the horizontal */

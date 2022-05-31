@@ -19,7 +19,7 @@ int ylowsize;
 int skip;   /* number of pixels which will be skipped on each */
 /* side when reading or writing the image file */
 
-extern int ncomps; /* 0: B&W; 1: color */
+int ncomps; /* 0: B&W; 1: color */
 
 typedef struct {
     int xmin; /* minimum value of the x boundary */
@@ -28,6 +28,6 @@ typedef struct {
     int ymax; /* maximum value of the y boundary */
 } boundary; /* holds values of image boundaries */
 
-extern boundary bband[NBANDS][NCOMPS]; /* holds the boundary values of each band */
+boundary bband[NBANDS][NCOMPS]; /* holds the boundary values of each band */
 
 #endif //WAVELETS_SUB_H

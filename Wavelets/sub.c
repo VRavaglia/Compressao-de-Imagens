@@ -338,8 +338,8 @@ subanal(pIMG, xsize, ysize, xsrc, ysrc, xLdst, yLdst, xHdst, yHdst, h_v)
             m = (int) pow(2.0, n);
             for (k = 0; k < m; k++) {
                 /* luminance */
-                subanal(pSIMG, ximg / m, ylum, k * ximg / m, 0,
-                        k * ximg / m, 0, (2 * k + 1) * ximg / (2 * m), 0, 0);
+                subanal(pSIMG, (short int)(ximg /  m), ylum, (short int)(k * ximg / m), 0,
+                        (short int)(k * ximg / m), 0, (short int)((2 * k + 1) * ximg / (2 * m)), 0, 0);
                 if (ncomps == 3) {
                     /* chrominance U */
                     subanal(pSIMG, ximg / 2 * m, ylum / 2, k * ximg / 2 * m, ylum,
