@@ -23,6 +23,8 @@ fMatrix VQ::LGB(const fMatrix &blocks, const unsigned cbSize, const float eps){
         split_codebook(blocks, codebook, eps, avg_dist);
     }
 
+    vector<float> czero(sizeDim,  0.0);
+    codebook.push_back(czero);
 
     return codebook;
 }
@@ -267,7 +269,7 @@ vector<unsigned> VQ::best_codebook(const intMatrix &image, const vector<fMatrix>
     for (int i = 0; i < block_list.size(); ++i) {
         for (unsigned int cb_size : cb_size_list) {
             unsigned bSize = vector_list[i][0] * vector_list[i][1];
-            double R = log2(cb_size)/bSize;
+            double R = log2(cb_size+1)/bSize;
             if(R <= 7) {
 
                 fMatrix newImage = VQ::replaceBlocks(block_list[i], codebook_list[cIdx], vector_list[i], dims);

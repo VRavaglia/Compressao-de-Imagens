@@ -60,7 +60,7 @@ int main() {
                     skips.push_back(false);
                     fMatrix codebook = VQ::LGB(blocks, cbSize, eps);
                     codebook_list.push_back(codebook);
-                    codebook_dim_list.push_back({(int)bSize, (int)cbSize});
+                    codebook_dim_list.push_back({(int)bSize, (int)cbSize + 1});
                 }
                 else{
                     printf("\nTamanho de codebook ignorado.");
@@ -72,7 +72,7 @@ int main() {
             bSizeIdx += 1;
         }
 
-        VQ::save_codebooks("./codebooks_" + to_string(i) + ".txt", codebook_list, codebook_dim_list);
+        VQ::save_codebooks("./codebooks/codebooks_" + to_string(i) + ".txt", codebook_list, codebook_dim_list);
 
     }
 
