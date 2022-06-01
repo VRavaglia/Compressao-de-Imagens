@@ -2,6 +2,8 @@
 
 #include "ImageReader.h"
 #include "WaveletHelper.h"
+#include "VQ.h"
+#include <chrono>
 extern "C"
 {
     #include "subdefs2.h"
@@ -26,6 +28,58 @@ int main() {
     int **Image = ImageReader::allocIntMatrix((int)dims[0], (int)dims[1]);
 
     sub(Image_orig, Image_out, Image, (int)dims[1], (int)dims[0]);
+
+    vector<intMatrix> subbands = WaveletHelper::splitSubbands(Image, (int)dims[1], (int)dims[0], NSTAGES);
+    using namespace std::chrono;
+    auto start = high_resolution_clock::now();
+    printf("\n Iniciando treinamento: %i/%i - %i/%i", 0, vl_size*cb_size_size, 0, NBANDS);
+    for (int i = 0; i < NBANDS; ++i) {
+        vector<fMatrix> codebook_list;
+        vector<unsigned> idxTable;
+
+        unsigned codebooks = 0;
+        unsigned bSizeIdx = 0;
+        vector<bool> skips;
+        intMatrix codebook_dim_list;
+        float eps = 0.1;
+
+
+        for(const unsigned *block_size : vector_list){
+            fMatrix blocks;
+//            for (int j = 0; j < training_images.size(); j++) {
+            for (int j = 0; j < 1; j++) {
+                fMatrix temp_blocks = ImageReader::getBlocks(block_size, subbands[i]);
+                for(const auto& block : temp_blocks){
+                    blocks.push_back(block);
+                }
+            }
+            for (auto cbSize : cb_size_list) {
+                unsigned bSize = block_size[0] * block_size[1];
+                double R = log2(cbSize)/bSize;
+                if((R <= 7)){
+                    skips.push_back(false);
+                    fMatrix codebook = VQ::LGB(blocks, cbSize, eps);
+                    codebook_list.push_back(codebook);
+                    codebook_dim_list.push_back({(int)bSize, (int)cbSize});
+                }
+                else{
+                    printf("\nTamanho de codebook ignorado.");
+                    skips.push_back(true);
+                }
+                codebooks += 1;
+                printf("\n[%i/%i] Treinamento: %i/%i - %i/%i", bSizeIdx,cbSize, codebooks, vl_size*cb_size_size, i+1, NBANDS);
+            }
+            bSizeIdx += 1;
+        }
+
+        VQ::save_codebooks("./codebooks_" + to_string(i) + ".txt", codebook_list, codebook_dim_list);
+
+    }
+
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+    cout << "\nTempo de Treino (s): " << float(duration.count())/pow(10,6) << endl;
+
 
     fMatrix Image_outF;
     fMatrix ImageF;

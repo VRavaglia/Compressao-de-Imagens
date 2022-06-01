@@ -225,6 +225,23 @@ int** ImageReader::imatrix2ipointer(const intMatrix& input){
     return mat;
 }
 
+intMatrix ipointer2imatrix(const int **input, int heigth, int width){
+    unsigned rows = heigth;
+    unsigned cols = width;
+
+    intMatrix mat;
+
+    for (int i = 0; i < rows; ++i) {
+        vector<int> row;
+        for (int j = 0; j < cols; ++j) {
+            row.push_back(input[i][j]);
+        }
+        mat.push_back(row);
+    }
+
+    return mat;
+}
+
 int** ImageReader::allocIntMatrix(const int rows, const int cols){
     int **mat = (int **)malloc(rows * sizeof(int*));
 

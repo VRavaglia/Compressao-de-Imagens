@@ -18,15 +18,20 @@ vector<intMatrix> WaveletHelper::splitSubbands(int **InputImg, int ximg, int yim
     }
     subbands.push_back(lll);
 
-    for (int i = 1; i < nsubs; ++i) {
+    for (int i = 1; i < nsubs+1; ++i) {
         for (int j = 0; j < 3; ++j) {
             intMatrix temp;
-            int xLims = (int)round(ximg/(pow(2, i)));
-            int yLims = (int)round(yimg/(pow(2, i)));
-            for (int k = (int)round(ximg/(pow(2, i)) + 1); k < ximg/(pow(2, i-1)); ++k) {
+            int mWidth = (int)round(ximg/(pow(2, i)));
+            int mHeigth = (int)round(yimg/(pow(2, i)));
+            int startPosMult[3][2] = {{1, 0}, {1,1}, {0, 1}};
+            int startX = startPosMult[j][0]*mWidth;
+            int startY = startPosMult[j][1]*mHeigth;
+//            printf("\nX: %i - %i", startX, startX+mWidth-1);
+//            printf("\nY: %i - %i", startY, startY+mHeigth-1);
+            for (int k = startX; k < startX + mWidth; ++k) {
                 vector<int> row;
-                for (int l = 0; l < yimg/(pow(2, i)); ++l) {
-                    row.push_back(InputImg[k][l]);
+                for (int l = startY; l < startY+mHeigth; ++l) {
+                    row.push_back(InputImg[l][k]);
                 }
                 temp.push_back(row);
             }
