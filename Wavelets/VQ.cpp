@@ -7,6 +7,11 @@
 #include "ImageReader.h"
 #include <map>
 
+extern "C"
+{
+#include "subdefs2.h"
+}
+
 fMatrix VQ::LGB(const fMatrix &blocks, const unsigned cbSize, const float eps){
     fMatrix codebook;
 
@@ -399,3 +404,60 @@ vector<fMatrix> VQ::load_codebooks(const string& filename){
 
     return codebook_list;
 }
+
+vector<vector<performance>> VQ::evaluate_codebooks(const vector<intMatrix> &subbands) {
+    unsigned count = 0;
+    vector<vector<performance>> allPerformances;
+    printf("\nAvaliando codebooks:");
+    for (int j = 0; j < NBANDS; ++j) {
+        vector<fMatrix> codebook_list = VQ::load_codebooks("./codebooks/codebooks_" + to_string(j) + ".txt");
+
+        vector<fMatrix> block_list;
+
+        for(const unsigned *block_size : vector_list){
+            fMatrix test_blocks = ImageReader::getBlocks(block_size, subbands[j]);
+            block_list.push_back(test_blocks);
+        }
+
+        unsigned cIdx = 0;
+
+        vector<performance> subbandPer;
+
+        for (int i = 0; i < block_list.size(); ++i) {
+            for (unsigned int cb_size : cb_size_list) {
+                unsigned bSize = vector_list[i][0] * vector_list[i][1];
+                double R = log2(cb_size+1)/bSize;
+                if(R <= 7) {
+                    unsigned dims[3] = {};
+                    fMatrix newImage = VQ::replaceBlocks(block_list[i], codebook_list[cIdx], vector_list[i], dims);
+                    double mse = VQ::MSE(subbands[j], newImage);
+                    double psnr = 10*log10(255*255/mse);
+
+                    printf("\n%i/%i MSE = %f PSNR = %f R = %f", count,NBANDS*block_list.size()*cb_size_size, mse, psnr, R);
+
+                    performance per;
+                    per.R = R;
+                    per.MSE = mse;
+                    per.PSNR = psnr;
+                    per.block_size[0] = vector_list[i][0];
+                    per.block_size[1] = vector_list[i][1];
+                    per.codebook_size = cb_size+1;
+                    subbandPer.push_back(per);
+
+                    count += 1;
+                    cIdx += 1;
+                }
+            }
+
+        }
+        allPerformances.push_back(subbandPer);
+
+//        vector<unsigned> bc = VQ::best_codebook(subbands[i], block_list, codebook_list, dims, iIdx);
+//        fMatrix newImage  = VQ::replaceBlocks(block_list[bc[0]], codebook_list[bc[1]], vector_list[bc[0]], dims);
+//        best.push_back({to_string(bc[3]), to_string(bc[4]), to_string(bc[0]), to_string(bc[2])});
+//        iIdx += 1;
+
+    }
+    return allPerformances;
+}
+

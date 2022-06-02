@@ -36,6 +36,14 @@ static const unsigned cb_size_size = 2;
 static const unsigned cb_size_list[cb_size_size] = {16, 32};
 static const bool warp = false;
 
+struct performance{
+    unsigned block_size[2] = {0, 0};
+    unsigned codebook_size = 0;
+    double PSNR = 0;
+    double MSE = 0;
+    double R = 0;
+};
+
 // PSNR minima utilizada na hora de julgar o codebook como sendo o melhor para uma dada imagem
 static const unsigned minPSNR = 30;
 
@@ -55,6 +63,7 @@ public:
     static vector<unsigned> best_codebook(const intMatrix &image, const vector<fMatrix> &block_list, const vector<fMatrix> &codebook_list, const unsigned *dims, unsigned testIdx);
     static double MSE(const intMatrix &oldI, const fMatrix &newI);
     static double PSNR(const intMatrix &oldI, const fMatrix &newI);
+    static vector<vector<performance>> evaluate_codebooks(const vector<intMatrix> &subbands);
 };
 
 
