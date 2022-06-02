@@ -257,3 +257,15 @@ int** ImageReader::allocIntMatrix(const int rows, const int cols){
 
     return mat;
 }
+
+intMatrix ImageReader::float2int(const fMatrix &in) {
+    intMatrix out;
+    for (const auto & r : in) {
+        vector<int> row;
+        for (float i : r) {
+            row.push_back((int)round(i));
+        }
+        out.push_back(row);
+    }
+    return out;
+}

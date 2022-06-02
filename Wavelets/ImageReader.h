@@ -19,6 +19,7 @@ private:
 public:
     static int** imatrix2ipointer(const intMatrix& input);
     static intMatrix ipointer2imatrix(const int **input, int heigth, int width);
+    static intMatrix float2int(const fMatrix &in);
     static int** allocIntMatrix(int rows, int cols);
     static intMatrix read(const char *filename, unsigned *dims);
     static fMatrix getBlocks(const unsigned size[2], const intMatrix &image);

@@ -36,12 +36,16 @@ static const unsigned cb_size_size = 2;
 static const unsigned cb_size_list[cb_size_size] = {16, 32};
 static const bool warp = false;
 
+#define LAMBDA 1.0
+
 struct performance{
     unsigned block_size[2] = {0, 0};
     unsigned codebook_size = 0;
+    unsigned codebook_idx = 0;
     double PSNR = 0;
     double MSE = 0;
     double R = 0;
+    fMatrix subband;
 };
 
 // PSNR minima utilizada na hora de julgar o codebook como sendo o melhor para uma dada imagem

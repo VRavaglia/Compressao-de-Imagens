@@ -4,6 +4,8 @@
 
 #include <cmath>
 #include "WaveletHelper.h"
+#include "VQ.h"
+#include "subdefs2.h"
 
 vector<intMatrix> WaveletHelper::splitSubbands(int **InputImg, int ximg, int yimg, int nsubs){
     vector<intMatrix> subbands;
@@ -40,4 +42,26 @@ vector<intMatrix> WaveletHelper::splitSubbands(int **InputImg, int ximg, int yim
     }
     
     return subbands;
+}
+
+vector<intMatrix> WaveletHelper::quantize(const vector<intMatrix> &oldSubbands, const vector<vector<performance>> &performances, float lambda, unsigned bestCodebooks[NBANDS]){
+    vector<intMatrix> newSubbands;
+    for (int i = 0; i < NBANDS; ++i) {
+        double minJ = pow(10, 4);
+        unsigned minIdx = 0;
+        for (const auto & per : performances[i]) {
+            double J = per.MSE + lambda*per.R;
+            if (J < minJ){
+                minJ = J;
+                minIdx = per.codebook_idx;
+            }
+        }
+
+        newSubbands.push_back(ImageReader::float2int(performances[i][minIdx].subband));
+        bestCodebooks[i] = minIdx;
+
+        printf("\n MinJ: %f - MSE: %f R: %f", minJ, performances[i][minIdx].MSE, performances[i][minIdx].R);
+    }
+
+    return newSubbands;
 }

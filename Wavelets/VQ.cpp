@@ -428,12 +428,12 @@ vector<vector<performance>> VQ::evaluate_codebooks(const vector<intMatrix> &subb
                 unsigned bSize = vector_list[i][0] * vector_list[i][1];
                 double R = log2(cb_size+1)/bSize;
                 if(R <= 7) {
-                    unsigned dims[3] = {};
+                    unsigned dims[3] = {(unsigned)subbands[j].size(), (unsigned)subbands[j][0].size(), 255};
                     fMatrix newImage = VQ::replaceBlocks(block_list[i], codebook_list[cIdx], vector_list[i], dims);
                     double mse = VQ::MSE(subbands[j], newImage);
                     double psnr = 10*log10(255*255/mse);
 
-                    printf("\n%i/%i MSE = %f PSNR = %f R = %f", count,NBANDS*block_list.size()*cb_size_size, mse, psnr, R);
+                    printf("\n%i/%i MSE = %f PSNR = %f R = %f", count, j, mse, psnr, R);
 
                     performance per;
                     per.R = R;
@@ -442,6 +442,8 @@ vector<vector<performance>> VQ::evaluate_codebooks(const vector<intMatrix> &subb
                     per.block_size[0] = vector_list[i][0];
                     per.block_size[1] = vector_list[i][1];
                     per.codebook_size = cb_size+1;
+                    per.codebook_idx = cIdx;
+                    per.subband = newImage;
                     subbandPer.push_back(per);
 
                     count += 1;

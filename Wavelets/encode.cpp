@@ -33,16 +33,14 @@ int main() {
     sub(Image_orig, Image_out, Image, (int)dims[1], (int)dims[0]);
 
     vector<intMatrix> subbands = WaveletHelper::splitSubbands(Image, (int)dims[1], (int)dims[0], NSTAGES);
-    vector<vector<string>> best;
-
-    vector<unsigned> idxTable;
-    unsigned codebooks = 0;
-    vector<bool> skips;
 
     auto start = high_resolution_clock::now();
     printf("\n Iniciando testes");
 
-    VQ::evaluate_codebooks(subbands, image, dims);
+    vector<vector<performance>> performances = VQ::evaluate_codebooks(subbands);
+
+    unsigned bestCodebooks[NBANDS];
+    WaveletHelper::quantize(subbands, performances, LAMBDA, bestCodebooks);
 
 //    ImageReader::save_csv("./desempenhos/BestCDBK_30.csv", best, false);
     auto stop = high_resolution_clock::now();
