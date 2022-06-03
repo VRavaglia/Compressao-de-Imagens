@@ -11,7 +11,7 @@
 class WaveletHelper {
 public:
     static vector<intMatrix> splitSubbands(int **InputImg, int ximg, int yimg, int nsubs);
-    static vector<intMatrix> quantize(const vector<intMatrix> &oldSubbands, const vector<vector<performance>> &performances, float lambda, unsigned bestCodebooks[NBANDS]);
+    static intMatrix quantize(const vector<intMatrix> &oldSubbands, const vector<vector<performance>> &performances, float lambda, unsigned bestCodebooks[NBANDS]);
 };
 
 

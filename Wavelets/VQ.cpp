@@ -184,11 +184,12 @@ vector<float> VQ::new_codevector(const vector<float> &c, float e){
     return nc;
 }
 
-fMatrix VQ::replaceBlocks(const fMatrix &blocks, const fMatrix &codebook, const unsigned *bDims, const unsigned *iDims){
+fMatrix VQ::replaceBlocks(const fMatrix &blocks, const fMatrix &codebook, const unsigned *bDims, const unsigned *iDims, vector<int> &blockList){
 
     float arrayImg[iDims[0]][iDims[1]];
     fMatrix newBlocks;
 //    printf("\nDims: %i/%i", iDims[0], iDims[1]);
+
 
 
     for (const auto &block : blocks) {
@@ -202,6 +203,7 @@ fMatrix VQ::replaceBlocks(const fMatrix &blocks, const fMatrix &codebook, const 
             }
         }
         newBlocks.push_back(codebook[minIdx]);
+        blockList.push_back(minIdx);
     }
 
     unsigned iWCounter = 0;
@@ -277,7 +279,8 @@ vector<unsigned> VQ::best_codebook(const intMatrix &image, const vector<fMatrix>
             double R = log2(cb_size+1)/bSize;
             if(R <= 7) {
 
-                fMatrix newImage = VQ::replaceBlocks(block_list[i], codebook_list[cIdx], vector_list[i], dims);
+                vector<int> newBlocks;
+                fMatrix newImage = VQ::replaceBlocks(block_list[i], codebook_list[cIdx], vector_list[i], dims, newBlocks);
                 double psnr = VQ::PSNR(image, newImage);
 
 
@@ -429,7 +432,8 @@ vector<vector<performance>> VQ::evaluate_codebooks(const vector<intMatrix> &subb
                 double R = log2(cb_size+1)/bSize;
                 if(R <= 7) {
                     unsigned dims[3] = {(unsigned)subbands[j].size(), (unsigned)subbands[j][0].size(), 255};
-                    fMatrix newImage = VQ::replaceBlocks(block_list[i], codebook_list[cIdx], vector_list[i], dims);
+                    vector<int> blockList;
+                    fMatrix newImage = VQ::replaceBlocks(block_list[i], codebook_list[cIdx], vector_list[i], dims, blockList);
                     double mse = VQ::MSE(subbands[j], newImage);
                     double psnr = 10*log10(255*255/mse);
 
@@ -443,7 +447,7 @@ vector<vector<performance>> VQ::evaluate_codebooks(const vector<intMatrix> &subb
                     per.block_size[1] = vector_list[i][1];
                     per.codebook_size = cb_size+1;
                     per.codebook_idx = cIdx;
-                    per.subband = newImage;
+                    per.blockList = blockList;
                     subbandPer.push_back(per);
 
                     count += 1;

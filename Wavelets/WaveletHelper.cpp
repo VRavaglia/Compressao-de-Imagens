@@ -44,24 +44,24 @@ vector<intMatrix> WaveletHelper::splitSubbands(int **InputImg, int ximg, int yim
     return subbands;
 }
 
-vector<intMatrix> WaveletHelper::quantize(const vector<intMatrix> &oldSubbands, const vector<vector<performance>> &performances, float lambda, unsigned bestCodebooks[NBANDS]){
-    vector<intMatrix> newSubbands;
+intMatrix WaveletHelper::quantize(const vector<intMatrix> &oldSubbands, const vector<vector<performance>> &performances, float lambda, unsigned bestCodebooks[NBANDS]){
+    intMatrix newBlocks;
     for (int i = 0; i < NBANDS; ++i) {
         double minJ = pow(10, 4);
         unsigned minIdx = 0;
-        for (const auto & per : performances[i]) {
-            double J = per.MSE + lambda*per.R;
+        for (int k  = 0; k < performances[i].size(); k++) {
+            double J = performances[i][k].MSE + lambda*performances[i][k].R;
             if (J < minJ){
                 minJ = J;
-                minIdx = per.codebook_idx;
+                minIdx = k;
             }
         }
 
-        newSubbands.push_back(ImageReader::float2int(performances[i][minIdx].subband));
+        newBlocks.push_back(performances[i][minIdx].blockList);
         bestCodebooks[i] = minIdx;
 
         printf("\n MinJ: %f - MSE: %f R: %f", minJ, performances[i][minIdx].MSE, performances[i][minIdx].R);
     }
 
-    return newSubbands;
+    return newBlocks;
 }

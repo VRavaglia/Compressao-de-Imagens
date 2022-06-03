@@ -45,7 +45,7 @@ struct performance{
     double PSNR = 0;
     double MSE = 0;
     double R = 0;
-    fMatrix subband;
+    vector<int> blockList;
 };
 
 // PSNR minima utilizada na hora de julgar o codebook como sendo o melhor para uma dada imagem
@@ -61,7 +61,7 @@ private:
     static double avg_dist_c_list(const map<unsigned , vector<float>> &c_list, const fMatrix &blocks, const unsigned &bSize);
 public:
     static fMatrix LGB(const fMatrix &blocks, unsigned cbSize, float eps);
-    static fMatrix replaceBlocks(const fMatrix &blocks, const fMatrix &codebook, const unsigned *bDims, const unsigned *fDims);
+    static fMatrix replaceBlocks(const fMatrix &blocks, const fMatrix &codebook, const unsigned *bDims, const unsigned *fDims, vector<int> &blockList);
     static void save_codebooks(const string& filename, const vector<fMatrix> &codebook_list, const intMatrix& dims);
     static vector<fMatrix> load_codebooks(const string& filename);
     static vector<unsigned> best_codebook(const intMatrix &image, const vector<fMatrix> &block_list, const vector<fMatrix> &codebook_list, const unsigned *dims, unsigned testIdx);
