@@ -65,6 +65,8 @@ void EncoderWrapper::encode(const string& in, const string& out) {
         return;
     }
 
+#define testandoDecoder true
+
     for (int subbanda = 0; subbanda < NBANDS; ++subbanda) {
         performance per = performances[subbanda][bestCodebooks[subbanda]];
         int freq_size = (int)per.codebook_size + 1;
@@ -74,30 +76,26 @@ void EncoderWrapper::encode(const string& in, const string& out) {
         int max_bits = ceil(log2(freq_size));
 
 //        printf("\n%i Maxbits: %i", freq_size, max_bits);
+        if (testandoDecoder){
+            for (int idx : newBlocks[subbanda]) {
+                int symbol = idx+1;
+                putc(symbol, fout);		         /* Update the model 	 	 */
+            }
+        }else{
 
-        start_model(freq, cum_freq, freq_size);
-        start_outputing_bits();
-        start_encoding(max_bits);
+            start_model(freq, cum_freq, freq_size);
+            start_outputing_bits();
+            start_encoding(max_bits);
 
-        for (int idx : newBlocks[subbanda]) {
-            int symbol = idx+1;
+            for (int idx : newBlocks[subbanda]) {
+                int symbol = idx+1;
+                encode_symbol(symbol, cum_freq, fout);	 /* Encode that symbol.	 	 */
+                update_model(freq, cum_freq, freq_size, symbol);		         /* Update the model 	 	 */
+            }
 
-//            if (symbol == 9){
-//                printf("\n");
-//                for (int i = 0; i < freq_size; ++i) {
-//                    printf("0%i|", freq[i]);
-//                }
-//                printf("\n");
-//                for (int i = 0; i < freq_size; ++i) {
-//                    printf("%i|", cum_freq[i]);
-//                }
-//            }
-            encode_symbol(symbol, cum_freq, fout);	 /* Encode that symbol.	 	 */
-            update_model(freq, cum_freq, freq_size, symbol);		         /* Update the model 	 	 */
+            done_encoding(fout);
+            done_outputing_bits(fout);
         }
-
-        done_encoding(fout);
-        done_outputing_bits(fout);
     }
 
     fseek(fout, 0, SEEK_END);
