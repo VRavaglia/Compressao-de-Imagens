@@ -5,12 +5,6 @@
 
 static void bit_plus_follow();        /* Routine that follows	*/
 
-#define Code_value_bits    16        /* Number of bits in a code value */
-#define Top_value    (((long)1<<Code_value_bits)-1)    /* Largest code value */
-#define    First_qtr    (Top_value/4+1)    /* Point after first quarter 	*/
-#define Half        (2*First_qtr)    /* Point after first half 		*/
-#define Third_qtr    (3*First_qtr)    /* Point after third quarter 	*/
-
 
 //static int Code_value_bits;
 //static  code_value Top_value, First_qtr, Half, Third_qtr;

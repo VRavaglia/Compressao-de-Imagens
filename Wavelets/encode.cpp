@@ -6,14 +6,9 @@
 
 
 int main() {
-    //******************************************************************************
-    //*                                                                            *
-    //*                         Quantizar Subbandas                                *
-    //*                                                                            *
-    //******************************************************************************
     using namespace std::chrono;
     auto start = high_resolution_clock::now();
-    printf("\n Iniciando testes");
+    printf("\n Iniciando codificacao");
 
     string training_path = "./imagens_vq/treino/";
     vector <string> names = {"aerial.pgm", "boats.pgm", "bridge.pgm", "D108.pgm", "f16.pgm", "lena.256.pgm", "peppers.pgm", "pp1209.pgm", "zelda.pgm"};
@@ -23,7 +18,6 @@ int main() {
     }
 
     string encode_path = "./imagens_vq/enc/";
-
 
     int imgIdx = 8;
     string encoded_filename = encode_path + names[imgIdx] + "_encoded.txt";

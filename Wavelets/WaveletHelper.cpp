@@ -37,6 +37,7 @@ vector<intMatrix> WaveletHelper::splitSubbands(int **InputImg, int ximg, int yim
                 }
                 temp.push_back(row);
             }
+            printf("\n SBSize: %i", mWidth*mHeigth);
             subbands.push_back(temp);
         }
     }

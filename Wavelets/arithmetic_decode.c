@@ -26,17 +26,17 @@ void start_decoding(FILE *file) {
 
 int decode_symbol(cum_freq, file)
         FILE *file;
-        struct cum_freqs cum_freq[];                /* cummulative symbol frequencies	*/
+        const int cum_freq[];                /* cummulative symbol frequencies	*/
 {
     long range;                /* size of surrent code region		*/
     int cum;                    /* cummulative frequency calculated	*/
     int symbol;                /* symbol decoded			*/
 
     range = (long) (high - low) + 1;
-    cum = (((long) (value - low) + 1) * cum_freq[0].freq - 1) / range; /* Find cumfreq for value */
-    for (symbol = 1; cum_freq[symbol].freq > cum; symbol++);   /* Then find symbol	 	  */
-    high = low + (range * cum_freq[symbol - 1].freq) / cum_freq[0].freq - 1; /* Narrow the code */
-    low = low + (range * cum_freq[symbol].freq) / cum_freq[0].freq;     /* region to that  */
+    cum = (((long) (value - low) + 1) * cum_freq[0] - 1) / range; /* Find cumfreq for value */
+    for (symbol = 1; cum_freq[symbol] > cum; symbol++);   /* Then find symbol	 	  */
+    high = low + (range * cum_freq[symbol - 1]) / cum_freq[0]- 1; /* Narrow the code */
+    low = low + (range * cum_freq[symbol]) / cum_freq[0];     /* region to that  */
     /* alloted to this */
     /* symbol          */
     for (;;)                                        /* Loop to get rid of bits	*/
