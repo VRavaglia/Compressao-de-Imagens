@@ -35,7 +35,27 @@ void EncoderWrapper::encode(const string& in, const string& out) {
     int **Image_out = ImageReader::allocIntMatrix((int)dims[0], (int)dims[1]);
     int **Image = ImageReader::allocIntMatrix((int)dims[0], (int)dims[1]);
 
+
     sub(Image_orig, Image_out, Image, (int)dims[1], (int)dims[0]);
+    fMatrix decomp = ImageReader::ipointer2fmatrix(Image, dims);
+//    ImageReader::write((out+"_decomp.pgm").c_str(), dims, decomp);
+
+    int k = 0;
+    for (int i = 0; i < 16; ++i) {
+        for (int j = 0; j < 16; ++j) {
+            Image[i][j] = k;
+            k += 1;
+        }
+    }
+    dims[0] = 16;
+    dims[1] = 16;
+
+    for (int i = 0; i < dims[0]; ++i) {
+        printf("\n");
+        for (int j = 0; j < dims[1]; ++j) {
+            printf(" %i ", Image[i][j]);
+        }
+    }
 
     vector<intMatrix> subbands = WaveletHelper::splitSubbands(Image, (int)dims[1], (int)dims[0], NSTAGES);
 
@@ -47,6 +67,13 @@ void EncoderWrapper::encode(const string& in, const string& out) {
 
     unsigned bestCodebooks[NBANDS];
     intMatrix newBlocks = WaveletHelper::quantize(subbands, performances, LAMBDA, bestCodebooks);
+
+//    for (int i = 0; i < newBlocks.size(); ++i) {
+//        printf("\n\n");
+//        for (int j = 0; j < newBlocks[i].size(); ++j) {
+//            printf("%i|", newBlocks[i][j]);
+//        }
+//    }
 
     //******************************************************************************
     //*                                                                            *
@@ -179,7 +206,7 @@ void EncoderWrapper::decode(const string &filename, const string& out) {
 
         for (int i = 0; i < cbInfo.blocks; ++i) {
             int ch = getc(fin);
-            subbandBlocksIdx.push_back(ch);
+            subbandBlocksIdx.push_back(ch-1);
         }
         selected_infos.push_back(cbInfo);
         allBlocksIdx.push_back(subbandBlocksIdx);

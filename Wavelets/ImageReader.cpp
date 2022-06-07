@@ -279,12 +279,12 @@ fMatrix ImageReader::ipointer2fmatrix(int **input, const unsigned *dims) {
 
     fMatrix mat;
 
-    for (int i = 0; i < rows; ++i) {
-        vector<float> row;
-        for (int j = 0; j < cols; ++j) {
-            row.push_back((float)input[i][j]);
+    for (int j = 0; j < cols; ++j) {
+        vector<float> col;
+        for (int i = 0; i < rows; ++i) {
+            col.push_back((float)input[i][j]);
         }
-        mat.push_back(row);
+        mat.push_back(col);
     }
 
     return mat;

@@ -28,12 +28,12 @@ vector<intMatrix> WaveletHelper::splitSubbands(int **InputImg, int ximg, int yim
             int startPosMult[3][2] = {{1, 0}, {1,1}, {0, 1}};
             int startX = startPosMult[j][0]*mWidth;
             int startY = startPosMult[j][1]*mHeigth;
-            for (int k = startX; k < startX + mWidth; ++k) {
-                vector<int> row;
-                for (int l = startY; l < startY+mHeigth; ++l) {
-                    row.push_back(InputImg[l][k]);
+            for (int l = startY; l < startY+mHeigth; ++l) {
+                vector<int> col;
+                for (int k = startX; k < startX + mWidth; ++k) {
+                    col.push_back(InputImg[l][k]);
                 }
-                temp.push_back(row);
+                temp.push_back(col);
             }
             printf("\n SBSize: %i", mWidth*mHeigth);
             subbands.push_back(temp);

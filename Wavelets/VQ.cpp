@@ -432,8 +432,8 @@ vector<vector<performance>> VQ::evaluate_codebooks(const vector<intMatrix> &subb
                 double R = log2(cb_size+1)/bSize;
                 if(R <= 7) {
                     unsigned dims[3] = {(unsigned)subbands[j].size(), (unsigned)subbands[j][0].size(), 255};
-                    vector<int> blockList;
-                    fMatrix newImage = VQ::replaceBlocks(block_list[i], codebook_list[cIdx], vector_list[i], dims, blockList);
+                    vector<int> bestblockList;
+                    fMatrix newImage = VQ::replaceBlocks(block_list[i], codebook_list[cIdx], vector_list[i], dims, bestblockList);
                     double mse = VQ::MSE(subbands[j], newImage);
                     double psnr = 10*log10(255*255/mse);
 
@@ -447,7 +447,7 @@ vector<vector<performance>> VQ::evaluate_codebooks(const vector<intMatrix> &subb
                     per.block_size[1] = vector_list[i][1];
                     per.codebook_size = cb_size+1;
                     per.codebook_idx = cIdx;
-                    per.blockList = blockList;
+                    per.blockList = bestblockList;
                     subbandPer.push_back(per);
 
                     count += 1;
@@ -498,6 +498,9 @@ fMatrix VQ::fill_image(const intMatrix &allBlocks, const vector<fMatrix> &select
 
         unsigned startY = 0;
         unsigned startX = 0;
+
+        printf("\n\nDebug H: %i/%i/%i", level, subH, subStartY);
+        printf("\nDebug W: %i/%i/%i", level, subW, subStartX);
 
         for (int i = 0; i < allBlocks[subband].size(); ++i) {
             vector<float> block = codebook[allBlocks[subband][i]];
