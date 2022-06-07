@@ -129,7 +129,7 @@ void EncoderWrapper::write_header(FILE *fout, const vector<vector<performance>> 
     }
 }
 
-void EncoderWrapper::decode(const string &filename) {
+void EncoderWrapper::decode(const string &filename, const string& out) {
     FILE *fin = fopen((filename).c_str(), "rb");
     printf("\nArquivo de saida: %s", (filename).c_str());
 
@@ -141,9 +141,9 @@ void EncoderWrapper::decode(const string &filename) {
     }
 
     vector<int> header;
-    unsigned dims[2] = {0, 0};
+    unsigned dims[3] = {0, 0, 255};
 
-    for (unsigned & dim : dims) {
+    for (unsigned i = 0; i < 2; i++) {
         int buffer = 0;
         while(true){
             int ch = getc(fin);
@@ -152,7 +152,7 @@ void EncoderWrapper::decode(const string &filename) {
                 break;
             }
         }
-        dim = buffer;
+        dims[i] = buffer;
     }
 
     for (int i = 0; i < NBANDS; ++i) {
@@ -161,7 +161,14 @@ void EncoderWrapper::decode(const string &filename) {
     }
 
     vector<fMatrix> selected_codebooks;
+    vector<codebookInfo> selected_infos;
     intMatrix allBlocksIdx;
+
+    //******************************************************************************
+    //*                                                                            *
+    //*                         Decodificador Aritimetico                          *
+    //*                                                                            *
+    //******************************************************************************
 
     for (int subband = 0; subband < NBANDS; ++subband) {
         vector<fMatrix> codebook_list = VQ::load_codebooks("./codebooks/codebooks_" + to_string(subband) + ".txt");
@@ -174,9 +181,45 @@ void EncoderWrapper::decode(const string &filename) {
             int ch = getc(fin);
             subbandBlocksIdx.push_back(ch);
         }
+        selected_infos.push_back(cbInfo);
         allBlocksIdx.push_back(subbandBlocksIdx);
-
     }
+
+
+    //******************************************************************************
+    //*                                                                            *
+    //*                  Blocos -> subbandas -> sintese                            *
+    //*                                                                            *
+    //******************************************************************************
+
+    fMatrix deecodedImage = VQ::fill_image(allBlocksIdx, selected_codebooks, selected_infos, dims);
+
+    double *pSIMG[YIMG];
+
+    for (int i = 0; i < dims[0]; ++i) {
+        pSIMG[i] = (double *) malloc(dims[1] * (sizeof(double)));
+        for (int j = 0; j < dims[1]; ++j) {
+            pSIMG[i][j] = deecodedImage[i][j];
+        }
+    }
+
+    printf("\nSubband synthesis ...");
+    sub4synt(pSIMG, NSTAGES, 1);
+
+    int **Image_out = ImageReader::allocIntMatrix((int)dims[0], (int)dims[1]);
+
+    printf("\nTranslating restored image...");
+    for (int y = 0; y < ylum; y++)
+    {
+        for (int x = 0; x < (ximg); x++) {
+            Image_out[y][x] = mpel(round(pSIMG[y][x]));
+        }
+    }
+
+    fMatrix FImage_out = ImageReader::ipointer2fmatrix(Image_out, dims);
+
+    ImageReader::write((out+"wav.pgm").c_str(), dims, deecodedImage);
+    ImageReader::write(out.c_str(), dims, FImage_out);
 }
 
 codebookInfo EncoderWrapper::get_cb_info(int codebook_index, const unsigned *dims, int subband) {

@@ -48,6 +48,14 @@ struct performance{
     vector<int> blockList;
 };
 
+struct codebookInfo
+{
+    unsigned cbSize = 0;
+    unsigned blockH = 0;
+    unsigned blockW = 0;
+    unsigned blocks = 0;
+};
+
 // PSNR minima utilizada na hora de julgar o codebook como sendo o melhor para uma dada imagem
 static const unsigned minPSNR = 30;
 
@@ -68,6 +76,7 @@ public:
     static double MSE(const intMatrix &oldI, const fMatrix &newI);
     static double PSNR(const intMatrix &oldI, const fMatrix &newI);
     static vector<vector<performance>> evaluate_codebooks(const vector<intMatrix> &subbands);
+    static fMatrix fill_image(const intMatrix &allBlocks, const vector<fMatrix> &selected_codebooks, const vector<codebookInfo>& selected_infos, unsigned *dims);
 };
 
 

@@ -14,13 +14,7 @@ extern "C"
 
 using namespace std;
 
-struct codebookInfo
-{
-    unsigned cbSize = 0;
-    unsigned blockH = 0;
-    unsigned blockW = 0;
-    unsigned blocks = 0;
-};
+
 
 class EncoderWrapper {
 private:
@@ -28,7 +22,7 @@ private:
     static codebookInfo get_cb_info(int codebook_index, const unsigned *dims, int subband);
 public:
     static void encode(const string& in, const string& out);
-    static void decode(const string& filename);
+    static void decode(const string& filename, const string& out);
 };
 
 

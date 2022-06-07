@@ -18,10 +18,12 @@ int main() {
     }
 
     string encode_path = "./imagens_vq/enc/";
+    string decode_path = "./imagens_vq/dec/";
 
     int imgIdx = 8;
     string encoded_filename = encode_path + names[imgIdx] + "_encoded.txt";
-    EncoderWrapper::decode(encoded_filename);
+    string decoded_filename = decode_path + names[imgIdx] + "_decoded.pgm";
+    EncoderWrapper::decode(encoded_filename, decoded_filename);
 
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);

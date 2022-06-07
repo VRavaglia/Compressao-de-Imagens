@@ -28,8 +28,6 @@ vector<intMatrix> WaveletHelper::splitSubbands(int **InputImg, int ximg, int yim
             int startPosMult[3][2] = {{1, 0}, {1,1}, {0, 1}};
             int startX = startPosMult[j][0]*mWidth;
             int startY = startPosMult[j][1]*mHeigth;
-//            printf("\nX: %i - %i", startX, startX+mWidth-1);
-//            printf("\nY: %i - %i", startY, startY+mHeigth-1);
             for (int k = startX; k < startX + mWidth; ++k) {
                 vector<int> row;
                 for (int l = startY; l < startY+mHeigth; ++l) {

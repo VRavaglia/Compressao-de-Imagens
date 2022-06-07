@@ -467,3 +467,59 @@ vector<vector<performance>> VQ::evaluate_codebooks(const vector<intMatrix> &subb
     return allPerformances;
 }
 
+fMatrix VQ::fill_image(const intMatrix &allBlocks, const vector<fMatrix> &selected_codebooks, const vector<codebookInfo>& selected_infos, unsigned *dims) {
+    fMatrix newImage(dims[0],vector<float>(dims[1], 0));
+    vector<int> levelCounter(NSTAGES, 0);
+
+    for (int subband = 0; subband < NBANDS; ++subband) {
+        int level = (int)floor((subband-1)/3) + 1;
+        if (subband == 0){
+            level = (NBANDS-1)/3;
+        }
+
+        fMatrix codebook = selected_codebooks[subband];
+        codebookInfo info = selected_infos[subband];
+        unsigned bH = info.blockH;
+        unsigned bW = info.blockW;
+        unsigned subH = dims[0]/(unsigned) pow(2, level);
+        unsigned subW = dims[1]/(unsigned) pow(2, level);
+        unsigned subStartX;
+        unsigned subStartY;
+        int startPosMult[3][2] = {{1, 0}, {1,1}, {0, 1}};
+        if (subband == 0){
+            subStartX = 0;
+            subStartY = 0;
+        }
+        else{
+            subStartX = startPosMult[levelCounter[level-1]][0]*subW;
+            subStartY = startPosMult[levelCounter[level-1]][1]*subH;
+            levelCounter[level-1] += 1;
+        }
+
+        unsigned startY = 0;
+        unsigned startX = 0;
+
+        for (int i = 0; i < allBlocks[subband].size(); ++i) {
+            vector<float> block = codebook[allBlocks[subband][i]];
+            unsigned bCounter = 0;
+            for (unsigned j = subStartY + startY; j < subStartY + startY + bH; ++j) {
+                for (unsigned k = subStartX + startX; k < subStartX + startX + bW; ++k) {
+                    newImage[j][k] = (float)block[bCounter];
+                    bCounter += 1;
+                }
+            }
+            startX += bW;
+            if (startX > subW){
+                startX = 0;
+                startY += bH;
+            }
+
+        }
+    }
+
+
+
+
+    return newImage;
+}
+

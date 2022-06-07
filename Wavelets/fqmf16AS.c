@@ -108,178 +108,178 @@ int subsynt(double *pIMG[],
 //int h_v;
 
 
-static double g0[LLENGTH] = {0.001050167, -0.005054526, -0.002589756, 0.0276414, -0.009666376, -0.09039223, 0.09779817,
-                             0.4810284, 0.4810284, 0.09779817, -0.09039223, -0.009666376, 0.0276414, -0.002589756,
-                             -0.005054526, 0.001050167};
+    static double g0[LLENGTH] = {0.001050167, -0.005054526, -0.002589756, 0.0276414, -0.009666376, -0.09039223, 0.09779817,
+                                 0.4810284, 0.4810284, 0.09779817, -0.09039223, -0.009666376, 0.0276414, -0.002589756,
+                                 -0.005054526, 0.001050167};
 /* these coefficients */
 /* must be divided by 2 */
-double gg0[LLENGTH];
-static double g1[HLENGTH] = {-0.001050167, -0.005054526, 0.002589756, 0.0276414, 0.009666376, -0.09039223, -0.09779817,
-                             0.4810284, -0.4810284, 0.09779817, 0.09039223, -0.009666376, -0.0276414, -0.002589756,
-                             0.005054526, 0.001050167};
+    double gg0[LLENGTH];
+    static double g1[HLENGTH] = {-0.001050167, -0.005054526, 0.002589756, 0.0276414, 0.009666376, -0.09039223, -0.09779817,
+                                 0.4810284, -0.4810284, 0.09779817, 0.09039223, -0.009666376, -0.0276414, -0.002589756,
+                                 0.005054526, 0.001050167};
 /* these coefficients */
 /* must be divided by 8 */
-double gg1[HLENGTH];
+    double gg1[HLENGTH];
 
-double z0[MAXDIM], z1[MAXDIM], w0[MAXDIM], w1[MAXDIM];
+    double z0[MAXDIM], z1[MAXDIM], w0[MAXDIM], w1[MAXDIM];
 /* hold the temporary input and output of */
 /* the one-dimensional filters */
 
-int per; /* holds the period of the symmetric extension */
+    int per; /* holds the period of the symmetric extension */
 
-int k, m, i, j; /* indices */
+    int k, m, i, j; /* indices */
 
-int r, s; /* indices that go through rows and columns, alternately */
-int rdim, sdim; /* bounds for variation of r and s , respectively */
+    int r, s; /* indices that go through rows and columns, alternately */
+    int rdim, sdim; /* bounds for variation of r and s , respectively */
 /* the filtering will always be done on sdim */
 /* unidimensional vectors of length rdim */
-int a, b; /* limits of summations */
+    int a, b; /* limits of summations */
 
 
 
 /* normalizes filters */
-for (
-k = 0;
-k<LLENGTH; k++)
-{
-gg0[k] = g0[k]/(LNORM*M_SQRT2);
-}
+    for (
+            k = 0;
+            k<LLENGTH; k++)
+    {
+        gg0[k] = g0[k]/(LNORM*M_SQRT2);
+    }
 
-for (
-k = 0;
-k<HLENGTH; k++)
-{
-gg1[k] = g1[k]/(HNORM*M_SQRT2);
-}
+    for (
+            k = 0;
+            k<HLENGTH; k++)
+    {
+        gg1[k] = g1[k]/(HNORM*M_SQRT2);
+    }
 
 
 /* go through lines or columns */
-if (h_v == 0)
-{
-rdim = xsize;
-sdim = ysize;
-}
-else
-{
-rdim = ysize;
-sdim = xsize;
-}
+    if (h_v == 0)
+    {
+        rdim = xsize;
+        sdim = ysize;
+    }
+    else
+    {
+        rdim = ysize;
+        sdim = xsize;
+    }
 
-per = 2 * rdim; /* per set to type B extension */
+    per = 2 * rdim; /* per set to type B extension */
 
-for (
-s = 0;
-s<sdim;
-s++)
-{
-if (h_v == 0) /* lines */
-{
+    for (
+            s = 0;
+            s<sdim;
+            s++)
+    {
+        if (h_v == 0) /* lines */
+        {
 /* loads the two band lines in the vectors w0[] and w1[] */
-for (
-r = 0;
-r<rdim;
-r++)
-{
-w0[r] = *(pIMG[s+yLsrc]+r+xLsrc);
-w1[r] = *(pIMG[s+yHsrc]+r+xHsrc);
-}
-}
+            for (
+                    r = 0;
+                    r<rdim;
+                    r++)
+            {
+                w0[r] = *(pIMG[s+yLsrc]+r+xLsrc);
+                w1[r] = *(pIMG[s+yHsrc]+r+xHsrc);
+            }
+        }
 
-if (h_v == 1) /* columns */
-{
+        if (h_v == 1) /* columns */
+        {
 /* loads the two band columns in the vectors w0[] and w1[] */
-for (
-r = 0;
-r<rdim;
-r++)
-{
-w0[r] = *(pIMG[r+yLsrc]+s+xLsrc);
-w1[r] = *(pIMG[r+yHsrc]+s+xHsrc);
-}
-}
+            for (
+                    r = 0;
+                    r<rdim;
+                    r++)
+            {
+                w0[r] = *(pIMG[r+yLsrc]+s+xLsrc);
+                w1[r] = *(pIMG[r+yHsrc]+s+xHsrc);
+            }
+        }
 
 
-for (
-k = 0;
-k<rdim;
-k++)
-{
+        for (
+                k = 0;
+                k<rdim;
+                k++)
+        {
 /* computes even outputs of L filter (z0) */
 
-z0[2*k] = 0;
-for (
-m = 0;
-m<=(LLENGTH-2)/2; m++)
-{
-i = k - m + (ADVL / 2);
-z0[2*k] += gg0[2*m+1]*w0[ext(i, rdim, per)];
-}
+            z0[2*k] = 0;
+            for (
+                    m = 0;
+                    m<=(LLENGTH-2)/2; m++)
+            {
+                i = k - m + (ADVL / 2);
+                z0[2*k] += gg0[2*m+1]*w0[ext(i, rdim, per)];
+            }
 
 
 /* computes even outputs of H filter (z1) */
 
-z1[2*k] = 0;
-for (
-m = 0;
-m<=(HLENGTH-2)/2; m++)
-{
-i = k - m + (ADVH / 2);
-z1[2*k] += gg1[2*m+1]*sgn(i, rdim, per)*w1[ext(i, rdim, per)];
-}
+            z1[2*k] = 0;
+            for (
+                    m = 0;
+                    m<=(HLENGTH-2)/2; m++)
+            {
+                i = k - m + (ADVH / 2);
+                z1[2*k] += gg1[2*m+1]*sgn(i, rdim, per)*w1[ext(i, rdim, per)];
+            }
 
 /* computes odd outputs of L filter (z0) */
 
-z0[2*k+1] = 0;
-for (
-m = 0;
-m<=(LLENGTH-1)/2; m++)
-{
-i = k - m + (ADVL / 2) + 1;
-z0[2*k+1] += gg0[2*m]*w0[ext(i, rdim, per)];
-}
+            z0[2*k+1] = 0;
+            for (
+                    m = 0;
+                    m<=(LLENGTH-1)/2; m++)
+            {
+                i = k - m + (ADVL / 2) + 1;
+                z0[2*k+1] += gg0[2*m]*w0[ext(i, rdim, per)];
+            }
 
 /* computes odd outputs of H filter (z1) */
 
-z1[2*k+1] = 0;
-for (
-m = 0;
-m<=(HLENGTH-1)/2; m++)
-{
-i = k - m + (ADVH / 2) + 1;
-z1[2*k+1] += gg1[2*m]*sgn(i, rdim, per)*w1[ext(i, rdim, per)];
-}
+            z1[2*k+1] = 0;
+            for (
+                    m = 0;
+                    m<=(HLENGTH-1)/2; m++)
+            {
+                i = k - m + (ADVH / 2) + 1;
+                z1[2*k+1] += gg1[2*m]*sgn(i, rdim, per)*w1[ext(i, rdim, per)];
+            }
 
-}
+        }
 
 
 /* loads sum of filtered lines in the output matrix */
-if (h_v == 0) /* horizontal filtering */
-{
-for (
-r = 0;
-r<2*
-rdim;
-r++)
-{
-*(pIMG[s+ydst]+r+xdst) = (z0[r]) + (z1[r]);
-}
-}
+        if (h_v == 0) /* horizontal filtering */
+        {
+            for (
+                    r = 0;
+                    r<2*
+                      rdim;
+                    r++)
+            {
+                *(pIMG[s+ydst]+r+xdst) = (z0[r]) + (z1[r]);
+            }
+        }
 
-if (h_v == 1) /* vertical filtering */
-{
-for (
-r = 0;
-r<2*
-rdim;
-r++)
-{
-*(pIMG[r+ydst]+s+xdst) = (z0[r]) + (z1[r]);
-}
-}
-}
+        if (h_v == 1) /* vertical filtering */
+        {
+            for (
+                    r = 0;
+                    r<2*
+                      rdim;
+                    r++)
+            {
+                *(pIMG[r+ydst]+s+xdst) = (z0[r]) + (z1[r]);
+            }
+        }
+    }
 
 
-return(1);
+    return(1);
 
 }
 

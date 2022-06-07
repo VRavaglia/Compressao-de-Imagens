@@ -18,7 +18,7 @@ private:
     static int vect2int(const vector<int> &in);
 public:
     static int** imatrix2ipointer(const intMatrix& input);
-    static intMatrix ipointer2imatrix(const int **input, int heigth, int width);
+    static fMatrix ipointer2fmatrix(int **input, const unsigned *dims);
     static intMatrix float2int(const fMatrix &in);
     static int** allocIntMatrix(int rows, int cols);
     static intMatrix read(const char *filename, unsigned *dims);

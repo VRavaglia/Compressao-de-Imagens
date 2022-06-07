@@ -269,3 +269,23 @@ intMatrix ImageReader::float2int(const fMatrix &in) {
     }
     return out;
 }
+
+fMatrix ImageReader::ipointer2fmatrix(int **input, const unsigned *dims) {
+
+
+
+    unsigned rows = dims[0];
+    unsigned cols = dims[1];
+
+    fMatrix mat;
+
+    for (int i = 0; i < rows; ++i) {
+        vector<float> row;
+        for (int j = 0; j < cols; ++j) {
+            row.push_back((float)input[i][j]);
+        }
+        mat.push_back(row);
+    }
+
+    return mat;
+}
