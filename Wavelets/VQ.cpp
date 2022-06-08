@@ -6,6 +6,7 @@
 #include "VQ.h"
 #include "ImageReader.h"
 #include <map>
+#include <random>
 
 extern "C"
 {
@@ -61,7 +62,7 @@ double VQ::euclid_squared(const vector<float> &a, const vector<float> &b){
     double d = 0;
 
     for (int i = 0; i < a.size(); ++i) {
-        d += pow(a[i]-b[i], 2);
+        d += pow(round(a[i])-round(b[i]), 2);
     }
 
     return d;
@@ -153,10 +154,14 @@ double VQ::avg_dist_c_list(const map<unsigned , vector<float>> &c_list, const fM
     return dist;
 }
 
-vector<float> VQ::new_codevector(const vector<float> &c, float e){
+vector<float> VQ::new_codevector(const vector<float> &c, float eps){
     vector<float> nc;
 
     for(float x : c){
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_real_distribution<> dist(0, 1);
+        float e = eps*(float)dist(gen);
         float newValtemp = x * (1 + e);
         float newVal;
         if (newValtemp > 255){
@@ -304,7 +309,7 @@ vector<unsigned> VQ::best_codebook(const intMatrix &image, const vector<fMatrix>
     }
 
 
-    ImageReader::save_csv(("./desempenhos/performance_" + to_string(testIdx) + "_" + to_string(minPSNR) + ".csv").c_str(), performance, false);
+//    ImageReader::save_csv(("./desempenhos/performance_" + to_string(testIdx) + "_" + to_string(minPSNR) + ".csv").c_str(), performance, false);
 
     printf("\nMelhor codebook: [%i/%i] PSNR = %f R = %f", bcb, bcIdx, maxPSNR, maxR);
 
@@ -499,20 +504,23 @@ fMatrix VQ::fill_image(const intMatrix &allBlocks, const vector<fMatrix> &select
         unsigned startY = 0;
         unsigned startX = 0;
 
-        printf("\n\nDebug H: %i/%i/%i", level, subH, subStartY);
-        printf("\nDebug W: %i/%i/%i", level, subW, subStartX);
+//        printf("\n\nDebug H: %i/%i/%i", level, subH, subStartY);
+//        printf("\nDebug W: %i/%i/%i", level, subW, subStartX);
+//        printf("\n\n");
 
         for (int i = 0; i < allBlocks[subband].size(); ++i) {
             vector<float> block = codebook[allBlocks[subband][i]];
             unsigned bCounter = 0;
-            for (unsigned j = subStartY + startY; j < subStartY + startY + bH; ++j) {
-                for (unsigned k = subStartX + startX; k < subStartX + startX + bW; ++k) {
+            for (unsigned k = subStartX + startX; k < subStartX + startX + bW; ++k) {
+                for (unsigned j = subStartY + startY; j < subStartY + startY + bH; ++j) {
                     newImage[j][k] = (float)block[bCounter];
                     bCounter += 1;
+//                    printf("%i/%i ", j, k);
                 }
             }
+//            printf("\n");
             startX += bW;
-            if (startX > subW){
+            if (startX >= subW){
                 startX = 0;
                 startY += bH;
             }

@@ -35,29 +35,29 @@ void EncoderWrapper::encode(const string& in, const string& out) {
     int **Image_out = ImageReader::allocIntMatrix((int)dims[0], (int)dims[1]);
     int **Image = ImageReader::allocIntMatrix((int)dims[0], (int)dims[1]);
 
-
-    sub(Image_orig, Image_out, Image, (int)dims[1], (int)dims[0]);
+    double *anal[YLUM];
+    sub(Image_orig, Image_out, Image, anal,(int)dims[1], (int)dims[0]);
     fMatrix decomp = ImageReader::ipointer2fmatrix(Image, dims);
 //    ImageReader::write((out+"_decomp.pgm").c_str(), dims, decomp);
 
-    int k = 0;
-    for (int i = 0; i < 16; ++i) {
-        for (int j = 0; j < 16; ++j) {
-            Image[i][j] = k;
-            k += 1;
-        }
-    }
-    dims[0] = 16;
-    dims[1] = 16;
+//    int k = 0;
+//    for (int i = 0; i < 16; ++i) {
+//        for (int j = 0; j < 16; ++j) {
+//            Image[i][j] = k;
+//            k += 1;
+//        }
+//    }
+//    dims[0] = 16;
+//    dims[1] = 16;
+//
+//    for (int i = 0; i < dims[0]; ++i) {
+//        printf("\n");
+//        for (int j = 0; j < dims[1]; ++j) {
+//            printf(" %i ", Image[i][j]);
+//        }
+//    }
 
-    for (int i = 0; i < dims[0]; ++i) {
-        printf("\n");
-        for (int j = 0; j < dims[1]; ++j) {
-            printf(" %i ", Image[i][j]);
-        }
-    }
-
-    vector<intMatrix> subbands = WaveletHelper::splitSubbands(Image, (int)dims[1], (int)dims[0], NSTAGES);
+    vector<intMatrix> subbands = WaveletHelper::splitSubbands(anal, (int)dims[1], (int)dims[0], NSTAGES);
 
     free(Image_orig);
     free(Image_out);
@@ -221,27 +221,33 @@ void EncoderWrapper::decode(const string &filename, const string& out) {
 
     fMatrix deecodedImage = VQ::fill_image(allBlocksIdx, selected_codebooks, selected_infos, dims);
 
-    double *pSIMG[YIMG];
+    int *pSIMG[YIMG];
 
-    for (int i = 0; i < dims[0]; ++i) {
-        pSIMG[i] = (double *) malloc(dims[1] * (sizeof(double)));
-        for (int j = 0; j < dims[1]; ++j) {
-            pSIMG[i][j] = deecodedImage[i][j];
+
+    for (int y = 0; y < dims[0]; y++) /* luminance */
+    {
+        pSIMG[y] = (int *) malloc(dims[1] * (sizeof(int)));
+        for (int x = 0; x < dims[1]; x++) {
+            *(pSIMG[y] + x) = (int) deecodedImage[y][x];
         }
     }
 
     printf("\nSubband synthesis ...");
-    sub4synt(pSIMG, NSTAGES, 1);
+//    sub4synt(pSIMG, NSTAGES, 1, (int)dims[1], (int)dims[0]);
+    sub_sintese_only(pSIMG, (int)dims[1], (int)dims[0]);
+
+
 
     int **Image_out = ImageReader::allocIntMatrix((int)dims[0], (int)dims[1]);
 
     printf("\nTranslating restored image...");
-    for (int y = 0; y < ylum; y++)
+    for (int y = 0; y < dims[0]; y++)
     {
-        for (int x = 0; x < (ximg); x++) {
+        for (int x = 0; x < dims[1]; x++) {
             Image_out[y][x] = mpel(round(pSIMG[y][x]));
         }
     }
+
 
     fMatrix FImage_out = ImageReader::ipointer2fmatrix(Image_out, dims);
 

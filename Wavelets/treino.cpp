@@ -3,7 +3,7 @@
 #include "ImageReader.h"
 #include "WaveletHelper.h"
 #include "VQ.h"
-#include <chrono>
+//#include <chrono>
 extern "C"
 {
     #include "subdefs2.h"
@@ -27,11 +27,14 @@ int main() {
     int **Image_out = ImageReader::allocIntMatrix((int)dims[0], (int)dims[1]);
     int **Image = ImageReader::allocIntMatrix((int)dims[0], (int)dims[1]);
 
-    sub(Image_orig, Image_out, Image, (int)dims[1], (int)dims[0]);
+    double *anal[YLUM];
+    sub(Image_orig, Image_out, Image, anal,(int)dims[1], (int)dims[0]);
 
-    vector<intMatrix> subbands = WaveletHelper::splitSubbands(Image, (int)dims[1], (int)dims[0], NSTAGES);
-    using namespace std::chrono;
-    auto start = high_resolution_clock::now();
+    vector<intMatrix> subbands = WaveletHelper::splitSubbands(anal, (int)dims[1], (int)dims[0], NSTAGES);
+//    using namespace std::chrono;
+//    auto start = high_resolution_clock::now();
+
+//    ImageReader::save_csv("aaaa.csv", subbands[0]);
     printf("\n Iniciando treinamento: %i/%i - %i/%i", 0, vl_size*cb_size_size, 0, NBANDS);
     for (int i = 0; i < NBANDS; ++i) {
         vector<fMatrix> codebook_list;
@@ -53,12 +56,18 @@ int main() {
                     blocks.push_back(block);
                 }
             }
+            if (i == 0 && bSizeIdx == 1){
+                ImageReader::save_csv("aaaa.csv", ImageReader::float2int(blocks));
+            }
             for (auto cbSize : cb_size_list) {
                 unsigned bSize = block_size[0] * block_size[1];
                 double R = log2(cbSize)/bSize;
                 if((R <= 7)){
                     skips.push_back(false);
                     fMatrix codebook = VQ::LGB(blocks, cbSize, eps);
+                    if (i == 0 && bSizeIdx == 1 && cbSize == 128){
+                        ImageReader::save_csv("bbbb.csv", ImageReader::float2int(codebook));
+                    }
                     codebook_list.push_back(codebook);
                     codebook_dim_list.push_back({(int)bSize, (int)cbSize + 1});
                 }
@@ -76,9 +85,9 @@ int main() {
 
     }
 
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<microseconds>(stop - start);
-    cout << "\nTempo de Treino (s): " << float(duration.count())/pow(10,6) << endl;
+//    auto stop = high_resolution_clock::now();
+//    auto duration = duration_cast<microseconds>(stop - start);
+//    cout << "\nTempo de Treino (s): " << float(duration.count())/pow(10,6) << endl;
 
 
     fMatrix Image_outF;

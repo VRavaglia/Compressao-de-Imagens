@@ -7,14 +7,14 @@
 #include "VQ.h"
 #include "subdefs2.h"
 
-vector<intMatrix> WaveletHelper::splitSubbands(int **InputImg, int ximg, int yimg, int nsubs){
+vector<intMatrix> WaveletHelper::splitSubbands(double **InputImg, int ximg, int yimg, int nsubs){
     vector<intMatrix> subbands;
     intMatrix lll;
 
-    for (int i = 0; i < ximg/(pow(2, nsubs)); ++i) {
+    for (int j = 0; j < yimg/(pow(2, nsubs)); ++j) {
         vector<int> row;
-        for (int j = 0; j < yimg/(pow(2, nsubs)); ++j) {
-            row.push_back(InputImg[i][j]);
+        for (int i = 0; i < ximg/(pow(2, nsubs)); ++i) {
+            row.push_back((int)round(InputImg[j][i]));
         }
         lll.push_back(row);
     }
@@ -31,7 +31,7 @@ vector<intMatrix> WaveletHelper::splitSubbands(int **InputImg, int ximg, int yim
             for (int l = startY; l < startY+mHeigth; ++l) {
                 vector<int> col;
                 for (int k = startX; k < startX + mWidth; ++k) {
-                    col.push_back(InputImg[l][k]);
+                    col.push_back((int)round(InputImg[l][k]));
                 }
                 temp.push_back(col);
             }
@@ -57,7 +57,7 @@ intMatrix WaveletHelper::quantize(const vector<intMatrix> &oldSubbands, const ve
         }
 
         newBlocks.push_back(performances[i][minIdx].blockList);
-        bestCodebooks[i] = minIdx;
+        bestCodebooks[i] = performances[i][minIdx].codebook_idx;
 
         printf("\n MinJ: %f - MSE: %f R: %f", minJ, performances[i][minIdx].MSE, performances[i][minIdx].R);
     }

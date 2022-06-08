@@ -23,7 +23,7 @@ public:
     static int** allocIntMatrix(int rows, int cols);
     static intMatrix read(const char *filename, unsigned *dims);
     static fMatrix getBlocks(const unsigned size[2], const intMatrix &image);
-    static void save_csv(const char *filename, const vector<vector<string>> &blocks, bool convert);
+    static void save_csv(const char *filename, const intMatrix &blocks);
     static void write(const char *filename, unsigned *dims, const fMatrix &image);
 };
 

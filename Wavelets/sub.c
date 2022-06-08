@@ -19,7 +19,7 @@
 #include "sub.h"
 #include "subdefs2.h"
 
-void sub(int **Image_orig, int **Image_out, int **Image, int xsize, int ysize) {
+double** sub(int **Image_orig, int **Image_out, int **Image, double *pANAL[], int xsize, int ysize) {
 
 //    int sub4anal(); /* function that performs two-band subband analysis */
 //    int sub4synt(); /* function that performs two-band subband analysis */
@@ -144,6 +144,13 @@ void sub(int **Image_orig, int **Image_out, int **Image, int xsize, int ysize) {
         }
     }
 
+    for (y = 0; y < yimg; y++) {
+        if ((pANAL[y] = (double *) malloc(ximg * (sizeof(double)))) == NULL) {
+            printf("Memory allocation for luminance transform failed at line %d", y);
+            exit(1);
+        }
+    }
+
     /* IMPORTANT: in each line, it skips the first skip pixels and the last */
     /* skip. For the chrominance, it skips only skip/2 pixels on each side */
 
@@ -158,10 +165,20 @@ void sub(int **Image_orig, int **Image_out, int **Image, int xsize, int ysize) {
         }
     }
 
+
     /* does the subband analysis */
 
     printf("\nSubband analysis ...");
     sub4anal(pSIMG, NSTAGES, 1);
+
+    for (y = 0; y < ylum; y++) /* luminance */
+    {
+        for (x = 0; x < ximg; x++) {
+            *(pANAL[y] + x) = *(pSIMG[y] + x);
+        }
+    }
+
+
 
     /* initializes subband boundaries */
     printf("\nInitializing band boundaries...");
@@ -274,6 +291,10 @@ void sub(int **Image_orig, int **Image_out, int **Image, int xsize, int ysize) {
     /* does the subband synthesis */
 
     printf("\nSubband synthesis ...");
+//    for (int l = 0; l < ximg; ++l) {
+//        printf("%i ", (int)round(pSIMG[0][l]));
+//
+//    }
     sub4synt(pSIMG, NSTAGES, 1);
 
     /* translates restored image into unsigned char values */
@@ -554,3 +575,105 @@ subsynt(pIMG, xsize, ysize, xLsrc, yLsrc, xHsrc, yHsrc, xdst, ydst, h_v)
 }
 
 
+void sub_sintese_only(int **Image_out, int xsize, int ysize) {
+//    int sub4synt(); /* function that performs two-band subband analysis */
+
+    int cont;
+
+
+    double *pSIMG[YIMG];
+    /* array of pointers to the beginning of each line */
+    /* of the image subband decomposition */
+
+
+    unsigned short int head[4]; /* stores header of image files */
+
+
+
+    int x, y; /* hold position into images */
+
+    int u, v; /* hold block indices */
+
+    int umin, umax, vmin, vmax; /* boudaries of block indexes of subbands */
+
+    int c, i, j, k, n, m, s; /* indices */
+
+    int band; /* indicates the current band */
+
+    int stage; /* indicates the resolution stage of a band */
+
+    short int qstp; /* quantizer step size */
+
+    double bpp[NBANDS];  /* bitrate of each band */
+    double bpptot;       /* sums total bitrate */
+
+    int zero[SKIPMAX]; /* array with zero values */
+
+
+    /* initializes the array with zero values */
+    for (x = 0; x < SKIPMAX; x++) {
+        zero[x] = 0;
+    }
+
+
+    head[1] = (unsigned short int) xsize;
+    head[2] = (unsigned short int) ysize;
+
+
+
+    /* updates values of dimensions */
+    if (head[1] <= XIMG + SKIPMAX) {
+        ximg = ((int) head[1] / (2 * DCTSIZE)) * 2 * DCTSIZE;
+        //printf("\nximg= %d", ximg);
+        skip = ((int) head[1] - ximg) / 2; /* number of pixels to skip in each side */
+        //printf("\nskip= %d", skip);
+    } else {
+        printf("\nInvalid X dimension\n");
+        exit(1);
+    }
+    if (head[2] <= YLUM) {
+        ylum = (int) head[2];
+    } else {
+        printf("\nInvalid Y dimension\n");
+        exit(1);
+    }
+    yimg = ylum + ylum / 2;
+//printf("\nying= %d", yimg);
+    ylowsize = yimg / ((int) pow(2.0, NSTAGES));
+    xlowsize = ximg / ((int) pow(2.0, NSTAGES));
+
+
+
+    /* allocates memory to store the subband decomposition - double */
+//printf("\npSIMG[y]= %dx%d", yimg, ximg);
+    for (y = 0; y < yimg; y++) {
+        if ((pSIMG[y] = (double *) malloc(ximg * (sizeof(double)))) == NULL) {
+            printf("Memory allocation for luminance transform failed at line %d", y);
+            exit(1);
+        }
+    }
+
+
+/* translates unsigned char image into double and loads it in pSIMG*/
+    for (y = 0; y < ylum; y++) /* luminance */
+    {
+        for (x = 0; x < ximg; x++) {
+            *(pSIMG[y] + x) = (double) Image_out[y][x];
+        }
+    }
+
+
+    printf("\nSubband synthesis ...");
+    sub4synt(pSIMG, NSTAGES, 1);
+
+    /* translates restored image into unsigned char values */
+    printf("\nTranslating restored image...");
+    for (y = 0; y < ylum; y++) /* luminance */
+    {
+        for (x = 0; x < (ximg); x++) {
+            Image_out[y][x] = mpel(round(*(pSIMG[y] + x)));
+        }
+    }
+
+    printf("\n");
+}

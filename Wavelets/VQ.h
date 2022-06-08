@@ -26,14 +26,14 @@ using namespace std;
 //                                           {8,8},};
 static const unsigned vl_size = 2;
 static const unsigned vector_list[vl_size][2] = {{1,1},
-                                                 {2,2},};
+                                                 {2,1},};
 
 
 // Tamanhos de codebooks
 //static const unsigned cb_size_size = 11;
 //static const unsigned cb_size_list[cb_size_size] = {16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2, 4096*4};
-static const unsigned cb_size_size = 2;
-static const unsigned cb_size_list[cb_size_size] = {16, 32};
+static const unsigned cb_size_size = 4;
+static const unsigned cb_size_list[cb_size_size] = {16, 32, 64,128};
 static const bool warp = false;
 
 #define LAMBDA 1.0
