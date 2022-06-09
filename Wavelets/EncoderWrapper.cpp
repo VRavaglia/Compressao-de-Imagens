@@ -34,7 +34,9 @@ void EncoderWrapper::encode(const string& in, const string& out) {
     int **Image_orig = ImageReader::imatrix2ipointer(image);
 
 
-    return;
+    double *pSIMG[YLUM];
+    int avg = ImageReader::remove_avg(Image_orig, dims);
+    only_anal(Image_orig, pSIMG, (int)dims[1], (int)dims[0]);
 
 
 //    fMatrix decomp = ImageReader::ipointer2fmatrix(Image, dims);
@@ -60,7 +62,7 @@ void EncoderWrapper::encode(const string& in, const string& out) {
     //******************************************************************************
 
     FILE *fout = fopen((out).c_str(), "wb");
-    write_header(fout, performances, bestCodebooks, dims);
+    write_header(fout, performances, bestCodebooks, dims, round(avg));
     printf("\nArquivo de saida: %s", (out).c_str());
 
     if(fout == nullptr)
@@ -110,7 +112,10 @@ void EncoderWrapper::encode(const string& in, const string& out) {
     fclose(fout);
 }
 
-void EncoderWrapper::write_header(FILE *fout, const vector<vector<performance>> &performances, unsigned *bestCodebooks, const unsigned *dims) {
+void EncoderWrapper::write_header(FILE *fout, const vector<vector<performance>> &performances, unsigned *bestCodebooks, const unsigned *dims, int avg) {
+
+
+    putc(avg, fout);
 
     for (int i = 0; i < 2; ++i) {
         int buffer = dims[i];
@@ -147,6 +152,7 @@ void EncoderWrapper::decode(const string &filename, const string& out) {
 
     vector<int> header;
     unsigned dims[3] = {0, 0, 255};
+    int avg = getc(fin);
 
     for (unsigned i = 0; i < 2; i++) {
         int buffer = 0;
@@ -210,21 +216,11 @@ void EncoderWrapper::decode(const string &filename, const string& out) {
         }
     }
 
-    printf("\nSubband synthesis ...");
-//    sub4synt(pSIMG, NSTAGES, 1, (int)dims[1], (int)dims[0]);
-    sub4synt(pSIMG, NSTAGES, 1, (int)dims[1], (int)dims[0]);
-
-
-
     int **Image_out = ImageReader::allocIntMatrix((int)dims[0], (int)dims[1]);
+    printf("\nSubband synthesis ...");
+    only_synt(Image_out, pSIMG, (int)dims[1], (int)dims[0]);
+    ImageReader::add_avg(Image_out, dims, avg);
 
-    printf("\nTranslating restored image...");
-    for (int y = 0; y < dims[0]; y++)
-    {
-        for (int x = 0; x < dims[1]; x++) {
-            Image_out[y][x] = mpel(round(pSIMG[y][x]));
-        }
-    }
 
 
     fMatrix FImage_out = ImageReader::ipointer2fmatrix(Image_out, dims);

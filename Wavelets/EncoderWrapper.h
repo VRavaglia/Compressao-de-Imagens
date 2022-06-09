@@ -18,7 +18,7 @@ using namespace std;
 
 class EncoderWrapper {
 private:
-    static void write_header(FILE *fout, const vector<vector<performance>> &performances, unsigned bestCodebooks[NBANDS], const unsigned *dims);
+    static void write_header(FILE *fout, const vector<vector<performance>> &performances, unsigned bestCodebooks[NBANDS], const unsigned *dims, int avg);
     static codebookInfo get_cb_info(int codebook_index, const unsigned *dims, int subband);
 public:
     static void encode(const string& in, const string& out);

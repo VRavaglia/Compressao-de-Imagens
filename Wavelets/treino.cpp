@@ -26,22 +26,35 @@ int main() {
     unsigned dims[3];
     intMatrix image = ImageReader::read(training_images[8].c_str(), dims);
     int **Image_orig = ImageReader::imatrix2ipointer(image);
-    int **Image_out = ImageReader::allocIntMatrix((int)dims[0], (int)dims[1]);
+//    int **Image_out = ImageReader::allocIntMatrix((int)dims[0], (int)dims[1]);
 
     double *pSIMG[YLUM];
-    double avg = ImageReader::remove_avg(Image_orig, dims);
+    int avg = ImageReader::remove_avg(Image_orig, dims);
     only_anal(Image_orig, pSIMG, (int)dims[1], (int)dims[0]);
 
-    only_synt(Image_out, pSIMG, (int)dims[1], (int)dims[0]);
+//    only_synt(Image_out, pSIMG, (int)dims[1], (int)dims[0]);
 //    ImageReader::add_avg(Image_out, dims, avg);
+//    ImageReader::add_avg(Image_orig, dims, avg);
 
-    printf("\n\nPSNR: %f", VQ::PSNR(ImageReader::ipointer2imatrix(Image_orig, dims), ImageReader::ipointer2fmatrix(Image_out, dims)));
+//    printf("\n\nPSNR: %f", VQ::PSNR(ImageReader::ipointer2imatrix(Image_orig, dims), ImageReader::ipointer2fmatrix(Image_out, dims)));
 
-    ImageReader::write("teste5.pgm", dims, ImageReader::ipointer2fmatrix(Image_out, dims));
+//    ImageReader::write("teste5.pgm", dims, ImageReader::ipointer2fmatrix(Image_orig, dims));
+//    ImageReader::write("teste6.pgm", dims, ImageReader::ipointer2fmatrix(Image_out, dims));
+//    fMatrix teste;
+//
+//    for (int i = 0; i < dims[0]; ++i) {
+//        vector<float> row;
+//        for (int j = 0; j < dims[1]; ++j) {
+//            row.push_back((float)pSIMG[i][j] + avg);
+//        }
+//        teste.push_back(row);
+//    }
+//
+//    ImageReader::write("teste7.pgm", dims, teste);
 
-    return 0 ;
 
-    vector<intMatrix> subbands = WaveletHelper::splitSubbands(nullptr, (int)dims[1], (int)dims[0], NSTAGES);
+
+    vector<intMatrix> subbands = WaveletHelper::splitSubbands(pSIMG, (int)dims[1], (int)dims[0], NSTAGES);
 //    using namespace std::chrono;
 //    auto start = high_resolution_clock::now();
 
@@ -67,7 +80,7 @@ int main() {
                     blocks.push_back(block);
                 }
             }
-            if (i == 0 && bSizeIdx == 1){
+            if (i == 0 && bSizeIdx == 0){
                 ImageReader::save_csv("aaaa.csv", ImageReader::float2int(blocks));
             }
             for (auto cbSize : cb_size_list) {
@@ -76,7 +89,7 @@ int main() {
                 if((R <= 7)){
                     skips.push_back(false);
                     fMatrix codebook = VQ::LGB(blocks, cbSize, eps);
-                    if (i == 0 && bSizeIdx == 1 && cbSize == 128){
+                    if (i == 0 && bSizeIdx == 0 && cbSize == 16){
                         ImageReader::save_csv("bbbb.csv", ImageReader::float2int(codebook));
                     }
                     codebook_list.push_back(codebook);

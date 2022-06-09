@@ -306,7 +306,7 @@ fMatrix ImageReader::dpointer2fmatrix(double **input, const unsigned *dims) {
     return mat;
 }
 
-double ImageReader::remove_avg(int **Img_orig, const unsigned *dims) {
+int ImageReader::remove_avg(int **Img_orig, const unsigned *dims) {
     double avg = 0;
     int rows = (int)dims[0];
     int cols = (int)dims[1];
@@ -322,10 +322,10 @@ double ImageReader::remove_avg(int **Img_orig, const unsigned *dims) {
         }
     }
 
-    return avg;
+    return (int)round(avg);
 }
 
-void ImageReader::add_avg(int **Img_orig, const unsigned *dims, double avg) {
+void ImageReader::add_avg(int **Img_orig, const unsigned *dims, int avg) {
     int rows = (int)dims[0];
     int cols = (int)dims[1];
 

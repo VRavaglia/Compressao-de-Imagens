@@ -163,27 +163,27 @@ vector<float> VQ::new_codevector(const vector<float> &c, float eps){
         std::uniform_real_distribution<> dist(0, 1);
         float e = eps*(float)dist(gen);
         float newValtemp = x * (1 + e);
-        float newVal;
-        if (newValtemp > 255){
-            if(warp){
-                newVal = 0;
-            }else{
-                newVal = x * (1 - e);
-            }
-        }
-        else{
-            if(newValtemp < 0){
-                if (warp){
-                    newVal = 255;
-                }else{
-                    newVal = x * (1 - e);
-                }
-            }
-            else{
-                newVal = newValtemp;
-            }
-        }
-        nc.push_back(newVal);
+//        float newVal;
+//        if (newValtemp > 255){
+//            if(warp){
+//                newVal = 0;
+//            }else{
+//                newVal = x * (1 - e);
+//            }
+//        }
+//        else{
+//            if(newValtemp < 0){
+//                if (warp){
+//                    newVal = 255;
+//                }else{
+//                    newVal = x * (1 - e);
+//                }
+//            }
+//            else{
+//                newVal = newValtemp;
+//            }
+//        }
+        nc.push_back(newValtemp);
     }
 
     return nc;
@@ -255,9 +255,7 @@ double VQ::MSE(const intMatrix &oldI, const fMatrix &newI){
     unsigned its = 0;
 
     for (int i = 0; i < rows; ++i) {
-//        printf("\n");
         for (int j = 0; j < cols; ++j) {
-//            printf("%i ", (int)round(oldI[i][j] - newI[i][j]));
             err += pow((float)oldI[i][j] - round(newI[i][j]), 2)/(cols*rows);
         }
     }
@@ -342,9 +340,14 @@ vector<unsigned> VQ::best_codebook(const intMatrix &image, const vector<fMatrix>
          i += 1;
          for (const auto & row : codebook) {
              for(const auto &point : row){
-                 putc((int)round(point), fout);
+                 string temp = to_string(point);
+                 for(char c : temp){
+                     putc(c, fout);
+                 }
+                 putc(',', fout);
              }
          }
+         putc('\n', fout);
      }
 
      fclose(fout);
@@ -399,10 +402,16 @@ vector<fMatrix> VQ::load_codebooks(const string& filename){
                 for (int i = 0; i < csizeRead; i++) {
                     vector<float> row;
                     for (int j = 0; j < bsizeRead; j++) {
-                        int c = getc(fin);
-                        row.push_back((float)c);
+                        string temp;
+                        while(true){
+                            char c = (char)getc(fin);
+                            if(c == ',') break;
+                            temp += c;
+                        }
+                        row.push_back(stof(temp));
                     }
                     codebook.push_back(row);
+//                    getc(fin);
                 }
                 codebook_list.push_back(codebook);
                 state = States::bsize;
@@ -441,6 +450,11 @@ vector<vector<performance>> VQ::evaluate_codebooks(const vector<intMatrix> &subb
                     unsigned dims[3] = {(unsigned)subbands[j].size(), (unsigned)subbands[j][0].size(), 255};
                     vector<int> bestblockList;
                     fMatrix newImage = VQ::replaceBlocks(block_list[i], codebook_list[cIdx], vector_list[i], dims, bestblockList);
+                    if(cb_size == 16 && vector_list[i][0] == 2 && j == 0){
+                        ImageReader::save_csv("teste.csv", ImageReader::float2int(block_list[i]));
+                        ImageReader::save_csv("teste2.csv", ImageReader::float2int(codebook_list[cIdx]));
+                    }
+
                     double mse = VQ::MSE(subbands[j], newImage);
                     double psnr = 10*log10(255*255/mse);
 

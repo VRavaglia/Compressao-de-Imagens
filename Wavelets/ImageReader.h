@@ -27,8 +27,8 @@ public:
     static fMatrix getBlocks(const unsigned size[2], const intMatrix &image);
     static void save_csv(const char *filename, const intMatrix &blocks);
     static void write(const char *filename, unsigned *dims, const fMatrix &image);
-    static double remove_avg(int **Img_orig, const unsigned *dims);
-    static void add_avg(int **Img_orig, const unsigned *dims, double avg);
+    static int remove_avg(int **Img_orig, const unsigned *dims);
+    static void add_avg(int **Img_orig, const unsigned *dims, int avg);
 
 };
 
