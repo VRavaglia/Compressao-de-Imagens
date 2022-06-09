@@ -1,3 +1,5 @@
+
+
 #include <iostream>
 
 #include "ImageReader.h"
@@ -25,12 +27,21 @@ int main() {
     intMatrix image = ImageReader::read(training_images[8].c_str(), dims);
     int **Image_orig = ImageReader::imatrix2ipointer(image);
     int **Image_out = ImageReader::allocIntMatrix((int)dims[0], (int)dims[1]);
-    int **Image = ImageReader::allocIntMatrix((int)dims[0], (int)dims[1]);
 
-    double *anal[YLUM];
-    sub(Image_orig, Image_out, Image, anal,(int)dims[1], (int)dims[0]);
+    double *pSIMG[YLUM];
+    double avg = ImageReader::remove_avg(Image_orig, dims);
+    only_anal(Image_orig, pSIMG, (int)dims[1], (int)dims[0]);
 
-    vector<intMatrix> subbands = WaveletHelper::splitSubbands(anal, (int)dims[1], (int)dims[0], NSTAGES);
+    only_synt(Image_out, pSIMG, (int)dims[1], (int)dims[0]);
+//    ImageReader::add_avg(Image_out, dims, avg);
+
+    printf("\n\nPSNR: %f", VQ::PSNR(ImageReader::ipointer2imatrix(Image_orig, dims), ImageReader::ipointer2fmatrix(Image_out, dims)));
+
+    ImageReader::write("teste5.pgm", dims, ImageReader::ipointer2fmatrix(Image_out, dims));
+
+    return 0 ;
+
+    vector<intMatrix> subbands = WaveletHelper::splitSubbands(nullptr, (int)dims[1], (int)dims[0], NSTAGES);
 //    using namespace std::chrono;
 //    auto start = high_resolution_clock::now();
 
@@ -90,21 +101,21 @@ int main() {
 //    cout << "\nTempo de Treino (s): " << float(duration.count())/pow(10,6) << endl;
 
 
-    fMatrix Image_outF;
-    fMatrix ImageF;
-    for (int i = 0; i < dims[0]; ++i) {
-        vector<float> row;
-        vector<float> row2;
-        for (int j = 0; j < dims[1]; ++j) {
-            row.push_back((float)Image_out[i][j]);
-            row2.push_back((float)Image[i][j]);
-        }
-        Image_outF.push_back(row);
-        ImageF.push_back(row2);
-    }
-
-    ImageReader::write("teste.pgm", dims, Image_outF);
-    ImageReader::write("teste2.pgm", dims, ImageF);
+//    fMatrix Image_outF;
+//    fMatrix ImageF;
+//    for (int i = 0; i < dims[0]; ++i) {
+//        vector<float> row;
+//        vector<float> row2;
+//        for (int j = 0; j < dims[1]; ++j) {
+//            row.push_back((float)Image_out[i][j]);
+//            row2.push_back((float)Image[i][j]);
+//        }
+//        Image_outF.push_back(row);
+//        ImageF.push_back(row2);
+//    }
+//
+//    ImageReader::write("teste.pgm", dims, Image_outF);
+//    ImageReader::write("teste2.pgm", dims, ImageF);
 
     return 0;
 }

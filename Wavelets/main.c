@@ -1641,7 +1641,6 @@ subsynt(pIMG, xsize, ysize, xLsrc, yLsrc, xHsrc, yHsrc, xdst, ydst, h_v)
 
 
 void sub_sintese_only(int **Image_out, int xsize, int ysize) {
-    int sub4synt(); /* function that performs two-band subband analysis */
 
     int cont;
 

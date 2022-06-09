@@ -7,10 +7,11 @@
 
 #include "subdefs2.h"
 
-double** sub(int **Image_orig, int **Image_out, int **Image, double *pANAL[], int xsize, int ysize);
+void sub(int **Image_orig, int **Image_out, int **Image, int xsize, int ysize);
+void only_anal(int **Image_orig, double *pSIMG[YLUM], int xsize, int ysize);
+void only_synt(int **Image_out, double *pSIMG[YLUM], int xsize, int ysize);
 int sub4anal(double *pSIMG[], int nstg, int l_f);
 int sub4synt(double *pSIMG[], int nstg, int l_f);
-void sub_sintese_only(int **Image_out, int xsize, int ysize);
 
 static int ximg;
 static int yimg;

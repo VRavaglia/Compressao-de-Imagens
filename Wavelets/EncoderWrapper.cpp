@@ -32,36 +32,14 @@ void EncoderWrapper::encode(const string& in, const string& out) {
     unsigned dims[3];
     intMatrix image = ImageReader::read(imgPath, dims);
     int **Image_orig = ImageReader::imatrix2ipointer(image);
-    int **Image_out = ImageReader::allocIntMatrix((int)dims[0], (int)dims[1]);
-    int **Image = ImageReader::allocIntMatrix((int)dims[0], (int)dims[1]);
 
-    double *anal[YLUM];
-    sub(Image_orig, Image_out, Image, anal,(int)dims[1], (int)dims[0]);
-    fMatrix decomp = ImageReader::ipointer2fmatrix(Image, dims);
-//    ImageReader::write((out+"_decomp.pgm").c_str(), dims, decomp);
 
-//    int k = 0;
-//    for (int i = 0; i < 16; ++i) {
-//        for (int j = 0; j < 16; ++j) {
-//            Image[i][j] = k;
-//            k += 1;
-//        }
-//    }
-//    dims[0] = 16;
-//    dims[1] = 16;
-//
-//    for (int i = 0; i < dims[0]; ++i) {
-//        printf("\n");
-//        for (int j = 0; j < dims[1]; ++j) {
-//            printf(" %i ", Image[i][j]);
-//        }
-//    }
+    return;
 
-    vector<intMatrix> subbands = WaveletHelper::splitSubbands(anal, (int)dims[1], (int)dims[0], NSTAGES);
 
-    free(Image_orig);
-    free(Image_out);
-    free(Image);
+//    fMatrix decomp = ImageReader::ipointer2fmatrix(Image, dims);
+
+    vector<intMatrix> subbands = WaveletHelper::splitSubbands(pSIMG, (int)dims[1], (int)dims[0], NSTAGES);
 
     vector<vector<performance>> performances = VQ::evaluate_codebooks(subbands);
 
@@ -221,20 +199,20 @@ void EncoderWrapper::decode(const string &filename, const string& out) {
 
     fMatrix deecodedImage = VQ::fill_image(allBlocksIdx, selected_codebooks, selected_infos, dims);
 
-    int *pSIMG[YIMG];
+    double *pSIMG[YIMG];
 
 
     for (int y = 0; y < dims[0]; y++) /* luminance */
     {
-        pSIMG[y] = (int *) malloc(dims[1] * (sizeof(int)));
+        pSIMG[y] = (double *) malloc(dims[1] * (sizeof(double)));
         for (int x = 0; x < dims[1]; x++) {
-            *(pSIMG[y] + x) = (int) deecodedImage[y][x];
+            *(pSIMG[y] + x) = (double) deecodedImage[y][x];
         }
     }
 
     printf("\nSubband synthesis ...");
 //    sub4synt(pSIMG, NSTAGES, 1, (int)dims[1], (int)dims[0]);
-    sub_sintese_only(pSIMG, (int)dims[1], (int)dims[0]);
+    sub4synt(pSIMG, NSTAGES, 1, (int)dims[1], (int)dims[0]);
 
 
 

@@ -255,7 +255,9 @@ double VQ::MSE(const intMatrix &oldI, const fMatrix &newI){
     unsigned its = 0;
 
     for (int i = 0; i < rows; ++i) {
+//        printf("\n");
         for (int j = 0; j < cols; ++j) {
+//            printf("%i ", (int)round(oldI[i][j] - newI[i][j]));
             err += pow((float)oldI[i][j] - round(newI[i][j]), 2)/(cols*rows);
         }
     }

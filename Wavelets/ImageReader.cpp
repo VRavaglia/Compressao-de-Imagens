@@ -270,7 +270,23 @@ intMatrix ImageReader::float2int(const fMatrix &in) {
     return out;
 }
 
-fMatrix ImageReader::ipointer2fmatrix(int **input, const unsigned *dims) {
+fMatrix ImageReader::ipointer2fmatrix(int **input, const unsigned dims[3]) {
+    unsigned rows = dims[0];
+    unsigned cols = dims[1];
+
+    fMatrix mat;
+    for (int i = 0; i < rows; ++i) {
+        vector<float> col;
+        for (int j = 0; j < cols; ++j) {
+            col.push_back((float)input[i][j]);
+        }
+        mat.push_back(col);
+    }
+
+    return mat;
+}
+
+fMatrix ImageReader::dpointer2fmatrix(double **input, const unsigned *dims) {
 
 
 
@@ -283,6 +299,53 @@ fMatrix ImageReader::ipointer2fmatrix(int **input, const unsigned *dims) {
         vector<float> col;
         for (int i = 0; i < rows; ++i) {
             col.push_back((float)input[i][j]);
+        }
+        mat.push_back(col);
+    }
+
+    return mat;
+}
+
+double ImageReader::remove_avg(int **Img_orig, const unsigned *dims) {
+    double avg = 0;
+    int rows = (int)dims[0];
+    int cols = (int)dims[1];
+
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            avg += (double)Img_orig[i][j]/rows/cols;
+        }
+    }
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            Img_orig[i][j] = Img_orig[i][j] - (int)round(avg);
+        }
+    }
+
+    return avg;
+}
+
+void ImageReader::add_avg(int **Img_orig, const unsigned *dims, double avg) {
+    int rows = (int)dims[0];
+    int cols = (int)dims[1];
+
+
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            Img_orig[i][j] = (int)round(Img_orig[i][j] + avg);
+        }
+    }
+}
+
+intMatrix ImageReader::ipointer2imatrix(int **input, const unsigned int *dims) {
+    unsigned rows = dims[0];
+    unsigned cols = dims[1];
+
+    intMatrix mat;
+    for (int i = 0; i < rows; ++i) {
+        vector<int> col;
+        for (int j = 0; j < cols; ++j) {
+            col.push_back((int)round(input[i][j]));
         }
         mat.push_back(col);
     }
