@@ -35,11 +35,12 @@ static const unsigned vector_list[vl_size][2] = {{1,1},
 // Tamanhos de codebooks
 //static const unsigned cb_size_size = 11;
 //static const unsigned cb_size_list[cb_size_size] = {16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2, 4096*4};
-static const unsigned cb_size_size = 5;
-static const unsigned cb_size_list[cb_size_size] = {16, 32, 128, 256, 512};
+static const unsigned cb_size_size = 3;
+static const unsigned cb_size_list[cb_size_size] = {16, 32, 128};
 static const bool warp = false;
 
 #define LAMBDA 1.0
+#define  MAXR 7
 
 struct performance{
     unsigned block_size[2] = {0, 0};

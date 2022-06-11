@@ -446,7 +446,7 @@ vector<vector<performance>> VQ::evaluate_codebooks(const vector<intMatrix> &subb
             for (unsigned int cb_size : cb_size_list) {
                 unsigned bSize = vector_list[i][0] * vector_list[i][1];
                 double R = log2(cb_size+1)/bSize;
-                if(R <= 7) {
+                if(R <= MAXR) {
                     unsigned dims[3] = {(unsigned)subbands[j].size(), (unsigned)subbands[j][0].size(), 255};
                     vector<int> bestblockList;
                     fMatrix newImage = VQ::replaceBlocks(block_list[i], codebook_list[cIdx], vector_list[i], dims, bestblockList);
