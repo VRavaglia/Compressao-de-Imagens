@@ -80,7 +80,7 @@ void EncoderWrapper::encode(const string& in, const string& out) {
 
     for (int subband = 0; subband < NBANDS; ++subband) {
         performance per = performances[subband][bestCodebooks[subband]];
-        int freq_size = (int)per.codebook_size + 1;
+        int freq_size = (int)per.codebook_size + 1 + 1;
         int *freq = (int *)calloc (freq_size,  sizeof (int));
         int *cum_freq = (int *)calloc (freq_size,  sizeof (int));
 
@@ -217,7 +217,7 @@ void EncoderWrapper::decode(const string &filename, const string& out) {
             }
         }
         else{
-            int freq_size = (int)cbInfo.cbSize+1;
+            int freq_size = (int)cbInfo.cbSize+1+1;
             int *freq = (int *)calloc (freq_size,  sizeof (int));
             int *cum_freq = (int *)calloc (freq_size,  sizeof (int));
 
@@ -281,7 +281,7 @@ void EncoderWrapper::decode(const string &filename, const string& out) {
 
     fMatrix FImage_out = ImageReader::ipointer2fmatrix(Image_out, dims);
 
-    ImageReader::write((out+"wav.pgm").c_str(), dims, deecodedImage);
+//    ImageReader::write((out+"wav.pgm").c_str(), dims, deecodedImage);
     ImageReader::write(out.c_str(), dims, FImage_out);
 }
 

@@ -39,7 +39,7 @@ static const unsigned cb_size_size = 3;
 static const unsigned cb_size_list[cb_size_size] = {16, 32, 128};
 static const bool warp = false;
 
-#define LAMBDA 1.0
+#define LAMBDA 100
 #define  MAXR 15
 
 struct performance{
