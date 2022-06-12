@@ -40,7 +40,7 @@ static const unsigned cb_size_list[cb_size_size] = {16, 32, 128};
 static const bool warp = false;
 
 #define LAMBDA 1.0
-#define  MAXR 7
+#define  MAXR 15
 
 struct performance{
     unsigned block_size[2] = {0, 0};

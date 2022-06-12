@@ -34,7 +34,7 @@ int main() {
 
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
-    cout << "\nTempo de Encode (s): " << float(duration.count())/pow(10,6) << endl;
+    cout << "\nTempo de Dencode (s): " << float(duration.count())/pow(10,6) << endl;
 
     return 0;
 }

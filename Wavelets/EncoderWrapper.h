@@ -14,7 +14,7 @@ extern "C"
 
 using namespace std;
 
-
+#define testandoDecoder false
 
 class EncoderWrapper {
 private:

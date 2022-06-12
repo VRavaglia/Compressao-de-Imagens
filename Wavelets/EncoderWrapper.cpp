@@ -11,7 +11,9 @@ extern "C"
 #include "subdefs2.h"
 #include "sub.h"
 #include "bit_output.h"
+#include "bit_input.h"
 #include "arithmetic_encode.h"
+#include "arithmetic_decode.h"
 #include "histogram.h"
 }
 
@@ -72,39 +74,56 @@ void EncoderWrapper::encode(const string& in, const string& out) {
         return;
     }
 
-#define testandoDecoder true
+    start_outputing_bits();
+    start_encoding(16);
 
-    for (int subbanda = 0; subbanda < NBANDS; ++subbanda) {
-        performance per = performances[subbanda][bestCodebooks[subbanda]];
+
+    for (int subband = 0; subband < NBANDS; ++subband) {
+        performance per = performances[subband][bestCodebooks[subband]];
         int freq_size = (int)per.codebook_size + 1;
         int *freq = (int *)calloc (freq_size,  sizeof (int));
         int *cum_freq = (int *)calloc (freq_size,  sizeof (int));
 
-        int max_bits = ceil(log2(freq_size));
+//        int max_bits = ceil(log2(freq_size));
 
 //        printf("\n%i Maxbits: %i", freq_size, max_bits);
         if (testandoDecoder){
-            printf("\nBlocos: %i", newBlocks[subbanda].size());
-            for (int idx : newBlocks[subbanda]) {
+            printf("\nBlocos: %i", newBlocks[subband].size());
+            for (int idx : newBlocks[subband]) {
                 int symbol = idx+1;
-                putc(symbol, fout);		         /* Update the model 	 	 */
+                putc(symbol, fout);
             }
         }else{
-
+            printf("\nCodificando subbanda: %i, fSize: %i\n", subband, freq_size);
             start_model(freq, cum_freq, freq_size);
-            start_outputing_bits();
-            start_encoding(max_bits);
 
-            for (int idx : newBlocks[subbanda]) {
+
+            int counter = 0;
+
+            for (int idx : newBlocks[subband]) {
                 int symbol = idx+1;
-                encode_symbol(symbol, cum_freq, fout);	 /* Encode that symbol.	 	 */
-                update_model(freq, cum_freq, freq_size, symbol);		         /* Update the model 	 	 */
+//                if(subband < 20){
+//                    printf(" %i", symbol);
+//                }
+                encode_symbol(symbol, cum_freq, fout);
+                update_model(freq, cum_freq, freq_size, symbol);
+//                if(subband == 0){
+//                    printf("\n");
+//                    for (int j = 0; j < freq_size; ++j) {
+//                        printf(" %i", cum_freq[j]);
+//                    }
+//                    printf("\n");
+//                }
+                counter += 1;
+//                if (counter > 10) break;
             }
 
-            done_encoding(fout);
-            done_outputing_bits(fout);
+
+
         }
     }
+    done_encoding(fout);
+    done_outputing_bits(fout);
 
     fseek(fout, 0, SEEK_END);
     long file_size_out = ftell(fout);
@@ -136,6 +155,7 @@ void EncoderWrapper::write_header(FILE *fout, const vector<vector<performance>> 
 
     for (int i = 0; i < NBANDS; ++i) {
         putc((int)performances[i][bestCodebooks[i]].codebook_idx, fout);
+//        printf("\nCBHEADER: %i", performances[i][bestCodebooks[i]].codebook_idx);
     }
 }
 
@@ -180,6 +200,8 @@ void EncoderWrapper::decode(const string &filename, const string& out) {
     //*                         Decodificador Aritimetico                          *
     //*                                                                            *
     //******************************************************************************
+    start_inputing_bits();
+    start_decoding(fin, 16);
 
     for (int subband = 0; subband < NBANDS; ++subband) {
         vector<fMatrix> codebook_list = VQ::load_codebooks("./codebooks/codebooks_" + to_string(subband) + ".txt");
@@ -188,9 +210,43 @@ void EncoderWrapper::decode(const string &filename, const string& out) {
         codebookInfo cbInfo = get_cb_info(cbIdx, dims, subband);
         vector<int> subbandBlocksIdx;
 
-        for (int i = 0; i < cbInfo.blocks; ++i) {
-            int ch = getc(fin);
-            subbandBlocksIdx.push_back(ch-1);
+        if(testandoDecoder) {
+            for (int i = 0; i < cbInfo.blocks; ++i) {
+                int ch = getc(fin);
+                subbandBlocksIdx.push_back(ch - 1);
+            }
+        }
+        else{
+            int freq_size = (int)cbInfo.cbSize+1;
+            int *freq = (int *)calloc (freq_size,  sizeof (int));
+            int *cum_freq = (int *)calloc (freq_size,  sizeof (int));
+
+//            int max_bits = ceil(log2(freq_size));
+
+            start_model(freq, cum_freq, freq_size);
+//            printf("\n");
+//            for (int j = 0; j < freq_size; ++j) {
+//                printf(" %i", cum_freq[j]);
+//            }
+//            printf("\n");
+
+            printf("\nDecodificando subbanda: %i, fSize: %i\n", subband, freq_size);
+
+            for (int i = 0; i < cbInfo.blocks; i++) {
+//            for (int i = 0; i < 11; i++) {
+                int symbol = decode_symbol(cum_freq, fin);
+//                if(subband < 20){
+//                    printf(" %i", symbol);
+//                }
+                subbandBlocksIdx.push_back(symbol - 1);
+                update_model(freq, cum_freq, freq_size, symbol);
+//                printf("\n");
+//                for (int j = 0; j < freq_size; ++j) {
+//                    printf(" %i", cum_freq[j]);
+//                }
+//                printf("\n");
+            }
+
         }
         selected_infos.push_back(cbInfo);
         allBlocksIdx.push_back(subbandBlocksIdx);
@@ -237,7 +293,7 @@ codebookInfo EncoderWrapper::get_cb_info(int codebook_index, const unsigned *dim
         for (unsigned int cb_size: cb_size_list) {
             unsigned bSize = v[0] * v[1];
             double R = log2(cb_size + 1) / bSize;
-            if (R <= 7) {
+            if (R <= MAXR) {
                 cbIdx += 1;
                 if (cbIdx == codebook_index){
                     cbInfo.cbSize = cb_size+1;

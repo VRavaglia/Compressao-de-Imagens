@@ -11,7 +11,7 @@ static code_value low, high;        /* Ends of current code region 		*/
 
 /* START DECODING A STREAM OF SYMBOLS */
 
-void start_decoding(FILE *file) {
+void start_decoding(FILE *file, int max_bits) {
     int i;
     value = 0;
     for (i = 1; i <= Code_value_bits; i++) {                                    /* input bits to fill the 		*/

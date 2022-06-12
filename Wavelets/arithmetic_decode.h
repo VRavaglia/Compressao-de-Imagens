@@ -5,7 +5,7 @@
 #ifndef PPM_ARITHMETIC_DECODE_H
 #define PPM_ARITHMETIC_DECODE_H
 
-void start_decoding(FILE *file);
-int decode_symbol(struct cum_freqs *cum_freq, FILE *file);
+void start_decoding(FILE *file, int max_bits);
+int decode_symbol(const int *cum_freq, FILE *file);
 
 #endif //PPM_ARITHMETIC_DECODE_H

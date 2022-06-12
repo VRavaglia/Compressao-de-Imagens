@@ -59,7 +59,10 @@ intMatrix WaveletHelper::quantize(const vector<intMatrix> &oldSubbands, const ve
         newBlocks.push_back(performances[i][minIdx].blockList);
         bestCodebooks[i] = performances[i][minIdx].codebook_idx;
 
-        printf("\n MinJ: %f - MSE: %f R: %f", minJ, performances[i][minIdx].MSE, performances[i][minIdx].R);
+        printf("\n MinJ: %f - MSE: %f R: %f - cbSize: %i, bsize: %i", minJ, performances[i][minIdx].MSE, performances[i][minIdx].R, performances[i][minIdx].codebook_size, performances[i][minIdx].block_size[0]*performances[i][minIdx].block_size[1]);
+//        for (int j = 0; j < performances[i][minIdx].blockList.size(); ++j) {
+//            printf(" %i", performances[i][minIdx].blockList[j]);
+//        }
     }
 
     return newBlocks;
