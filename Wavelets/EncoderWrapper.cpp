@@ -18,7 +18,7 @@ extern "C"
 }
 
 
-void EncoderWrapper::encode(const string& in, const string& out) {
+void EncoderWrapper::encode(const string& in, const string& out, float lb) {
     //******************************************************************************
     //*                                                                            *
     //*                         Quantizar Subbandas                                *
@@ -39,16 +39,21 @@ void EncoderWrapper::encode(const string& in, const string& out) {
     double *pSIMG[YLUM];
     int avg = ImageReader::remove_avg(Image_orig, dims);
     only_anal(Image_orig, pSIMG, (int)dims[1], (int)dims[0]);
+//    ImageReader::write("teste2.pgm", dims, ImageReader::dpointer2fmatrix(pSIMG, dims));
+//    ImageReader::save_csv("teste3.csv", ImageReader::dpointer2imatrix(pSIMG, dims));
 
 
 //    fMatrix decomp = ImageReader::ipointer2fmatrix(Image, dims);
 
-    vector<intMatrix> subbands = WaveletHelper::splitSubbands(pSIMG, (int)dims[1], (int)dims[0], NSTAGES);
+    vector<fMatrix> subbands = WaveletHelper::splitSubbands(pSIMG, (int)dims[1], (int)dims[0], NSTAGES);
 
-    vector<vector<performance>> performances = VQ::evaluate_codebooks(subbands);
+    vector<vector<performance>> performances = VQ::load_performances("./performances/performances.txt");
+    printf("");
+
 
     unsigned bestCodebooks[NBANDS];
-    intMatrix newBlocks = WaveletHelper::quantize(subbands, performances, LAMBDA, bestCodebooks);
+    intMatrix newBlocks = WaveletHelper::quantize_1(subbands, performances, lb, bestCodebooks);
+//    intMatrix newBlocks = WaveletHelper::quantize_2(subbands, performances, lb, bestCodebooks);
 
 //    for (int i = 0; i < newBlocks.size(); ++i) {
 //        printf("\n\n");
@@ -204,6 +209,7 @@ void EncoderWrapper::decode(const string &filename, const string& out) {
     start_decoding(fin, 16);
 
     for (int subband = 0; subband < NBANDS; ++subband) {
+        printf("\nCarregando codebooks: %i/%i", subband+1, NBANDS);
         vector<fMatrix> codebook_list = VQ::load_codebooks("./codebooks/codebooks_" + to_string(subband) + ".txt");
         int cbIdx = header[subband];
         selected_codebooks.push_back(codebook_list[cbIdx]);

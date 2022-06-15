@@ -21,10 +21,12 @@ public:
     static fMatrix ipointer2fmatrix(int **input, const unsigned dims[3]);
     static intMatrix ipointer2imatrix(int **input, const unsigned dims[3]);
     static fMatrix dpointer2fmatrix(double **input, const unsigned *dims);
+    static intMatrix dpointer2imatrix(double **input, const unsigned dims[3]);
     static intMatrix float2int(const fMatrix &in);
     static int** allocIntMatrix(int rows, int cols);
+    static float** allocfMatrix(int rows, int cols);
     static intMatrix read(const char *filename, unsigned *dims);
-    static fMatrix getBlocks(const unsigned size[2], const intMatrix &image);
+    static fMatrix getBlocks(const unsigned size[2], const fMatrix &image);
     static void save_csv(const char *filename, const intMatrix &blocks);
     static void write(const char *filename, unsigned *dims, const fMatrix &image);
     static int remove_avg(int **Img_orig, const unsigned *dims);

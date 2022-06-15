@@ -13,7 +13,7 @@ extern "C"
 }
 
 
-int main() {
+int main(int argc, char **argv) {
     using namespace std;
 
     string training_path = "./imagens_vq/treino/";
@@ -23,7 +23,7 @@ int main() {
         training_images.push_back(training_path+name);
     }
 
-    vector<vector<intMatrix>> all_subbands;
+    vector<vector<fMatrix>> all_subbands;
 
     for (const auto& img_name : training_images) {
         unsigned dims[3];
@@ -32,7 +32,7 @@ int main() {
         double *pSIMG[YLUM];
         ImageReader::remove_avg(Image_orig, dims);
         only_anal(Image_orig, pSIMG, (int)dims[1], (int)dims[0]);
-        vector<intMatrix> subbands = WaveletHelper::splitSubbands(pSIMG, (int)dims[1], (int)dims[0], NSTAGES);
+        vector<fMatrix> subbands = WaveletHelper::splitSubbands(pSIMG, (int)dims[1], (int)dims[0], NSTAGES);
         all_subbands.push_back(subbands);
     }
 
@@ -40,8 +40,18 @@ int main() {
 //    auto start = high_resolution_clock::now();
 
 //    ImageReader::save_csv("aaaa.csv", subbands[0]);
+    vector<int> bands;
+
+    if (argc != 2){
+        for (int i = 0; i < NBANDS; ++i) {
+            bands.push_back(i);
+        }
+    }else{
+        bands.push_back(stoi(argv[1]));
+    }
     printf("\n Iniciando treinamento: %i/%i - %i/%i", 0, vl_size*cb_size_size, 0, NBANDS);
-    for (int i = 0; i < NBANDS; ++i) {
+    for (int i : bands) {
+//    for(int i = banda; i < banda+1; i++){
         vector<fMatrix> codebook_list;
         vector<unsigned> idxTable;
 
@@ -50,17 +60,16 @@ int main() {
         vector<bool> skips;
         intMatrix codebook_dim_list;
         float eps = 0.1;
+        float parada = 0.1;
 
 
         for(const unsigned *block_size : vector_list){
             fMatrix blocks;
-//            for (int j = 0; j < training_images.size(); j++) {
-            for (int j = 0; j < 1; j++) {
-                for (const auto &subbands : all_subbands) {
-                    fMatrix temp_blocks = ImageReader::getBlocks(block_size, subbands[i]);
+            for (int j = 0; j < training_images.size(); j++) {
+//            for (int j = 0; j < 1; j++) {
+                    fMatrix temp_blocks = ImageReader::getBlocks(block_size, all_subbands[j][i]);
                     for(const auto& block : temp_blocks){
                         blocks.push_back(block);
-                    }
                 }
             }
 //            if (i == 0 && bSizeIdx == 0){
@@ -71,19 +80,24 @@ int main() {
                 double R = log2(cbSize)/bSize;
                 if((R <= MAXR)){
                     skips.push_back(false);
-                    fMatrix codebook = VQ::LGB(blocks, cbSize, eps);
-//                    if (i == 0 && bSizeIdx == 0 && cbSize == 16){
-//                        ImageReader::save_csv("bbbb.csv", ImageReader::float2int(codebook));
-//                    }
-                    codebook_list.push_back(codebook);
-                    codebook_dim_list.push_back({(int)bSize, (int)cbSize + 1});
+                    bool finish = false;
+//                    if (codebooks < 44) finish = true;
+                    while(!finish){
+                        fMatrix codebook;
+                        int result = VQ::LGB(blocks, cbSize, eps, parada, codebook);
+                        if(result == 0){
+                            codebook_list.push_back(codebook);
+                            codebook_dim_list.push_back({(int)bSize, (int)cbSize + 1});
+                            finish = true;
+                        }
+                    }
                 }
                 else{
                     printf("\nTamanho de codebook ignorado.");
                     skips.push_back(true);
                 }
                 codebooks += 1;
-                printf("\n[%i/%i] Treinamento: %i/%i - %i/%i", bSizeIdx,cbSize, codebooks, vl_size*cb_size_size, i+1, NBANDS);
+                printf("\n[%i/%i] Treinamento: %i/%i - %i/%i", bSizeIdx,cbSize, codebooks, vl_size*cb_size_size, i+1, bands.size());
             }
             bSizeIdx += 1;
         }

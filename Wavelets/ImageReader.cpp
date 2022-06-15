@@ -9,6 +9,7 @@
 #include <sstream>
 #include <iostream>
 #include <cmath>
+#include <algorithm>
 
 using namespace std;
 
@@ -132,7 +133,7 @@ intMatrix ImageReader::read(const char *filename, unsigned *dims) {
 };
 
 
-fMatrix ImageReader::getBlocks(const unsigned size[2], const intMatrix &image){
+fMatrix ImageReader::getBlocks(const unsigned size[2], const fMatrix &image){
     fMatrix blocks;
     unsigned w = image[0].size();
     unsigned h = image.size();
@@ -143,14 +144,22 @@ fMatrix ImageReader::getBlocks(const unsigned size[2], const intMatrix &image){
         vector<float> block;
         for (unsigned r = rRead; r < rRead + size[0]; ++r) {
             for (unsigned c = cRead; c < cRead + size[1]; ++c) {
-                block.push_back(float(image[r][c]));
+                unsigned x = c;
+                unsigned y = r;
+                if(x >= w){
+                    x = 2*w - x - 1;
+                }
+                if(y >= h){
+                    y = 2*h - y - 1;
+                }
+                block.push_back(float(image[y][x]));
             }
         }
         cRead += size[1];
         blocks.push_back(block);
         if (cRead >= w){
             rRead += size[0];
-            if (rRead*cRead == w*h) break;
+            if (rRead*cRead >= w*h) break;
             cRead = 0;
         }
     }
@@ -201,7 +210,7 @@ void ImageReader::write(const char *filename, unsigned *dims, const fMatrix &ima
 
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
-            putc((int)round(image[i][j]), fout);
+            putc(std::clamp((int)round(image[i][j]), 0, 255), fout);
         }
     }
 
@@ -247,6 +256,22 @@ int** ImageReader::allocIntMatrix(const int rows, const int cols){
 
     for (int i = 0; i < rows; i++) {
         mat[i] = (int *) malloc(cols * sizeof(int));
+    }
+
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            mat[i][j] = 0;
+        }
+    }
+
+    return mat;
+}
+
+float** ImageReader::allocfMatrix(const int rows, const int cols){
+    auto **mat = (float **)malloc(rows * sizeof(float*));
+
+    for (int i = 0; i < rows; i++) {
+        mat[i] = (float *) malloc(cols * sizeof(float));
     }
 
     for (int i = 0; i < rows; ++i) {
@@ -338,6 +363,22 @@ void ImageReader::add_avg(int **Img_orig, const unsigned *dims, int avg) {
 }
 
 intMatrix ImageReader::ipointer2imatrix(int **input, const unsigned int *dims) {
+    unsigned rows = dims[0];
+    unsigned cols = dims[1];
+
+    intMatrix mat;
+    for (int i = 0; i < rows; ++i) {
+        vector<int> col;
+        for (int j = 0; j < cols; ++j) {
+            col.push_back((int)round(input[i][j]));
+        }
+        mat.push_back(col);
+    }
+
+    return mat;
+}
+
+intMatrix ImageReader::dpointer2imatrix(double **input, const unsigned int *dims) {
     unsigned rows = dims[0];
     unsigned cols = dims[1];
 

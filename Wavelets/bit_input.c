@@ -30,6 +30,7 @@ int input_bit(FILE *file) {
             garbage_bits += 1;                        /* Return arbitrary bits 	*/
             if (garbage_bits > Code_value_bits - 2)    /* after EOF, but check		*/
             {                                    /* for too many such	*/
+                printf("\n Garbage: %i", garbage_bits);
                 fprintf(stderr, "Bad input file\n");
                 exit(-1);
             }

@@ -13,8 +13,7 @@ extern "C"
 #include "subdefs2.h"
 }
 
-fMatrix VQ::LGB(const fMatrix &blocks, const unsigned cbSize, const float eps){
-    fMatrix codebook;
+int VQ::LGB(const fMatrix &blocks, const unsigned cbSize, const float eps, float parada, fMatrix &codebook){
 
     unsigned sizeBlock = blocks.size();
     unsigned sizeDim = blocks[0].size();
@@ -26,13 +25,15 @@ fMatrix VQ::LGB(const fMatrix &blocks, const unsigned cbSize, const float eps){
     double avg_dist = dist_avg_c0(c0, blocks);
 
     while (codebook.size() < cbSize){
-        split_codebook(blocks, codebook, eps, avg_dist);
+        int result = split_codebook(blocks, codebook, eps, parada, avg_dist);
+        printf("\nGerando Codebook: %i/%i", codebook.size(), cbSize);
+        if (result != 0) return result;
     }
 
     vector<float> czero(sizeDim,  0.0);
     codebook.push_back(czero);
 
-    return codebook;
+    return 0;
 }
 
 vector<float> VQ::vec_avg(const fMatrix &blocks, const unsigned sizeBlock, const unsigned sizeDim){
@@ -62,12 +63,12 @@ double VQ::euclid_squared(const vector<float> &a, const vector<float> &b){
     double d = 0;
 
     for (int i = 0; i < a.size(); ++i) {
-        d += pow(round(a[i])-round(b[i]), 2);
+        d += pow(a[i]-b[i], 2);
     }
 
     return d;
 }
-void VQ::split_codebook(const fMatrix &blocks, fMatrix &codebook, const float eps, double &initial_avg_dist){
+int VQ::split_codebook(const fMatrix &blocks, fMatrix &codebook, const float eps, const float parada, double &initial_avg_dist){
 
     fMatrix  new_codevectors;
 
@@ -81,22 +82,19 @@ void VQ::split_codebook(const fMatrix &blocks, fMatrix &codebook, const float ep
     codebook = new_codevectors;
 
     double avg_dist = 0;
-    double err = eps + 1;
+    double err = parada + 1;
     unsigned bSize = blocks.size();
     unsigned cSize = codebook.size();
     double lastErr = err;
+    unsigned its = 0;
 
-    while(err > eps){
-        if ((lastErr - err)/lastErr > 0.1){
-            lastErr = err;
-//            printf("\nConvergindo eps: %f/%f", err, eps);
-        }
+    while(err > parada){
 
         map<unsigned , vector<float>> closest_c_list;
         map<unsigned , vector<vector<float>>> vecs_near_c;
         map<unsigned , vector<unsigned >> vecs_idxs_near_c;
 
-        unsigned its = 0;
+
 
         for (int i = 0; i < bSize; ++i) {
             double min_dist = -1;
@@ -139,7 +137,10 @@ void VQ::split_codebook(const fMatrix &blocks, fMatrix &codebook, const float ep
         err = (prev_avg_dist - avg_dist)/prev_avg_dist;
 
         its += 1;
+//        if (its > MAXVQITS) printf("\nMaior que 20");
+//        if (its > MAXVQITS) return 0;
     }
+    return 0;
 }
 
 double VQ::avg_dist_c_list(const map<unsigned , vector<float>> &c_list, const fMatrix &blocks, const unsigned &bSize){
@@ -160,9 +161,11 @@ vector<float> VQ::new_codevector(const vector<float> &c, float eps){
     for(float x : c){
         std::random_device rd;
         std::mt19937 gen(rd());
-        std::uniform_real_distribution<> dist(0, 1);
-        float e = eps*(float)dist(gen);
-        float newValtemp = x * (1 + e);
+        std::normal_distribution<> dist(0, eps);
+//        float e = eps*(float)dist(gen);
+        auto e = (float)dist(gen);
+//        float newValtemp = x + e + eps;
+        float newValtemp = x + e;
 //        float newVal;
 //        if (newValtemp > 255){
 //            if(warp){
@@ -191,7 +194,7 @@ vector<float> VQ::new_codevector(const vector<float> &c, float eps){
 
 fMatrix VQ::replaceBlocks(const fMatrix &blocks, const fMatrix &codebook, const unsigned *bDims, const unsigned *iDims, vector<int> &blockList){
 
-    float arrayImg[iDims[0]][iDims[1]];
+    float **arrayImg = ImageReader::allocfMatrix((int)iDims[0], (int)iDims[1]);
     fMatrix newBlocks;
 //    printf("\nDims: %i/%i", iDims[0], iDims[1]);
 
@@ -208,7 +211,7 @@ fMatrix VQ::replaceBlocks(const fMatrix &blocks, const fMatrix &codebook, const 
             }
         }
         newBlocks.push_back(codebook[minIdx]);
-        blockList.push_back(minIdx);
+        blockList.push_back((int)minIdx);
     }
 
     unsigned iWCounter = 0;
@@ -220,9 +223,10 @@ fMatrix VQ::replaceBlocks(const fMatrix &blocks, const fMatrix &codebook, const 
         for (unsigned r = iHCounter; r < iHCounter + bDims[0]; ++r) {
             vector<float> row;
             for (unsigned c = iWCounter; c < iWCounter + bDims[1]; ++c) {
-                arrayImg[r][c] = block[i];
+                if(r < iDims[0] && c < iDims[1]){
+                    arrayImg[r][c] = block[i];
+                }
                 i += 1;
-
             }
         }
 //        printf("\n %i \n", iDims[1]);
@@ -245,29 +249,34 @@ fMatrix VQ::replaceBlocks(const fMatrix &blocks, const fMatrix &codebook, const 
         }
         newImage.push_back(row);
     }
+    free(arrayImg);
     return newImage;
 }
 
-double VQ::MSE(const intMatrix &oldI, const fMatrix &newI){
+double VQ::MSE(const fMatrix &oldI, const fMatrix &newI){
     double err = 0;
     unsigned rows = oldI.size();
     unsigned cols = oldI[0].size();
     unsigned its = 0;
+//    float lasterr = 0;
 
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
-            err += pow((float)oldI[i][j] - round(newI[i][j]), 2)/(cols*rows);
+            err += pow(oldI[i][j] - newI[i][j], 2)/(cols*rows);
+//                printf("\nerr %f/%f", oldI[i][j], newI[i][j]);
+//            }
+//            lasterr = err;
         }
     }
 
     return err;
 }
 
-double VQ::PSNR(const intMatrix &oldI, const fMatrix &newI){
+double VQ::PSNR(const fMatrix &oldI, const fMatrix &newI){
     return 10*log10(255*255/MSE(oldI, newI));
 }
 
-vector<unsigned> VQ::best_codebook(const intMatrix &image, const vector<fMatrix> &block_list, const vector<fMatrix> &codebook_list, const unsigned *dims, unsigned testIdx){
+vector<unsigned> VQ::best_codebook(const fMatrix &image, const vector<fMatrix> &block_list, const vector<fMatrix> &codebook_list, const unsigned *dims, unsigned testIdx){
     unsigned bcb = 0;
     unsigned bestcbSize;
     double maxPSNR = -1;
@@ -341,8 +350,12 @@ vector<unsigned> VQ::best_codebook(const intMatrix &image, const vector<fMatrix>
          for (const auto & row : codebook) {
              for(const auto &point : row){
                  string temp = to_string(point);
+                 bool mark = false;
                  for(char c : temp){
                      putc(c, fout);
+                     if(mark) break;
+                     if(c == '.') mark = true;
+
                  }
                  putc(',', fout);
              }
@@ -368,8 +381,12 @@ vector<fMatrix> VQ::load_codebooks(const string& filename){
     unsigned bsizeRead = 0;
     unsigned csizeRead = 0;
     bool first = false;
+    int codebooks = 0;
 
     while(true){
+//        if(codebooks > 9){
+//            printf("");
+//        }
         char ch;
         if(state != States::vect){
             ch = (char)getc(fin);
@@ -399,6 +416,7 @@ vector<fMatrix> VQ::load_codebooks(const string& filename){
                 break;
             case States::vect:
                 fMatrix codebook;
+//                printf("\n Size: %i/%i",bsizeRead, csizeRead);
                 for (int i = 0; i < csizeRead; i++) {
                     vector<float> row;
                     for (int j = 0; j < bsizeRead; j++) {
@@ -407,13 +425,19 @@ vector<fMatrix> VQ::load_codebooks(const string& filename){
                             char c = (char)getc(fin);
                             if(c == ',') break;
                             temp += c;
+
                         }
+//                        if (codebooks > 11){
+//                            printf(" %i/%i", i, csizeRead);
+//                        }
                         row.push_back(stof(temp));
                     }
                     codebook.push_back(row);
 //                    getc(fin);
                 }
                 codebook_list.push_back(codebook);
+                codebooks += 1;
+//                printf("\n Codebooks lidos: %i/%i", codebooks, vl_size*cb_size_size);
                 state = States::bsize;
                 break;
         }
@@ -424,11 +448,12 @@ vector<fMatrix> VQ::load_codebooks(const string& filename){
     return codebook_list;
 }
 
-vector<vector<performance>> VQ::evaluate_codebooks(const vector<intMatrix> &subbands) {
+vector<vector<performance>> VQ::evaluate_codebooks(const vector<fMatrix> &subbands) {
     unsigned count = 0;
     vector<vector<performance>> allPerformances;
     printf("\nAvaliando codebooks:");
     for (int j = 0; j < NBANDS; ++j) {
+        printf("\nCarregando codebooks: %i/%i", j+1, NBANDS);
         vector<fMatrix> codebook_list = VQ::load_codebooks("./codebooks/codebooks_" + to_string(j) + ".txt");
 
         vector<fMatrix> block_list;
@@ -443,32 +468,52 @@ vector<vector<performance>> VQ::evaluate_codebooks(const vector<intMatrix> &subb
         vector<performance> subbandPer;
 
         for (int i = 0; i < block_list.size(); ++i) {
+            double lastPSNR = 0;
+            bool skip = false;
             for (unsigned int cb_size : cb_size_list) {
                 unsigned bSize = vector_list[i][0] * vector_list[i][1];
                 double R = log2(cb_size+1)/bSize;
+                if(vector_list[i][0] + vector_list[i][1] > MAXBLOCK) skip = true;
                 if(R <= MAXR) {
-                    unsigned dims[3] = {(unsigned)subbands[j].size(), (unsigned)subbands[j][0].size(), 255};
-                    vector<int> bestblockList;
-                    fMatrix newImage = VQ::replaceBlocks(block_list[i], codebook_list[cIdx], vector_list[i], dims, bestblockList);
-                    if(cb_size == 16 && vector_list[i][0] == 2 && j == 0){
-                        ImageReader::save_csv("teste.csv", ImageReader::float2int(block_list[i]));
-                        ImageReader::save_csv("teste2.csv", ImageReader::float2int(codebook_list[cIdx]));
-                    }
-
-                    double mse = VQ::MSE(subbands[j], newImage);
-                    double psnr = 10*log10(255*255/mse);
-
-                    printf("\n%i/%i MSE = %f PSNR = %f R = %f", count, j, mse, psnr, R);
-
                     performance per;
-                    per.R = R;
-                    per.MSE = mse;
-                    per.PSNR = psnr;
+                    if(!skip){
+                        unsigned dims[3] = {(unsigned)subbands[j].size(), (unsigned)subbands[j][0].size(), 255};
+                        vector<int> bestblockList;
+                        fMatrix newImage = VQ::replaceBlocks(block_list[i], codebook_list[cIdx], vector_list[i], dims, bestblockList);
+//                        if(cb_size == 16 && vector_list[i][0] == 2 && j == 0){
+//                            ImageReader::save_csv("teste.csv", ImageReader::float2int(block_list[i]));
+//                            ImageReader::save_csv("teste2.csv", ImageReader::float2int(codebook_list[cIdx]));
+//                        }
+//                        if(count > 39){
+//                            printf("");
+//                        }
+                        double mse = VQ::MSE(subbands[j], newImage);
+//                        if(std::isnan(mse)) mse = pow(10, 9);
+                        if(std::isnan(mse)) exit(-1);
+                        double psnr = 10*log10(255*255/mse);
+
+                        printf("\n[%i/%i] SB: %i/10 MSE = %f PSNR = %f R = %f", count, NBANDS*cb_size_size*vl_size, j, mse, psnr, R);
+
+                        per.R = R;
+                        per.MSE = mse;
+//                        per.PSNR = psnr;
+//                        per.blockList = bestblockList;
+//                        if(lastPSNR != 0 && psnr <= lastPSNR + 0.01){
+//                            skip = true;
+//                        }
+                        lastPSNR = psnr;
+
+                    }else{
+                        printf("\n[%i/%i] SB: %i/10 Skip", count, NBANDS*cb_size_size*vl_size, j);
+                        per.R = -1;
+                        per.MSE = pow(10,9);
+//                        per.PSNR = psnr;
+
+                    }
                     per.block_size[0] = vector_list[i][0];
                     per.block_size[1] = vector_list[i][1];
                     per.codebook_size = cb_size+1;
                     per.codebook_idx = cIdx;
-                    per.blockList = bestblockList;
                     subbandPer.push_back(per);
 
                     count += 1;
@@ -549,4 +594,153 @@ fMatrix VQ::fill_image(const intMatrix &allBlocks, const vector<fMatrix> &select
 
     return newImage;
 }
+//per[imagem][banda][config]
+void VQ::save_performances(const vector<vector<vector<performance>>> &performances, const vector<string>& img_names) {
+    vector<vector<performance>> means;
+    for (int j = 0; j < performances[0][0].size(); ++j) {
+        vector<performance> temp;
+        for (int i = 0; i < NBANDS; ++i) {
+            performance mean_per;
+            mean_per.codebook_size = performances[0][i][j].codebook_size;
+            mean_per.codebook_idx = performances[0][i][j].codebook_idx;
+            mean_per.block_size[0] = performances[0][i][j].block_size[0];
+            mean_per.block_size[1] = performances[0][i][j].block_size[1];
+            for (int k = 0; k < img_names.size(); k++){
+                mean_per.MSE += performances[k][i][j].MSE/(double)img_names.size();
+                mean_per.R += performances[k][i][j].R/(double)img_names.size();
+            }
+            temp.push_back(mean_per);
+        }
+        means.push_back(temp);
+    }
 
+    FILE *fout = fopen("./performances/performances.txt", "wb");
+
+    if (fout == nullptr){
+        printf("\nArquivo de avaliacoes nao encontrado (escrita)!");
+        return;
+    }
+    for (int i = 0; i < NBANDS; ++i) {
+        for (int j = 0; j < performances[0][0].size(); ++j) {
+            for(const char &c : to_string(i)){
+                putc(c, fout);
+            }
+            putc(',', fout);
+            for(const char &c : to_string(means[j][i].codebook_size)){
+                putc(c, fout);
+            }
+            putc(',', fout);
+            for(const char &c : to_string(means[j][i].codebook_idx)){
+                putc(c, fout);
+            }
+            putc(',', fout);
+            for(const char &c : to_string(means[j][i].MSE)){
+                putc(c, fout);
+            }
+            putc(',', fout);
+            for(const char &c : to_string(means[j][i].R)){
+                putc(c, fout);
+            }
+            putc(',', fout);
+            for(const char &c : to_string(means[j][i].block_size[0])){
+                putc(c, fout);
+            }
+            putc(',', fout);
+            for(const char &c : to_string(means[j][i].block_size[1])){
+                putc(c, fout);
+            }
+            putc(',', fout);
+            putc('\n', fout);
+        }
+    }
+
+    fclose(fout);
+}
+
+vector<vector<performance>> VQ::load_performances(const string& filename){
+    FILE *fin = fopen(filename.c_str(), "rb");
+    vector<vector<performance>> subbs_performances;
+
+    if (fin == nullptr){
+        printf("\nArquivo de avaliacoes nao encontrado (leitura)!");
+        return subbs_performances;
+    }
+    while (true){
+        char ch = (char)getc(fin);
+        if(ch == ',') break;
+    }
+    for (int k = 0; k < NBANDS; ++k) {
+        vector<performance> subb_performances;
+        while(true){
+            performance per;
+            string buffer;
+            while (true){
+                char ch = (char)getc(fin);
+                if(ch == ',') break;
+                buffer += ch;
+
+            }
+            per.codebook_size = stoi(buffer);
+            buffer = "";
+            while (true){
+                char ch = (char)getc(fin);
+                if(ch == ',') break;
+                buffer += ch;
+
+            }
+            per.codebook_idx = stoi(buffer);
+            buffer = "";
+            while (true){
+                char ch = (char)getc(fin);
+                if(ch == ',') break;
+                buffer += ch;
+
+            }
+            per.MSE = stof(buffer);
+            buffer = "";
+            while (true){
+                char ch = (char)getc(fin);
+                if(ch == ',') break;
+                buffer += ch;
+
+            }
+            per.R = stof(buffer);
+            buffer = "";
+            while (true){
+                char ch = (char)getc(fin);
+                if(ch == ',') break;
+                buffer += ch;
+
+            }
+            per.block_size[0] = stoi(buffer);
+            buffer = "";
+            while (true){
+                char ch = (char)getc(fin);
+                if(ch == ',') break;
+                buffer += ch;
+
+            }
+            per.block_size[1] = stoi(buffer);
+            subb_performances.push_back(per);
+
+            (char)getc(fin);
+
+            buffer = "";
+            while (true){
+                char ch = (char)getc(fin);
+                if(ch == EOF){
+                    fclose(fin);
+                    subbs_performances.push_back(subb_performances);
+                    return subbs_performances;
+                }
+                if(ch == ',') break;
+                buffer += ch;
+            }
+            int band = stoi(buffer);
+            if(band > k) break;
+        }
+        subbs_performances.push_back(subb_performances);
+    }
+    fclose(fin);
+    return subbs_performances;
+}

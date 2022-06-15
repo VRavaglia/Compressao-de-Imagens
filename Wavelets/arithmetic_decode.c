@@ -14,6 +14,7 @@ static code_value low, high;        /* Ends of current code region 		*/
 void start_decoding(FILE *file, int max_bits) {
     int i;
     value = 0;
+    printf("\nCode value bits: %i", Code_value_bits);
     for (i = 1; i <= Code_value_bits; i++) {                                    /* input bits to fill the 		*/
         value = 2 * value + input_bit(file);        /* code value    				*/
     }
@@ -28,12 +29,12 @@ int decode_symbol(cum_freq, file)
         FILE *file;
         const int cum_freq[];                /* cummulative symbol frequencies	*/
 {
-    long range;                /* size of surrent code region		*/
-    int cum;                    /* cummulative frequency calculated	*/
+    uint64_t range;                /* size of surrent code region		*/
+    uint64_t cum;                    /* cummulative frequency calculated	*/
     int symbol;                /* symbol decoded			*/
 
-    range = (long) (high - low) + 1;
-    cum = (((long) (value - low) + 1) * cum_freq[0] - 1) / range; /* Find cumfreq for value */
+    range = (uint64_t) (high - low) + 1;
+    cum = (((uint64_t) (value - low) + 1) * cum_freq[0] - 1) / range; /* Find cumfreq for value */
     for (symbol = 1; cum_freq[symbol] > cum; symbol++);   /* Then find symbol	 	  */
     high = low + (range * cum_freq[symbol - 1]) / cum_freq[0]- 1; /* Narrow the code */
     low = low + (range * cum_freq[symbol]) / cum_freq[0];     /* region to that  */

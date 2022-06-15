@@ -12,7 +12,7 @@ static void bit_plus_follow();        /* Routine that follows	*/
 /* CURRENT STATE OF THE ENCODING */
 
 static code_value low, high;        /* ends of the current code-region */
-static long bits_to_follow;        /* Number of opposite bits to output after	*/
+static uint32_t bits_to_follow;        /* Number of opposite bits to output after	*/
 /* the next bit.				            */
 
 /* START ENCODING A STREAM OF SYMBOLS */
@@ -25,7 +25,7 @@ void start_encoding(int max_bits) {
 //    Half = (2*First_qtr);
 //    Third_qtr = (3*First_qtr);
 
-//    printf("\nEncodding: %i, %i, %i, %i, %i\n", Code_value_bits, Top_value, First_qtr, Half, Third_qtr);
+    printf("\nEncodding: %i, %i, %i, %i, %i\n", Code_value_bits, Top_value, First_qtr, Half, Third_qtr);
 
     high = Top_value;
     bits_to_follow = 0;            /* No bits to follow next */
@@ -40,14 +40,18 @@ void encode_symbol(symbol, cum_freq, file)
         FILE *file;
 {
 //    printf("%i",symbol);
-    long range;                    /* size of the current_code region	*/
-    range = (long) (high - low) + 1;                            /* Narrow the code  */
+    uint64_t range;                    /* size of the current_code region	*/
+    range = (uint64_t) (high - low) + 1;                            /* Narrow the code  */
     high = low + (range * cum_freq[symbol - 1]) / cum_freq[0] - 1; /* region to that   */
     low = low + (range * cum_freq[symbol]) / cum_freq[0];     /* allotted to this */
 
-//    printf("\n Symbol: %i", symbol);
-//    printf("\nCumFreqs: %i, %i, %i", cum_freq[0], cum_freq[symbol - 1], cum_freq[symbol]);
-//    printf("\nLow: %i, High: %i", low, high);
+    if(low > high){
+        printf("\n Range: %i", range);
+        printf("\n Symbol: %i", symbol);
+        printf("\nCumFreqs: %i, %i, %i", cum_freq[0], cum_freq[symbol - 1], cum_freq[symbol]);
+        printf("\nLow: %i, High: %i", low, high);
+    }
+
 
 
 //    if(symbol == 9){

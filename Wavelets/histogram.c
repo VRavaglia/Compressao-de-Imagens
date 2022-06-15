@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define Max_frequency    16383
+//#define Max_frequency    16383
+#define Max_frequency    131071
 
 void start_model(int freq[], int cum_freq[], int freq_size) {
     for (int i = 0; i <= freq_size; i++) {          /* Set up initial frequency	*/
@@ -22,8 +23,7 @@ void update_model(int *freq, int *cum_freq, int freq_size, int symbol)
 
     if (cum_freq[0] == Max_frequency)                /* See if frequency counts	*/
     {                                            /* are at their maximum		*/
-        int cum;
-        cum = 0;
+        int cum = 0;
         for (int j = freq_size; j >= 0; j--)        /* If so, halve all the 	*/
         {                                        /* counts ( keeping them	*/
             freq[j] = (freq[j] + 1) / 2;                /* non-zero).				*/
