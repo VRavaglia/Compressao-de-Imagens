@@ -24,16 +24,16 @@ intMatrix bsize_list(int band){
 }
 
 vector<int> csize_list(int band){
-    const vector<int> csize_list_0{256, 512, 1024, 2048, 4096, 4096*2};
-    const vector<int> csize_list_1{16, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2};
-    const vector<int> csize_list_2{16, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2};
-    const vector<int> csize_list_3{16, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2};
-    const vector<int> csize_list_4{16, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2};
-    const vector<int> csize_list_5{16, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2};
-    const vector<int> csize_list_6{16, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2};
-    const vector<int> csize_list_7{16, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2};
-    const vector<int> csize_list_8{16, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2};
-    const vector<int> csize_list_9{16, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2};
+    const vector<int> csize_list_0{64, 128, 256, 512, 1024, 2048, 4096, 4096*2};
+    const vector<int> csize_list_1{8,16, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2};
+    const vector<int> csize_list_2{8,16, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2};
+    const vector<int> csize_list_3{8,16, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2};
+    const vector<int> csize_list_4{8,16, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2};
+    const vector<int> csize_list_5{8,16, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2};
+    const vector<int> csize_list_6{8,16, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2};
+    const vector<int> csize_list_7{8,16, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2};
+    const vector<int> csize_list_8{8,16, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2};
+    const vector<int> csize_list_9{8,16, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2};
 
     const intMatrix csize_listr{csize_list_0, csize_list_1, csize_list_2, csize_list_3, csize_list_4, csize_list_5, csize_list_6, csize_list_7, csize_list_8, csize_list_9};
 

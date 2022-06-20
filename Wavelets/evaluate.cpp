@@ -39,19 +39,19 @@ int main() {
         int **Image_orig = ImageReader::imatrix2ipointer(image);
 
         double *pSIMG[YLUM];
-//        ImageReader::remove_avg(Image_orig, dims);
+        ImageReader::remove_avg(Image_orig, dims);
         only_anal(Image_orig, pSIMG, (int)dims[1], (int)dims[0]);
-        double media = 0;
-        for (int k = 0; k < (int)dims[0]/8; ++k) {
-            for (int j = 0; j < (int)dims[1]/8; ++j) {
-                media += pSIMG[k][j]/((float)dims[0]/8*(float)dims[1]/8);
-            }
-        }
-        for (int k = 0; k < (int)dims[0]/8; ++k) {
-            for (int j = 0; j < (int)dims[1]/8; ++j) {
-                pSIMG[k][j] -= round(media);
-            }
-        }
+//        double media = 0;
+//        for (int k = 0; k < (int)dims[0]/8; ++k) {
+//            for (int j = 0; j < (int)dims[1]/8; ++j) {
+//                media += pSIMG[k][j]/((float)dims[0]/8*(float)dims[1]/8);
+//            }
+//        }
+//        for (int k = 0; k < (int)dims[0]/8; ++k) {
+//            for (int j = 0; j < (int)dims[1]/8; ++j) {
+//                pSIMG[k][j] -= round(media);
+//            }
+//        }
 //        fMatrix FImage_out = ImageReader::dpointer2fmatrix(pSIMG, dims);
 //        ImageReader::write("teste.pgm", dims, FImage_out);
 //        exit(0);

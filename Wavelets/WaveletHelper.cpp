@@ -43,7 +43,7 @@ vector<fMatrix> WaveletHelper::splitSubbands(double **InputImg, int ximg, int yi
     return subbands;
 }
 
-intMatrix WaveletHelper::quantize_1(const vector<fMatrix> &oldSubbands, const vector<vector<performance>> &performances, float lambda, unsigned bestCodebooks[NBANDS]){
+intMatrix WaveletHelper::quantize_1(const vector<fMatrix> &oldSubbands, const vector<vector<performance>> &performances, float lambda, unsigned bestCodebooks[NBANDS], int imgSize){
     intMatrix newBlocks;
     for (int i = 0; i < NBANDS; ++i) {
         vector<fMatrix> codebook_list = VQ::load_codebooks("./codebooks/codebooks_" + to_string(i) + ".txt");
@@ -62,7 +62,7 @@ intMatrix WaveletHelper::quantize_1(const vector<fMatrix> &oldSubbands, const ve
                 fMatrix newImage = VQ::replaceBlocks(old_blocks, codebook_list[performances[i][k].codebook_idx], performances[i][k].block_size, dims, bestblockList);
 
                 double mse = VQ::MSE(oldSubbands[i], newImage);
-
+                double aux = (float)dims[0]*(float)dims[1]/(float)imgSize;
                 double J = mse + lambda*R;
                 if (J < minJ){
                     minJ = J;

@@ -1,14 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <math.h>
 
 //#define Max_frequency    16383
 #define Max_frequency    131071
 
-void start_model(int freq[], int cum_freq[], int freq_size) {
+void start_model(int freq[], int cum_freq[], int freq_size, int subband) {
     for (int i = 0; i <= freq_size; i++) {          /* Set up initial frequency	*/
         freq[i]= 1;                                /* counts to be one for all	*/
-        cum_freq[i] = freq_size - i;        /* symbols					*/
+//        if(subband > 0 && i == freq_size){
+//            freq[i]= 3000;
+//        }
+    }
+    cum_freq[freq_size] = 0;
+    for (int i = freq_size-1; i >= 0; i--) {          /* Set up initial frequency	*/         /* counts to be one for all	*/
+        cum_freq[i] = cum_freq[i+1] + freq[i];         /* symbols					*/
     }
 //    cum_freq[0].freq = 1;
     freq[0] = 0;                                        /* freq_1[0] must not be the	*/

@@ -7,7 +7,7 @@
 
 #include <stdbool.h>
 
-void start_model(int freq[], int cum_freq[], int freq_size);
+void start_model(int freq[], int cum_freq[], int freq_size, int subband);
 void update_model(int *freq, int *cum_freq, int freq_size, int symbol);
 
 #endif //PPM_PPM_H

@@ -31,19 +31,19 @@ int main(int argc, char **argv) {
         intMatrix image = ImageReader::read(img_name.c_str(), dims);
         int **Image_orig = ImageReader::imatrix2ipointer(image);
         double *pSIMG[YLUM];
-//        ImageReader::remove_avg(Image_orig, dims);
+        ImageReader::remove_avg(Image_orig, dims);
         only_anal(Image_orig, pSIMG, (int)dims[1], (int)dims[0]);
-        double media = 0;
-        for (int i = 0; i < (int)dims[0]/8; ++i) {
-            for (int j = 0; j < (int)dims[1]/8; ++j) {
-                media += pSIMG[i][j]/((float)dims[0]/8*(float)dims[1]/8);
-            }
-        }
-        for (int i = 0; i < (int)dims[0]/8; ++i) {
-            for (int j = 0; j < (int)dims[1]/8; ++j) {
-                pSIMG[i][j] -= round(media);
-            }
-        }
+//        double media = 0;
+//        for (int i = 0; i < (int)dims[0]/8; ++i) {
+//            for (int j = 0; j < (int)dims[1]/8; ++j) {
+//                media += pSIMG[i][j]/((float)dims[0]/8*(float)dims[1]/8);
+//            }
+//        }
+//        for (int i = 0; i < (int)dims[0]/8; ++i) {
+//            for (int j = 0; j < (int)dims[1]/8; ++j) {
+//                pSIMG[i][j] -= round(media);
+//            }
+//        }
         vector<fMatrix> subbands = WaveletHelper::splitSubbands(pSIMG, (int)dims[1], (int)dims[0], NSTAGES);
         all_subbands.push_back(subbands);
     }

@@ -11,7 +11,7 @@
 class WaveletHelper {
 public:
     static vector<fMatrix> splitSubbands(double **InputImg, int ximg, int yimg, int nsubs);
-    static intMatrix quantize_1(const vector<fMatrix> &oldSubbands, const vector<vector<performance>> &performances, float lambda, unsigned bestCodebooks[NBANDS]);
+    static intMatrix quantize_1(const vector<fMatrix> &oldSubbands, const vector<vector<performance>> &performances, float lambda, unsigned bestCodebooks[NBANDS], int imgSize);
     static intMatrix quantize_2(const vector<fMatrix> &oldSubbands, const vector<vector<performance>> &performances, float lambda, unsigned bestCodebooks[NBANDS]);
     static vector<int> convex(const vector<performance> &performances);
     static int best_lambda(const vector<performance> &performances, float lambda);

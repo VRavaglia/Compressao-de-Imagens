@@ -441,7 +441,7 @@ vector<fMatrix> VQ::load_codebooks(const string& filename){
                 }
                 codebook_list.push_back(codebook);
                 codebooks += 1;
-//                printf("\n Codebooks lidos: %i/%i", codebooks, vl_size*cb_size_size);
+//                printf("\n Codebook lido: %i/%i", bsizeRead, csizeRead);
                 state = States::bsize;
                 break;
         }
@@ -848,10 +848,12 @@ int *VQ::load_model(int sband, int cb_idx){
     unsigned freq_size = temp_cum.size()+2;
     int *cum_freq = (int *)calloc (freq_size,  sizeof (int));
     cum_freq[freq_size-1] = 0;
+//    cum_freq[freq_size-2] = 1;
 //    printf("\n\n 0");
     for (unsigned i = freq_size-2; i > 0; --i) {
         cum_freq[i] = cum_freq[i+1] + temp_cum[i-1] + 1;
-//        cum_freq[i] = cum_freq[i+1] + temp_cum[freq_size-i] + 1;
+//        cum_freq[i] = cum_freq[i+1] + 1;
+//        cum_freq[i] = cum_freq[i+1] + temp_cum[freq_size-i-1] + 1;
 //        printf(" %i", cum_freq[i]);
     }
     cum_freq[0] = cum_freq[1]+1;
