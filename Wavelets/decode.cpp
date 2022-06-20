@@ -12,15 +12,15 @@ int main() {
 
 
     string test_path = "./imagens_vq/teste/";
-    vector <string> names = {"barb.pgm", "cameraman.pgm", "gold.pgm", "lena.easy.pgm", "pp1205.pgm"};
-//    vector <string> names = {"cameraman.pgm"};
+//    vector <string> names = {"barb.pgm", "cameraman.pgm", "gold.pgm", "lena.easy.pgm", "pp1205.pgm"};
+    vector <string> names = {"lena.easy.pgm"};
     vector<string> test_images;
     for(const auto& name : names){
         test_images.push_back(test_path+name);
     }
 //    for (int i = 1; i < 2; ++i) {
     for (float lb : lambdas) {
-        for (int i = 0; i < 5; ++i) {
+        for (int i = 0; i < 1; ++i) {
             string encode_path = "./imagens_vq/enc/";
             string decode_path = "./imagens_vq/dec/";
 

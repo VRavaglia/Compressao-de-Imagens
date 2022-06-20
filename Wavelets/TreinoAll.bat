@@ -1,0 +1,10 @@
+start "" /d "C:\Users\victo\Desktop\Compressao\Trabalhos\Wavelets" "C:\Users\victo\Desktop\Compressao\Trabalhos\Wavelets\cmake-build-debug\Treino.exe" 0
+start "" /d "C:\Users\victo\Desktop\Compressao\Trabalhos\Wavelets" "C:\Users\victo\Desktop\Compressao\Trabalhos\Wavelets\cmake-build-debug\Treino.exe" 1
+start "" /d "C:\Users\victo\Desktop\Compressao\Trabalhos\Wavelets" "C:\Users\victo\Desktop\Compressao\Trabalhos\Wavelets\cmake-build-debug\Treino.exe" 2
+start "" /d "C:\Users\victo\Desktop\Compressao\Trabalhos\Wavelets" "C:\Users\victo\Desktop\Compressao\Trabalhos\Wavelets\cmake-build-debug\Treino.exe" 3
+start "" /d "C:\Users\victo\Desktop\Compressao\Trabalhos\Wavelets" "C:\Users\victo\Desktop\Compressao\Trabalhos\Wavelets\cmake-build-debug\Treino.exe" 4
+start "" /d "C:\Users\victo\Desktop\Compressao\Trabalhos\Wavelets" "C:\Users\victo\Desktop\Compressao\Trabalhos\Wavelets\cmake-build-debug\Treino.exe" 5
+start "" /d "C:\Users\victo\Desktop\Compressao\Trabalhos\Wavelets" "C:\Users\victo\Desktop\Compressao\Trabalhos\Wavelets\cmake-build-debug\Treino.exe" 6
+start "" /d "C:\Users\victo\Desktop\Compressao\Trabalhos\Wavelets" "C:\Users\victo\Desktop\Compressao\Trabalhos\Wavelets\cmake-build-debug\Treino.exe" 7
+start "" /d "C:\Users\victo\Desktop\Compressao\Trabalhos\Wavelets" "C:\Users\victo\Desktop\Compressao\Trabalhos\Wavelets\cmake-build-debug\Treino.exe" 8
+start "" /d "C:\Users\victo\Desktop\Compressao\Trabalhos\Wavelets" "C:\Users\victo\Desktop\Compressao\Trabalhos\Wavelets\cmake-build-debug\Treino.exe" 9

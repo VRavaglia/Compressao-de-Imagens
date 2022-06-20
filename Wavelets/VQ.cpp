@@ -7,6 +7,8 @@
 #include "ImageReader.h"
 #include <map>
 #include <random>
+#include "cb_list.h"
+#include <fstream>
 
 extern "C"
 {
@@ -161,11 +163,13 @@ vector<float> VQ::new_codevector(const vector<float> &c, float eps){
     for(float x : c){
         std::random_device rd;
         std::mt19937 gen(rd());
-        std::normal_distribution<> dist(0, eps);
+        float delta = abs(eps);
+        std::normal_distribution<> dist(0, delta);
 //        float e = eps*(float)dist(gen);
         auto e = (float)dist(gen);
 //        float newValtemp = x + e + eps;
         float newValtemp = x + e;
+        if (eps < 0) newValtemp = x - e;
 //        float newVal;
 //        if (newValtemp > 255){
 //            if(warp){
@@ -192,7 +196,7 @@ vector<float> VQ::new_codevector(const vector<float> &c, float eps){
     return nc;
 }
 
-fMatrix VQ::replaceBlocks(const fMatrix &blocks, const fMatrix &codebook, const unsigned *bDims, const unsigned *iDims, vector<int> &blockList){
+fMatrix VQ::replaceBlocks(const fMatrix &blocks, const fMatrix &codebook, const vector<int>& bDims, const unsigned *iDims, vector<int> &blockList){
 
     float **arrayImg = ImageReader::allocfMatrix((int)iDims[0], (int)iDims[1]);
     fMatrix newBlocks;
@@ -276,56 +280,56 @@ double VQ::PSNR(const fMatrix &oldI, const fMatrix &newI){
     return 10*log10(255*255/MSE(oldI, newI));
 }
 
-vector<unsigned> VQ::best_codebook(const fMatrix &image, const vector<fMatrix> &block_list, const vector<fMatrix> &codebook_list, const unsigned *dims, unsigned testIdx){
-    unsigned bcb = 0;
-    unsigned bestcbSize;
-    double maxPSNR = -1;
-    double maxR = 0;
-    unsigned cIdx = 0;
-    unsigned bcIdx = 0;
-    vector<vector<string>> performance;
-
-    printf("\nCalculo do melhor codebook:");
-
-    for (int i = 0; i < block_list.size(); ++i) {
-        for (unsigned int cb_size : cb_size_list) {
-            unsigned bSize = vector_list[i][0] * vector_list[i][1];
-            double R = log2(cb_size+1)/bSize;
-            if(R <= 7) {
-
-                vector<int> newBlocks;
-                fMatrix newImage = VQ::replaceBlocks(block_list[i], codebook_list[cIdx], vector_list[i], dims, newBlocks);
-                double psnr = VQ::PSNR(image, newImage);
-
-
-                printf("\n[%i|%i] PSNR = %f R = %f", i,cIdx, psnr, R);
-
-                vector<string> p_row = {to_string(vector_list[i][0]), to_string(vector_list[i][1]), to_string(cb_size),
-                                        to_string(psnr), to_string(R)};
-                performance.push_back(p_row);
-
-                if (psnr < 0 || (psnr > maxPSNR && maxPSNR < minPSNR) || (psnr > minPSNR && R < maxR)) {
-                    maxPSNR = psnr;
-                    bestcbSize = cb_size;
-                    maxR = R;
-                    bcb = i;
-                    bcIdx = cIdx;
-                }
-                cIdx += 1;
-            }
-        }
-
-    }
-
-
-//    ImageReader::save_csv(("./desempenhos/performance_" + to_string(testIdx) + "_" + to_string(minPSNR) + ".csv").c_str(), performance, false);
-
-    printf("\nMelhor codebook: [%i/%i] PSNR = %f R = %f", bcb, bcIdx, maxPSNR, maxR);
-
-    vector<unsigned > best = {bcb, bcIdx, bestcbSize, vector_list[bcb][0], vector_list[bcb][1]};
-
-    return best;
-}
+//vector<unsigned> VQ::best_codebook(const fMatrix &image, const vector<fMatrix> &block_list, const vector<fMatrix> &codebook_list, const unsigned *dims, unsigned testIdx){
+//    unsigned bcb = 0;
+//    unsigned bestcbSize;
+//    double maxPSNR = -1;
+//    double maxR = 0;
+//    unsigned cIdx = 0;
+//    unsigned bcIdx = 0;
+//    vector<vector<string>> performance;
+//
+//    printf("\nCalculo do melhor codebook:");
+//
+//    for (int i = 0; i < block_list.size(); ++i) {
+//        for (unsigned int cb_size : csize_list()) {
+//            unsigned bSize = vector_list[i][0] * vector_list[i][1];
+//            double R = log2(cb_size+1)/bSize;
+//            if(R <= 7) {
+//
+//                vector<int> newBlocks;
+//                fMatrix newImage = VQ::replaceBlocks(block_list[i], codebook_list[cIdx], vector_list[i], dims, newBlocks);
+//                double psnr = VQ::PSNR(image, newImage);
+//
+//
+//                printf("\n[%i|%i] PSNR = %f R = %f", i,cIdx, psnr, R);
+//
+//                vector<string> p_row = {to_string(vector_list[i][0]), to_string(vector_list[i][1]), to_string(cb_size),
+//                                        to_string(psnr), to_string(R)};
+//                performance.push_back(p_row);
+//
+//                if (psnr < 0 || (psnr > maxPSNR && maxPSNR < minPSNR) || (psnr > minPSNR && R < maxR)) {
+//                    maxPSNR = psnr;
+//                    bestcbSize = cb_size;
+//                    maxR = R;
+//                    bcb = i;
+//                    bcIdx = cIdx;
+//                }
+//                cIdx += 1;
+//            }
+//        }
+//
+//    }
+//
+//
+////    ImageReader::save_csv(("./desempenhos/performance_" + to_string(testIdx) + "_" + to_string(minPSNR) + ".csv").c_str(), performance, false);
+//
+//    printf("\nMelhor codebook: [%i/%i] PSNR = %f R = %f", bcb, bcIdx, maxPSNR, maxR);
+//
+//    vector<unsigned > best = {bcb, bcIdx, bestcbSize, vector_list[bcb][0], vector_list[bcb][1]};
+//
+//    return best;
+//}
 
  void VQ::save_codebooks(const string& filename, const vector<fMatrix> &codebook_list, const intMatrix& dims){
      FILE *fout = fopen(filename.c_str(), "wb");
@@ -448,9 +452,10 @@ vector<fMatrix> VQ::load_codebooks(const string& filename){
     return codebook_list;
 }
 
-vector<vector<performance>> VQ::evaluate_codebooks(const vector<fMatrix> &subbands) {
+vector<vector<performance>> VQ::evaluate_codebooks(const vector<fMatrix> &subbands, vector<intMatrix>& bb_idx) {
     unsigned count = 0;
     vector<vector<performance>> allPerformances;
+
     printf("\nAvaliando codebooks:");
     for (int j = 0; j < NBANDS; ++j) {
         printf("\nCarregando codebooks: %i/%i", j+1, NBANDS);
@@ -458,7 +463,7 @@ vector<vector<performance>> VQ::evaluate_codebooks(const vector<fMatrix> &subban
 
         vector<fMatrix> block_list;
 
-        for(const unsigned *block_size : vector_list){
+        for(const auto& block_size : bsize_list(j)){
             fMatrix test_blocks = ImageReader::getBlocks(block_size, subbands[j]);
             block_list.push_back(test_blocks);
         }
@@ -466,20 +471,25 @@ vector<vector<performance>> VQ::evaluate_codebooks(const vector<fMatrix> &subban
         unsigned cIdx = 0;
 
         vector<performance> subbandPer;
+        intMatrix subband_bb_idx;
 
         for (int i = 0; i < block_list.size(); ++i) {
             double lastPSNR = 0;
             bool skip = false;
-            for (unsigned int cb_size : cb_size_list) {
-                unsigned bSize = vector_list[i][0] * vector_list[i][1];
+            for (int cb_size : csize_list(j)) {
+                unsigned bSize = bsize_list(j)[i][0] * bsize_list(j)[i][1];
                 double R = log2(cb_size+1)/bSize;
-                if(vector_list[i][0] + vector_list[i][1] > MAXBLOCK) skip = true;
+//                if(bsize_list(j)[i][0] + bsize_list(j)[i][1] > MAXBLOCK) skip = true;
                 if(R <= MAXR) {
                     performance per;
                     if(!skip){
                         unsigned dims[3] = {(unsigned)subbands[j].size(), (unsigned)subbands[j][0].size(), 255};
                         vector<int> bestblockList;
-                        fMatrix newImage = VQ::replaceBlocks(block_list[i], codebook_list[cIdx], vector_list[i], dims, bestblockList);
+                        fMatrix newImage = VQ::replaceBlocks(block_list[i], codebook_list[cIdx], bsize_list(j)[i], dims, bestblockList);
+                        subband_bb_idx.push_back(bestblockList);
+
+//                        ImageReader::save_histogram
+
 //                        if(cb_size == 16 && vector_list[i][0] == 2 && j == 0){
 //                            ImageReader::save_csv("teste.csv", ImageReader::float2int(block_list[i]));
 //                            ImageReader::save_csv("teste2.csv", ImageReader::float2int(codebook_list[cIdx]));
@@ -492,7 +502,7 @@ vector<vector<performance>> VQ::evaluate_codebooks(const vector<fMatrix> &subban
                         if(std::isnan(mse)) exit(-1);
                         double psnr = 10*log10(255*255/mse);
 
-                        printf("\n[%i/%i] SB: %i/10 MSE = %f PSNR = %f R = %f", count, NBANDS*cb_size_size*vl_size, j, mse, psnr, R);
+                        printf("\n[%i/%i] SB: %i/10 MSE = %f PSNR = %f R = %f", count, NBANDS*csize_list(j).size()*bsize_list(j).size(), j, mse, psnr, R);
 
                         per.R = R;
                         per.MSE = mse;
@@ -504,14 +514,14 @@ vector<vector<performance>> VQ::evaluate_codebooks(const vector<fMatrix> &subban
                         lastPSNR = psnr;
 
                     }else{
-                        printf("\n[%i/%i] SB: %i/10 Skip", count, NBANDS*cb_size_size*vl_size, j);
+                        printf("\n[%i/%i] SB: %i/10 Skip", count, NBANDS*csize_list(j).size()*bsize_list(j).size(), j);
                         per.R = -1;
                         per.MSE = pow(10,9);
 //                        per.PSNR = psnr;
 
                     }
-                    per.block_size[0] = vector_list[i][0];
-                    per.block_size[1] = vector_list[i][1];
+                    per.block_size[0] = bsize_list(j)[i][0];
+                    per.block_size[1] = bsize_list(j)[i][1];
                     per.codebook_size = cb_size+1;
                     per.codebook_idx = cIdx;
                     subbandPer.push_back(per);
@@ -522,6 +532,7 @@ vector<vector<performance>> VQ::evaluate_codebooks(const vector<fMatrix> &subban
             }
 
         }
+        bb_idx.push_back(subband_bb_idx);
         allPerformances.push_back(subbandPer);
 
 //        vector<unsigned> bc = VQ::best_codebook(subbands[i], block_list, codebook_list, dims, iIdx);
@@ -597,9 +608,10 @@ fMatrix VQ::fill_image(const intMatrix &allBlocks, const vector<fMatrix> &select
 //per[imagem][banda][config]
 void VQ::save_performances(const vector<vector<vector<performance>>> &performances, const vector<string>& img_names) {
     vector<vector<performance>> means;
-    for (int j = 0; j < performances[0][0].size(); ++j) {
+//    printf("\nSizes: %i/%i/%i", performances.size(), performances[0].size(), performances[0][0].size());
+    for (int i = 0; i < NBANDS; ++i) {
         vector<performance> temp;
-        for (int i = 0; i < NBANDS; ++i) {
+        for (int j = 0; j < performances[0][i].size(); ++j) {
             performance mean_per;
             mean_per.codebook_size = performances[0][i][j].codebook_size;
             mean_per.codebook_idx = performances[0][i][j].codebook_idx;
@@ -614,45 +626,50 @@ void VQ::save_performances(const vector<vector<vector<performance>>> &performanc
         means.push_back(temp);
     }
 
+
     FILE *fout = fopen("./performances/performances.txt", "wb");
 
     if (fout == nullptr){
         printf("\nArquivo de avaliacoes nao encontrado (escrita)!");
         return;
     }
+
+
     for (int i = 0; i < NBANDS; ++i) {
-        for (int j = 0; j < performances[0][0].size(); ++j) {
+        for (int j = 0; j < performances[0][i].size(); ++j) {
             for(const char &c : to_string(i)){
                 putc(c, fout);
             }
             putc(',', fout);
-            for(const char &c : to_string(means[j][i].codebook_size)){
+            for(const char &c : to_string(means[i][j].codebook_size)){
                 putc(c, fout);
             }
             putc(',', fout);
-            for(const char &c : to_string(means[j][i].codebook_idx)){
+            for(const char &c : to_string(means[i][j].codebook_idx)){
                 putc(c, fout);
             }
             putc(',', fout);
-            for(const char &c : to_string(means[j][i].MSE)){
+            for(const char &c : to_string(means[i][j].MSE)){
                 putc(c, fout);
             }
             putc(',', fout);
-            for(const char &c : to_string(means[j][i].R)){
+            for(const char &c : to_string(means[i][j].R)){
                 putc(c, fout);
             }
             putc(',', fout);
-            for(const char &c : to_string(means[j][i].block_size[0])){
+            for(const char &c : to_string(means[i][j].block_size[0])){
                 putc(c, fout);
             }
             putc(',', fout);
-            for(const char &c : to_string(means[j][i].block_size[1])){
+            for(const char &c : to_string(means[i][j].block_size[1])){
                 putc(c, fout);
             }
             putc(',', fout);
             putc('\n', fout);
         }
     }
+
+
 
     fclose(fout);
 }
@@ -743,4 +760,101 @@ vector<vector<performance>> VQ::load_performances(const string& filename){
     }
     fclose(fin);
     return subbs_performances;
+}
+
+void VQ::save_histograms(const vector<vector<vector<vector<int>>>> &idx_list, const vector<vector<vector<performance>>>& performances) {
+    vector<vector<vector<int>>> histograms;
+//    printf("\nSizes: %i/%i/%i", performances.size(), performances[0].size(), performances[0][0].size());
+    for (int i = 0; i < NBANDS; ++i) {
+        vector<performance> temp;
+        vector<vector<int>> temp_hists;
+        for (int j = 0; j < performances[0][i].size(); ++j) {
+            unsigned cbsize = performances[0][i][j].codebook_size;
+            vector<int> hist(cbsize, 0);
+
+            for (int k = 0; k < idx_list.size(); k++){
+//                printf("\nHisto: %i/%i/%i", k, i, j);
+//                printf("\nIdx_list: %i/%i/%i/%i", idx_list.size(), idx_list[k].size(), idx_list[k][i].size(), idx_list[k][i][j].size());
+                for (int l = 0; l < idx_list[k][i][j].size(); ++l) {
+                    unsigned location = idx_list[k][i][j][l];
+                    hist[location] += 1;
+                }
+            }
+            for (int & l : hist) {
+                l = (int)round((float)l/idx_list.size());
+            }
+            temp_hists.push_back(hist);
+        }
+        histograms.push_back(temp_hists);
+    }
+
+    printf("\nEscrita");
+
+
+    FILE *fout = fopen("./performances/histograms.txt", "wb");
+
+    if (fout == nullptr){
+        printf("\nArquivo de histogramas nao encontrado (escrita)!");
+        return;
+    }
+
+    for (int i = 0; i < NBANDS; ++i) {
+        for (int j = 0; j < performances[0][i].size(); ++j) {
+            for(const char &c : to_string(i)){
+                putc(c, fout);
+            }
+            for (int k = 0; k < histograms[i][j].size(); ++k) {
+                putc(',', fout);
+                for(const char &c : to_string(histograms[i][j][k])){
+                    putc(c, fout);
+                }
+            }
+            putc(',', fout);
+            putc('\n', fout);
+        }
+    }
+
+    fclose(fout);
+}
+
+int *VQ::load_model(int sband, int cb_idx){
+
+    ifstream input("./performances/histograms.txt");
+    printf("\n CBidx: %i", cb_idx);
+
+    vector<int> temp_cum;
+    int counter = 0;
+    for( string line; getline( input, line ); )
+    {
+//        printf("\nLine: %c", line[0]);
+        if(line[0] - '0' == sband){
+//            printf("\nCounter: %i", counter);
+            if(counter == cb_idx){
+                string buffer;
+                for (int i = 0; i < line.size(); ++i) {
+                    if(i > 1){
+                        if (line[i] == ','){
+                            temp_cum.push_back(stoi(buffer));
+                            buffer = "";
+                        }else{
+                            buffer += line[i];
+                        }
+                    }
+                }
+            }
+            counter += 1;
+        }
+    }
+    unsigned freq_size = temp_cum.size()+2;
+    int *cum_freq = (int *)calloc (freq_size,  sizeof (int));
+    cum_freq[freq_size-1] = 0;
+//    printf("\n\n 0");
+    for (unsigned i = freq_size-2; i > 0; --i) {
+        cum_freq[i] = cum_freq[i+1] + temp_cum[i-1] + 1;
+//        cum_freq[i] = cum_freq[i+1] + temp_cum[freq_size-i] + 1;
+//        printf(" %i", cum_freq[i]);
+    }
+    cum_freq[0] = cum_freq[1]+1;
+//    printf(" %i", cum_freq[0]);
+    return cum_freq;
 }

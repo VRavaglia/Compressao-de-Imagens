@@ -25,7 +25,7 @@ void start_encoding(int max_bits) {
 //    Half = (2*First_qtr);
 //    Third_qtr = (3*First_qtr);
 
-    printf("\nEncodding: %i, %i, %i, %i, %i\n", Code_value_bits, Top_value, First_qtr, Half, Third_qtr);
+//    printf("\nEncodding: %i, %i, %i, %i, %i\n", Code_value_bits, Top_value, First_qtr, Half, Third_qtr);
 
     high = Top_value;
     bits_to_follow = 0;            /* No bits to follow next */

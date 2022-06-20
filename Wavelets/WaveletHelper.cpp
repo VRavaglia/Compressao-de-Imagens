@@ -122,9 +122,15 @@ intMatrix WaveletHelper::quantize_2(const vector<fMatrix> &oldSubbands, const ve
 
 vector<int> WaveletHelper::convex(const vector<performance> &performances) {
     vector<int> conv;
-    float lambda_list[7] = {200, 100, 25, 10, 5, 2.5, 1};
-    for (float lb : lambda_list) {
-        conv.push_back((int)WaveletHelper::best_lambda(performances, lb));
+//    float lambda_list[7] = {200, 100, 25, 10, 5, 2.5, 1};
+//    for (float lb : lambda_list) {
+//        conv.push_back((int)WaveletHelper::best_lambda(performances, lb));
+//    }
+    for (int k = 0; k< performances.size(); k++) {
+//        if(performances[k].MSE < 10000){
+            conv.push_back(k);
+//        }
+
     }
 
     return conv;

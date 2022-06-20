@@ -1,0 +1,1 @@
+start "" /d "C:\Users\victo\Desktop\Compressao\Trabalhos\Wavelets" "C:\Users\victo\Desktop\Compressao\Trabalhos\Wavelets\cmake-build-debug\Avaliacao.exe" 0

@@ -5,6 +5,7 @@
 #include "ImageReader.h"
 #include "WaveletHelper.h"
 #include "VQ.h"
+#include "cb_list.h"
 //#include <chrono>
 extern "C"
 {
@@ -30,8 +31,19 @@ int main(int argc, char **argv) {
         intMatrix image = ImageReader::read(img_name.c_str(), dims);
         int **Image_orig = ImageReader::imatrix2ipointer(image);
         double *pSIMG[YLUM];
-        ImageReader::remove_avg(Image_orig, dims);
+//        ImageReader::remove_avg(Image_orig, dims);
         only_anal(Image_orig, pSIMG, (int)dims[1], (int)dims[0]);
+        double media = 0;
+        for (int i = 0; i < (int)dims[0]/8; ++i) {
+            for (int j = 0; j < (int)dims[1]/8; ++j) {
+                media += pSIMG[i][j]/((float)dims[0]/8*(float)dims[1]/8);
+            }
+        }
+        for (int i = 0; i < (int)dims[0]/8; ++i) {
+            for (int j = 0; j < (int)dims[1]/8; ++j) {
+                pSIMG[i][j] -= round(media);
+            }
+        }
         vector<fMatrix> subbands = WaveletHelper::splitSubbands(pSIMG, (int)dims[1], (int)dims[0], NSTAGES);
         all_subbands.push_back(subbands);
     }
@@ -49,8 +61,9 @@ int main(int argc, char **argv) {
     }else{
         bands.push_back(stoi(argv[1]));
     }
-    printf("\n Iniciando treinamento: %i/%i - %i/%i", 0, vl_size*cb_size_size, 0, NBANDS);
+
     for (int i : bands) {
+        printf("\n Iniciando treinamento: %i/%i - %i/%i", 0, bsize_list(i).size()*csize_list(i).size(), 0, NBANDS);
 //    for(int i = banda; i < banda+1; i++){
         vector<fMatrix> codebook_list;
         vector<unsigned> idxTable;
@@ -59,14 +72,15 @@ int main(int argc, char **argv) {
         unsigned bSizeIdx = 0;
         vector<bool> skips;
         intMatrix codebook_dim_list;
-        float eps = 0.1;
+        float eps = 1;
         float parada = 0.1;
 
 
-        for(const unsigned *block_size : vector_list){
+        for(const auto& block_size : bsize_list(i)){
             fMatrix blocks;
             for (int j = 0; j < training_images.size(); j++) {
 //            for (int j = 0; j < 1; j++) {
+
                     fMatrix temp_blocks = ImageReader::getBlocks(block_size, all_subbands[j][i]);
                     for(const auto& block : temp_blocks){
                         blocks.push_back(block);
@@ -75,7 +89,7 @@ int main(int argc, char **argv) {
 //            if (i == 0 && bSizeIdx == 0){
 //                ImageReader::save_csv("aaaa.csv", ImageReader::float2int(blocks));
 //            }
-            for (auto cbSize : cb_size_list) {
+            for (auto cbSize : csize_list(i)) {
                 unsigned bSize = block_size[0] * block_size[1];
                 double R = log2(cbSize)/bSize;
                 if((R <= MAXR)){
@@ -97,7 +111,7 @@ int main(int argc, char **argv) {
                     skips.push_back(true);
                 }
                 codebooks += 1;
-                printf("\n[%i/%i] Treinamento: %i/%i - %i/%i", bSizeIdx,cbSize, codebooks, vl_size*cb_size_size, i+1, bands.size());
+                printf("\n[%i/%i] Treinamento: %i/%i - %i/%i", bSizeIdx,cbSize, codebooks, bsize_list(i).size()*csize_list(i).size(), i+1, bands.size());
             }
             bSizeIdx += 1;
         }

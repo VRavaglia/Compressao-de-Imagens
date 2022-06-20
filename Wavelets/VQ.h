@@ -9,27 +9,30 @@
 #include <string>
 #include "ImageReader.h"
 #include <map>
+#include "cb_list.h"
 
+using intMatrix = vector<vector<int>>;
+using fMatrix = vector<vector<float>>;
 using namespace std;
 
 // Dimensoes de blocos que serao testados/treinados
-static const unsigned vl_size = 16;
-static const unsigned vector_list[vl_size][2] = {{1,1},
-                                           {1,2},
-                                           {2,1},
-                                           {2,2},
-                                          {1,4},
-                                          {4,1},
-                                           {2,4},
-                                           {4,2},
-                                           {4,4},
-                                         {1,8},
-                                         {8,1},
-                                         {2,8},
-                                         {8,2},
-                                           {4,8},
-                                           {8,4},
-                                           {8,8},};
+//static const unsigned vl_size = 16;
+//static const unsigned vector_list[vl_size][2] = {{1,1},
+//                                           {1,2},
+//                                           {2,1},
+//                                           {2,2},
+//                                          {1,4},
+//                                          {4,1},
+//                                           {2,4},
+//                                           {4,2},
+//                                           {4,4},
+//                                         {1,8},
+//                                         {8,1},
+//                                         {2,8},
+//                                         {8,2},
+//                                           {4,8},
+//                                           {8,4},
+//                                           {8,8},};
 //static const unsigned vl_size = 4;
 //static const unsigned vector_list[vl_size][2] = {{1,1},
 //                                                 {2,1},};
@@ -39,25 +42,24 @@ static const unsigned vector_list[vl_size][2] = {{1,1},
 //                                                 {2, 2},};
 
 // Tamanhos de codebooks
-static const unsigned cb_size_size = 10;
-static const unsigned cb_size_list[cb_size_size] = {16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2};
+//static const unsigned cb_size_size = 10;
+//static const unsigned cb_size_list[cb_size_size] = {16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2};
 //static const unsigned cb_size_size = 5;
 //static const unsigned cb_size_list[cb_size_size] = {16, 32, 64, 128, 256};
-static const bool warp = false;
 //25, 10
 //#define LAMBDA 10
 #define  MAXR 15
 #define  MAXVQITS 20
 #define MAXBLOCK 30
 //static const float lambdas[7] = {200, 100, 25, 10, 5, 2.5, 1};
-static const float lambdas[3] = {200, 2.5, 1};
+static const float lambdas[5] = {800, 400, 200, 50, 10};
 
 struct performance{
     unsigned codebook_size = 0;
     unsigned codebook_idx = 0;
     double MSE = 0;
     double R = 0;
-    unsigned block_size[2] = {0, 0};
+    vector<int> block_size{0, 0};
 //    vector<int> blockList;
 };
 
@@ -69,8 +71,7 @@ struct codebookInfo
     unsigned blocks = 0;
 };
 
-// PSNR minima utilizada na hora de julgar o codebook como sendo o melhor para uma dada imagem
-static const unsigned minPSNR = 30;
+
 
 class VQ {
 private:
@@ -82,16 +83,18 @@ private:
     static double avg_dist_c_list(const map<unsigned , vector<float>> &c_list, const fMatrix &blocks, const unsigned &bSize);
 public:
     static int LGB(const fMatrix &blocks, unsigned cbSize, float eps, float parada, fMatrix &codebook);
-    static fMatrix replaceBlocks(const fMatrix &blocks, const fMatrix &codebook, const unsigned *bDims, const unsigned *fDims, vector<int> &blockList);
+    static fMatrix replaceBlocks(const fMatrix &blocks, const fMatrix &codebook, const vector<int>& bDims, const unsigned *fDims, vector<int> &blockList);
     static void save_codebooks(const string& filename, const vector<fMatrix> &codebook_list, const intMatrix& dims);
     static vector<fMatrix> load_codebooks(const string& filename);
-    static vector<unsigned> best_codebook(const fMatrix &image, const vector<fMatrix> &block_list, const vector<fMatrix> &codebook_list, const unsigned *dims, unsigned testIdx);
+//    static vector<unsigned> best_codebook(const fMatrix &image, const vector<fMatrix> &block_list, const vector<fMatrix> &codebook_list, const unsigned *dims, unsigned testIdx);
     static double MSE(const fMatrix &oldI, const fMatrix &newI);
     static double PSNR(const fMatrix &oldI, const fMatrix &newI);
-    static vector<vector<performance>> evaluate_codebooks(const vector<fMatrix> &subbands);
+    static vector<vector<performance>> evaluate_codebooks(const vector<fMatrix> &subbands, vector<intMatrix>& bb_idx);
     static fMatrix fill_image(const intMatrix &allBlocks, const vector<fMatrix> &selected_codebooks, const vector<codebookInfo>& selected_infos, unsigned *dims);
     static void save_performances(const vector<vector<vector<performance>>> &performances, const vector<string>& img_name);
     static vector<vector<performance>> load_performances(const string& filename);
+    static void save_histograms(const vector<vector<vector<vector<int>>>> &idx_list, const vector<vector<vector<performance>>>& performances);
+    static int *load_model(int sband, int cb_idx);
 };
 
 

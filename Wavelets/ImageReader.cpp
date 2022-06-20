@@ -133,7 +133,7 @@ intMatrix ImageReader::read(const char *filename, unsigned *dims) {
 };
 
 
-fMatrix ImageReader::getBlocks(const unsigned size[2], const fMatrix &image){
+fMatrix ImageReader::getBlocks(const vector<int>& size, const fMatrix &image){
     fMatrix blocks;
     unsigned w = image[0].size();
     unsigned h = image.size();
@@ -393,3 +393,4 @@ intMatrix ImageReader::dpointer2imatrix(double **input, const unsigned int *dims
 
     return mat;
 }
+

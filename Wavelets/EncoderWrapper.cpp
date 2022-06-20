@@ -6,6 +6,7 @@
 #include "ImageReader.h"
 #include "WaveletHelper.h"
 #include "VQ.h"
+#include "cb_list.h"
 extern "C"
 {
 #include "subdefs2.h"
@@ -34,13 +35,51 @@ void EncoderWrapper::encode(const string& in, const string& out, float lb) {
     unsigned dims[3];
     intMatrix image = ImageReader::read(imgPath, dims);
     int **Image_orig = ImageReader::imatrix2ipointer(image);
+    int **Image_out = ImageReader::allocIntMatrix((int)dims[0], (int)dims[1]);
 
 
     double *pSIMG[YLUM];
-    int avg = ImageReader::remove_avg(Image_orig, dims);
+//    int avg = ImageReader::remove_avg(Image_orig, dims);
+//    int avg = 0;
     only_anal(Image_orig, pSIMG, (int)dims[1], (int)dims[0]);
-//    ImageReader::write("teste2.pgm", dims, ImageReader::dpointer2fmatrix(pSIMG, dims));
-//    ImageReader::save_csv("teste3.csv", ImageReader::dpointer2imatrix(pSIMG, dims));
+
+    double avg = 0;
+    for (int k = 0; k < (int)dims[0]/8; ++k) {
+        for (int j = 0; j < (int)dims[1]/8; ++j) {
+            avg += pSIMG[k][j]/((float)dims[0]/8*(float)dims[1]/8);
+        }
+    }
+    for (int i = 0; i < (int)dims[0]/8; ++i) {
+        for (int j = 0; j < (int)dims[1]/8; ++j) {
+            pSIMG[i][j] -= round(avg);
+        }
+    }
+//    double media = 0;
+//    for (int i = 0; i < 64; ++i) {
+//        for (int j = 0; j < 64; ++j) {
+//            media += pSIMG[i][j]/4096;
+//        }
+//    }
+//    for (int i = 0; i < 64; ++i) {
+//        for (int j = 0; j < 64; ++j) {
+//            pSIMG[i][j] -= media;
+//        }
+//    }
+//
+//    for (int i = 0; i < 64; ++i) {
+//        for (int j = 0; j < 64; ++j) {
+//            pSIMG[i][j] += media;
+//        }
+//    }
+
+//    only_synt(Image_out, pSIMG, (int)dims[1], (int)dims[0]);
+//    ImageReader::add_avg(Image_out, dims, avg);
+//    fMatrix FImage_out = ImageReader::ipointer2fmatrix(Image_out, dims);
+
+//    ImageReader::write((out+"wav.pgm").c_str(), dims, deecodedImage);
+//    ImageReader::write("teste2.pgm", dims, FImage_out);
+
+//    exit(0);
 
 
 //    fMatrix decomp = ImageReader::ipointer2fmatrix(Image, dims);
@@ -53,7 +92,6 @@ void EncoderWrapper::encode(const string& in, const string& out, float lb) {
 
     unsigned bestCodebooks[NBANDS];
     intMatrix newBlocks = WaveletHelper::quantize_1(subbands, performances, lb, bestCodebooks);
-//    intMatrix newBlocks = WaveletHelper::quantize_2(subbands, performances, lb, bestCodebooks);
 
 //    for (int i = 0; i < newBlocks.size(); ++i) {
 //        printf("\n\n");
@@ -80,14 +118,17 @@ void EncoderWrapper::encode(const string& in, const string& out, float lb) {
     }
 
     start_outputing_bits();
-    start_encoding(16);
+    start_encoding(32);
+    double sent_idx = 0;
 
 
     for (int subband = 0; subband < NBANDS; ++subband) {
         performance per = performances[subband][bestCodebooks[subband]];
         int freq_size = (int)per.codebook_size + 1 + 1;
         int *freq = (int *)calloc (freq_size,  sizeof (int));
-        int *cum_freq = (int *)calloc (freq_size,  sizeof (int));
+//        int *cum_freq = (int *)calloc (freq_size,  sizeof (int));
+        int *cum_freq = VQ::load_model(subband, (int)per.codebook_idx);
+
 
 //        int max_bits = ceil(log2(freq_size));
 
@@ -100,18 +141,19 @@ void EncoderWrapper::encode(const string& in, const string& out, float lb) {
             }
         }else{
             printf("\nCodificando subbanda: %i, fSize: %i\n", subband, freq_size);
-            start_model(freq, cum_freq, freq_size);
+//            start_model(freq, cum_freq, freq_size);
 
 
             int counter = 0;
 
             for (int idx : newBlocks[subband]) {
+                sent_idx += log2(idx);
                 int symbol = idx+1;
 //                if(subband < 20){
 //                    printf(" %i", symbol);
 //                }
                 encode_symbol(symbol, cum_freq, fout);
-                update_model(freq, cum_freq, freq_size, symbol);
+//                update_model(freq, cum_freq, freq_size, symbol);
 //                if(subband == 0){
 //                    printf("\n");
 //                    for (int j = 0; j < freq_size; ++j) {
@@ -133,16 +175,33 @@ void EncoderWrapper::encode(const string& in, const string& out, float lb) {
     fseek(fout, 0, SEEK_END);
     long file_size_out = ftell(fout);
     printf("\n\n Taxa de compressao: %.2fx", (float) file_size/ (float) file_size_out);
+    printf("\n\n Taxa de compressao sem cod: %.2fx", (float) sent_idx/ (float) dims[0]/(float) dims[1]);
     fclose(fout);
 }
 
 void EncoderWrapper::write_header(FILE *fout, const vector<vector<performance>> &performances, unsigned *bestCodebooks, const unsigned *dims, int avg) {
 
 
-    putc(avg, fout);
+//    putc(avg, fout);
+
+    int buffer = avg;
+    while(buffer > 0){
+        if (buffer >= 255){
+            buffer -= 255;
+            putc(255, fout);
+            if (buffer == 0){
+                putc(0, fout);
+            }
+        }
+        else{
+            putc(buffer, fout);
+            buffer = 0;
+        }
+    }
+
 
     for (int i = 0; i < 2; ++i) {
-        int buffer = dims[i];
+        buffer = dims[i];
         while(buffer > 0){
             if (buffer >= 255){
                 buffer -= 255;
@@ -177,10 +236,19 @@ void EncoderWrapper::decode(const string &filename, const string& out) {
 
     vector<int> header;
     unsigned dims[3] = {0, 0, 255};
-    int avg = getc(fin);
+
+    int buffer = 0;
+    while(true){
+        int ch = getc(fin);
+        buffer += ch;
+        if (ch < 255){
+            break;
+        }
+    }
+    int avg = buffer;
 
     for (unsigned i = 0; i < 2; i++) {
-        int buffer = 0;
+        buffer = 0;
         while(true){
             int ch = getc(fin);
             buffer += ch;
@@ -225,11 +293,12 @@ void EncoderWrapper::decode(const string &filename, const string& out) {
         else{
             int freq_size = (int)cbInfo.cbSize+1+1;
             int *freq = (int *)calloc (freq_size,  sizeof (int));
-            int *cum_freq = (int *)calloc (freq_size,  sizeof (int));
+//            int *cum_freq = (int *)calloc (freq_size,  sizeof (int));
 
 //            int max_bits = ceil(log2(freq_size));
 
-            start_model(freq, cum_freq, freq_size);
+//            start_model(freq, cum_freq, freq_size);
+            int *cum_freq = VQ::load_model(subband, cbIdx);
 //            printf("\n");
 //            for (int j = 0; j < freq_size; ++j) {
 //                printf(" %i", cum_freq[j]);
@@ -245,7 +314,7 @@ void EncoderWrapper::decode(const string &filename, const string& out) {
 //                    printf(" %i", symbol);
 //                }
                 subbandBlocksIdx.push_back(symbol - 1);
-                update_model(freq, cum_freq, freq_size, symbol);
+//                update_model(freq, cum_freq, freq_size, symbol);
 //                printf("\n");
 //                for (int j = 0; j < freq_size; ++j) {
 //                    printf(" %i", cum_freq[j]);
@@ -278,10 +347,16 @@ void EncoderWrapper::decode(const string &filename, const string& out) {
         }
     }
 
+    for (int i = 0; i < (int)dims[0]/8; ++i) {
+        for (int j = 0; j < (int)dims[1]/8; ++j) {
+            pSIMG[i][j] += round(avg);
+        }
+    }
+
     int **Image_out = ImageReader::allocIntMatrix((int)dims[0], (int)dims[1]);
     printf("\nSubband synthesis ...");
     only_synt(Image_out, pSIMG, (int)dims[1], (int)dims[0]);
-    ImageReader::add_avg(Image_out, dims, avg);
+//    ImageReader::add_avg(Image_out, dims, avg);
 
 
 
@@ -295,8 +370,8 @@ codebookInfo EncoderWrapper::get_cb_info(int codebook_index, const unsigned *dim
     codebookInfo cbInfo;
     int cbIdx = -1;
 
-    for (auto v : vector_list) {
-        for (unsigned int cb_size: cb_size_list) {
+    for (auto v : bsize_list(subband)) {
+        for (unsigned int cb_size: csize_list(subband)) {
             unsigned bSize = v[0] * v[1];
             double R = log2(cb_size + 1) / bSize;
             if (R <= MAXR) {
