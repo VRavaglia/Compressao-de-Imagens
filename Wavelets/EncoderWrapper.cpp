@@ -126,8 +126,8 @@ void EncoderWrapper::encode(const string& in, const string& out, float lb) {
         performance per = performances[subband][bestCodebooks[subband]];
         int freq_size = (int)per.codebook_size + 1 + 1;
         int *freq = (int *)calloc (freq_size,  sizeof (int));
-//        int *cum_freq = (int *)calloc (freq_size,  sizeof (int));
-        int *cum_freq = VQ::load_model(subband, (int)per.codebook_idx);
+        int *cum_freq = (int *)calloc (freq_size,  sizeof (int));
+//        int *cum_freq = VQ::load_model(subband, (int)per.codebook_idx);
 
 
 //        int max_bits = ceil(log2(freq_size));
@@ -140,20 +140,20 @@ void EncoderWrapper::encode(const string& in, const string& out, float lb) {
                 putc(symbol, fout);
             }
         }else{
-            printf("\nCodificando subbanda: %i, fSize: %i\n", subband, freq_size);
-//            start_model(freq, cum_freq, freq_size);
+            printf("\nCodificando subbanda: %i, fSize: %i, cbIdx: %i\n", subband, freq_size, bestCodebooks[subband]);
+            start_model(freq, cum_freq, freq_size);
 
 
             int counter = 0;
 
             for (int idx : newBlocks[subband]) {
-                sent_idx += log2(idx);
+                sent_idx += log2(idx+1);
                 int symbol = idx+1;
 //                if(subband < 20){
 //                    printf(" %i", symbol);
 //                }
                 encode_symbol(symbol, cum_freq, fout);
-//                update_model(freq, cum_freq, freq_size, symbol);
+                update_model(freq, cum_freq, freq_size, symbol);
 //                if(subband == 0){
 //                    printf("\n");
 //                    for (int j = 0; j < freq_size; ++j) {
@@ -293,19 +293,19 @@ void EncoderWrapper::decode(const string &filename, const string& out) {
         else{
             int freq_size = (int)cbInfo.cbSize+1+1;
             int *freq = (int *)calloc (freq_size,  sizeof (int));
-//            int *cum_freq = (int *)calloc (freq_size,  sizeof (int));
+            int *cum_freq = (int *)calloc (freq_size,  sizeof (int));
 
 //            int max_bits = ceil(log2(freq_size));
 
-//            start_model(freq, cum_freq, freq_size);
-            int *cum_freq = VQ::load_model(subband, cbIdx);
+            start_model(freq, cum_freq, freq_size);
+//            int *cum_freq = VQ::load_model(subband, cbIdx);
 //            printf("\n");
 //            for (int j = 0; j < freq_size; ++j) {
 //                printf(" %i", cum_freq[j]);
 //            }
 //            printf("\n");
 
-            printf("\nDecodificando subbanda: %i, fSize: %i\n", subband, freq_size);
+            printf("\nDecodificando subbanda: %i, fSize: %i, cbIdx: %i\n", subband, freq_size, cbIdx);
 
             for (int i = 0; i < cbInfo.blocks; i++) {
 //            for (int i = 0; i < 11; i++) {
@@ -314,7 +314,7 @@ void EncoderWrapper::decode(const string &filename, const string& out) {
 //                    printf(" %i", symbol);
 //                }
                 subbandBlocksIdx.push_back(symbol - 1);
-//                update_model(freq, cum_freq, freq_size, symbol);
+                update_model(freq, cum_freq, freq_size, symbol);
 //                printf("\n");
 //                for (int j = 0; j < freq_size; ++j) {
 //                    printf(" %i", cum_freq[j]);

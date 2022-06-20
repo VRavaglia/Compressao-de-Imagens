@@ -24,7 +24,7 @@ intMatrix bsize_list(int band){
 }
 
 vector<int> csize_list(int band){
-    const vector<int> csize_list_0{128, 256, 512, 1024, 2048, 4096, 4096*2};
+    const vector<int> csize_list_0{256, 512, 1024, 2048, 4096, 4096*2};
     const vector<int> csize_list_1{16, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2};
     const vector<int> csize_list_2{16, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2};
     const vector<int> csize_list_3{16, 64, 128, 256, 512, 1024, 2048, 4096, 4096*2};
