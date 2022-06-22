@@ -43,13 +43,15 @@ vector<fMatrix> WaveletHelper::splitSubbands(double **InputImg, int ximg, int yi
     return subbands;
 }
 
-intMatrix WaveletHelper::quantize_1(const vector<fMatrix> &oldSubbands, const vector<vector<performance>> &performances, float lambda, unsigned bestCodebooks[NBANDS], int imgSize){
+intMatrix WaveletHelper::quantize_1(const vector<fMatrix> &oldSubbands, const vector<vector<performance>> &performances, float lambda, unsigned bestCodebooks[NBANDS], int imgSize, int R_method, unsigned best_idx_list[NBANDS]){
     intMatrix newBlocks;
     for (int i = 0; i < NBANDS; ++i) {
         vector<fMatrix> codebook_list = VQ::load_codebooks("./codebooks/codebooks_" + to_string(i) + ".txt");
         vector<int> convex = WaveletHelper::convex(performances[i]);
 //        unsigned minIdx =  WaveletHelper::best_lambda(performances[i], lambda);
         double minJ = pow(10, 4);
+        double minDist = 0;
+        double minR = 0;
 //        double minJ = performances[i][minIdx].MSE + lambda*performances[i][minIdx].R;
         unsigned minIdx = 0;
         for (int k : convex) {
@@ -63,14 +65,46 @@ intMatrix WaveletHelper::quantize_1(const vector<fMatrix> &oldSubbands, const ve
 
                 double mse = VQ::MSE(oldSubbands[i], newImage);
                 double aux = (float)dims[0]*(float)dims[1]/(float)imgSize;
-                double J = mse + lambda*R;
+                double distorcao = 0;
+                for (int j = 0; j < dims[0]; ++j) {
+                    for (int l = 0; l < dims[1]; ++l) {
+                        distorcao += newImage[j][l]*newImage[j][l];
+                    }
+                }
+                distorcao = distorcao/((float)dims[0]*(float)dims[1]);
+                double J;
+
+                if(USADIST){
+                    J = distorcao + lambda*R;
+                }
+                else{
+                    float aux2 = 1;
+//                    if (i == 0){
+//                        aux2 = (float)1/100;
+//                    }
+                    if(R_method == 2){
+                        J = mse + lambda*R*aux*100;
+                    }else{
+                        if(R_method == 3) {
+                            J = mse + lambda*R*10;
+                        }
+                        else{
+                            J = mse + lambda * R;
+                        }
+                    }
+
+                }
+//
                 if (J < minJ){
                     minJ = J;
                     minIdx = k;
+                    minR = R;
+                    minDist = distorcao;
 //                    printf("\nNewminJ %f", minJ);
                 }
             }
         }
+        best_idx_list[i] = minIdx;
 //        printf("\nBestJ: %f/%i", minJ, minIdx);
         unsigned dims[3] = {(unsigned)oldSubbands[i].size(), (unsigned)oldSubbands[i][0].size(), 255};
         vector<int> bestblockList;
@@ -83,8 +117,13 @@ intMatrix WaveletHelper::quantize_1(const vector<fMatrix> &oldSubbands, const ve
 //        newBlocks.push_back(performances[i][minIdx].blockList);
         newBlocks.push_back(bestblockList);
         bestCodebooks[i] = performances[i][minIdx].codebook_idx;
+        if (USADIST){
+            printf("\n A: MinJ: %f - DIST: %f R: %f - cbSize: %i", minJ, minDist, performances[i][minIdx].R, performances[i][minIdx].codebook_size);
+        }
+        else{
+            printf("\n A: MinJ: %f - MSE: %f R: %f - cbSize: %i", minJ, performances[i][minIdx].MSE, minR, performances[i][minIdx].codebook_size);
+        }
 
-        printf("\n A: MinJ: %f - MSE: %f R: %f - cbSize: %i", minJ, performances[i][minIdx].MSE, performances[i][minIdx].R, performances[i][minIdx].codebook_size);
 //        for (int j = 0; j < performances[i][minIdx].blockList.size(); ++j) {
 //            printf(" %i", performances[i][minIdx].blockList[j]);
 //        }

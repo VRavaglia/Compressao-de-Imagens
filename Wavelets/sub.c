@@ -642,21 +642,21 @@ void only_anal(int **Image_orig, double *pSIMG[YLUM], int xsize, int ysize){
     xlowsize = ximg / ((int) pow(2.0, NSTAGES));
 
     /* allocates memory to store the luminace of the coded image */
-    for (y = 0; y < ylum; y++) {
-        if ((pCY[y] = (unsigned char *) malloc(ximg)) == NULL) {
-            printf("Memory allocation for luminance failed at line %d", y);
-            exit(1);
-        }
-    }
+//    for (y = 0; y < ylum; y++) {
+//        if ((pCY[y] = (unsigned char *) malloc(ximg)) == NULL) {
+//            printf("Memory allocation for luminance failed at line %d", y);
+//            exit(1);
+//        }
+//    }
 
 
     /* allocates memory to store the luminace subband decomposition - short int */
-    for (y = 0; y < ylum; y++) {
-        if ((pSY[y] = (unsigned char *) malloc(ximg)) == NULL) {
-            printf("Memory allocation for luminance transform failed at line %d", y);
-            exit(1);
-        }
-    }
+//    for (y = 0; y < ylum; y++) {
+//        if ((pSY[y] = (unsigned char *) malloc(ximg)) == NULL) {
+//            printf("Memory allocation for luminance transform failed at line %d", y);
+//            exit(1);
+//        }
+//    }
 
 
     /* allocates memory to store the subband decomposition - double */
@@ -669,12 +669,12 @@ void only_anal(int **Image_orig, double *pSIMG[YLUM], int xsize, int ysize){
     }
 
     /* allocates memory to store the subband decomposition - short int */
-    for (y = 0; y < yimg; y++) {
-        if ((pISIMG[y] = (short int *) malloc(ximg * (sizeof(short int)))) == NULL) {
-            printf("Memory allocation for luminance transform failed at line %d", y);
-            exit(1);
-        }
-    }
+//    for (y = 0; y < yimg; y++) {
+//        if ((pISIMG[y] = (short int *) malloc(ximg * (sizeof(short int)))) == NULL) {
+//            printf("Memory allocation for luminance transform failed at line %d", y);
+//            exit(1);
+//        }
+//    }
 
     /* IMPORTANT: in each line, it skips the first skip pixels and the last */
     /* skip. For the chrominance, it skips only skip/2 pixels on each side */
@@ -900,7 +900,8 @@ void only_synt(int **Image_out, double *pSIMG[YLUM], int xsize, int ysize){
         for (x = 0; x < (ximg); x++) {
 //            Image_out[y][x] = mpel(round(*(pSIMG[y] + x)));
 //            if(x > 720/2)
-            Image_out[y][x] = round(pSIMG[y][x]);
+//            Image_out[y][x] = round(pSIMG[y][x]);
+            Image_out[y][x] = mshort(round(*(pSIMG[y] + x)));
         }
     }
 
@@ -909,6 +910,251 @@ void only_synt(int **Image_out, double *pSIMG[YLUM], int xsize, int ysize){
 
 
 /* the memory allocated is assumed to be freed upon program completion */
+
+    printf("\n");
+}
+void sub2(int **Image_orig, int **Image_out, int **Image, int xsize, int ysize)
+{
+
+//    int sub4anal(); /* function that performs two-band subband analysis */
+//    int sub4synt(); /* function that performs two-band subband analysis */
+
+    int cont;
+
+    unsigned char *pY[YLUM];
+    /* array of pointers to the beginning of each */
+    /* line of the image luminance and chrominances */
+    /* it is used for reading the images */
+
+    unsigned char *pCY[YLUM];
+    /* array of pointers to the beginning of each */
+    /* line of the coded image luminance and chrominances */
+
+    unsigned char *pSY[YLUM];
+    /* array of pointers to the beginning of each */
+    /* line of the subband decomposition luminance and */
+    /* chrominances. It is used for writing the coded */
+    /* subband decomposition */
+
+    double *pSIMG[YIMG];
+    /* array of pointers to the beginning of each line */
+    /* of the image subband decomposition */
+
+    short int *pISIMG[YIMG];
+    /* array of pointers to the beginning of each line */
+    /* of the image subband decomposition - short int */
+
+    unsigned short int head[4]; /* stores header of image files */
+    /* head[0] - must store 0xc0de */
+    /* head[1] - store width of image */
+    /* head[2] - store height of image */
+    /* head[3] - store format of image */
+
+    int x, y; /* hold position into images */
+
+    int u, v; /* hold block indices */
+
+    int umin, umax, vmin, vmax; /* boudaries of block indexes of subbands */
+
+    int c, i, j, k, n, m, s; /* indices */
+
+    int band; /* indicates the current band */
+
+    int stage; /* indicates the resolution stage of a band */
+
+    short int qstp; /* quantizer step size */
+
+    double bpp[NBANDS]; /* bitrate of each band */
+    double bpptot;		/* sums total bitrate */
+
+    int zero[SKIPMAX]; /* array with zero values */
+
+    /* initializes the array with zero values */
+    for (x = 0; x < SKIPMAX; x++)
+    {
+        zero[x] = 0;
+    }
+
+    head[1] = (unsigned short int)xsize;
+    head[2] = (unsigned short int)ysize;
+
+    /* updates values of dimensions */
+    if (head[1] <= XIMG + SKIPMAX)
+    {
+        ximg = ((int)head[1] / (2 * DCTSIZE)) * 2 * DCTSIZE;
+        //printf("\nximg= %d", ximg);
+        skip = ((int)head[1] - ximg) / 2; /* number of pixels to skip in each side */
+        //printf("\nskip= %d", skip);
+    }
+    else
+    {
+        printf("\nInvalid X dimension\n");
+        exit(1);
+    }
+    if (head[2] <= YLUM)
+    {
+        ylum = (int)head[2];
+    }
+    else
+    {
+        printf("\nInvalid Y dimension\n");
+        exit(1);
+    }
+    yimg = ylum + ylum / 2;
+    //printf("\nying= %d", yimg);
+    ylowsize = yimg / ((int)pow(2.0, NSTAGES));
+    xlowsize = ximg / ((int)pow(2.0, NSTAGES));
+
+    /* allocates memory to store the luminace of the coded image */
+    for (y = 0; y < ylum; y++)
+    {
+        if ((pCY[y] = (unsigned char *)malloc(ximg)) == NULL)
+        {
+            printf("Memory allocation for luminance failed at line %d", y);
+            exit(1);
+        }
+    }
+
+    /* allocates memory to store the luminace subband decomposition - short int */
+    for (y = 0; y < ylum; y++)
+    {
+        if ((pSY[y] = (unsigned char *)malloc(ximg)) == NULL)
+        {
+            printf("Memory allocation for luminance transform failed at line %d", y);
+            exit(1);
+        }
+    }
+
+    /* allocates memory to store the subband decomposition - double */
+    //printf("\npSIMG[y]= %dx%d", yimg, ximg);
+    for (y = 0; y < yimg; y++)
+    {
+        if ((pSIMG[y] = (double *)malloc(ximg * (sizeof(double)))) == NULL)
+        {
+            printf("Memory allocation for luminance transform failed at line %d", y);
+            exit(1);
+        }
+    }
+
+    /* allocates memory to store the subband decomposition - short int */
+    for (y = 0; y < yimg; y++)
+    {
+        if ((pISIMG[y] = (short int *)malloc(ximg * (sizeof(short int)))) == NULL)
+        {
+            printf("Memory allocation for luminance transform failed at line %d", y);
+            exit(1);
+        }
+    }
+
+    /* IMPORTANT: in each line, it skips the first skip pixels and the last */
+    /* skip. For the chrominance, it skips only skip/2 pixels on each side */
+
+    /* translates unsigned char image into double and loads it in pSIMG*/
+    for (y = 0; y < ylum; y++) /* luminance */
+    {
+        for (x = 0; x < ximg; x++)
+        {
+            *(pSIMG[y] + x) = (double)Image_orig[y][x];
+        }
+    }
+
+    /* does the subband analysis */
+
+    // printf("\nSubband analysis ...");
+    sub4anal(pSIMG, NSTAGES, 1);
+
+    /* initializes subband boundaries */
+    // printf("\nInitializing band boundaries...");
+
+    for (n = NSTAGES; n > 0; n--)
+    {
+        /* 0: luminance */
+        bband[3 * n][0].xmin = ximg / ((int)pow(2.0, NSTAGES - n + 1));
+        bband[3 * n][0].xmax = ximg / ((int)pow(2.0, NSTAGES - n));
+        bband[3 * n][0].ymin = ylum / ((int)pow(2.0, NSTAGES - n + 1));
+        bband[3 * n][0].ymax = ylum / ((int)pow(2.0, NSTAGES - n));
+
+        /* 0: luminance */
+        bband[3 * n - 1][0].xmin = 0;
+        bband[3 * n - 1][0].xmax = ximg / ((int)pow(2.0, NSTAGES - n + 1));
+        bband[3 * n - 1][0].ymin = ylum / ((int)pow(2.0, NSTAGES - n + 1));
+        bband[3 * n - 1][0].ymax = ylum / ((int)pow(2.0, NSTAGES - n));
+
+        /* 0: luminance */
+        bband[3 * n - 2][0].xmin = ximg / ((int)pow(2.0, NSTAGES - n + 1));
+        bband[3 * n - 2][0].xmax = ximg / ((int)pow(2.0, NSTAGES - n));
+        bband[3 * n - 2][0].ymin = 0;
+        bband[3 * n - 2][0].ymax = ylum / ((int)pow(2.0, NSTAGES - n + 1));
+    }
+    /* 0: luminance */
+    bband[0][0].xmin = 0;
+    bband[0][0].xmax = ximg / ((int)pow(2.0, NSTAGES));
+    bband[0][0].ymin = 0;
+    bband[0][0].ymax = ylum / ((int)pow(2.0, NSTAGES));
+
+    /* translates subband decomposition into short int values for the entropy */
+    /* calculation */
+
+    /* processes each band */
+    for (s = 0; s < NSTAGES; s++)
+    {
+        for (k = 1; k <= 3; k++)
+        {
+            band = 3 * s + k;
+        }
+    }
+
+    // for (s = 0; s < NBANDS; s++)
+    // {
+    // 	for (y = bband[s][0].ymin; y < bband[s][0].ymax; y++) /* luminance */
+    // 	{
+    // 		for (x = bband[s][0].xmin; x < bband[s][0].xmax; x++)
+    // 		{
+    // 			if (s == 0)
+    // 			{
+    // 				*(pISIMG[y] + x) = mshort(round(*(pSIMG[y] + x) /
+    // 										   pow(2.0, (double)NSTAGES)));
+    // 			}
+    // 			else
+    // 			{
+    // 				*(pISIMG[y] + x) = mshort(round(*(pSIMG[y] + x) /
+    // 										   pow(2.0, (double)(NSTAGES - 1 - s / 3))));
+    // 			}
+    // 		}
+    // 	}
+    // }
+
+
+    for (y = 0; y < ylum; y++)
+    {
+        for (x = 0; x < ximg; x++)
+        {
+//            printf("\n ANAL PSIMG: %f", *(pSIMG[y] + x));
+            *(pISIMG[y] + x) = (int) round(*(pSIMG[y] + x));
+            Image[y][x] = pISIMG[y][x];
+        }
+    }
+//    exit(0);
+
+    /* does the subband synthesis */
+
+    // printf("\nSubband synthesis ...");
+    sub4synt(pSIMG, NSTAGES, 1);
+
+    /* translates restored image into unsigned char values */
+    // printf("\nTranslating restored image...");
+    for (y = 0; y < ylum; y++) /* luminance */
+    {
+        for (x = 0; x < (ximg); x++)
+        {
+            Image_out[y][x] = (int)round(*(pSIMG[y] + x));
+        }
+    }
+
+    /* stores restored image */
+    // printf("\nWriting restored image...");
+
+    /* the memory allocated is assumed to be freed upon program completion */
 
     printf("\n");
 }

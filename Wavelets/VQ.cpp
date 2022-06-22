@@ -9,10 +9,15 @@
 #include <random>
 #include "cb_list.h"
 #include <fstream>
+#include <iostream>
+#include <iterator>
+
 
 extern "C"
 {
 #include "subdefs2.h"
+#include "arithmetic_encode.h"
+#include "bit_output.h"
 }
 
 int VQ::LGB(const fMatrix &blocks, const unsigned cbSize, const float eps, float parada, fMatrix &codebook){
@@ -44,6 +49,7 @@ vector<float> VQ::vec_avg(const fMatrix &blocks, const unsigned sizeBlock, const
     for(vector<float> block : blocks){
         for (int i = 0; i < sizeDim; ++i) {
             avg[i] += float(block[i])/float(sizeBlock);
+//            avg[i] += float(round(block[i]))/float(sizeBlock);
         }
     }
 
@@ -66,6 +72,7 @@ double VQ::euclid_squared(const vector<float> &a, const vector<float> &b){
 
     for (int i = 0; i < a.size(); ++i) {
         d += pow(a[i]-b[i], 2);
+//        d += pow(round(a[i])-round(b[i]), 2);
     }
 
     return d;
@@ -166,7 +173,7 @@ vector<float> VQ::new_codevector(const vector<float> &c, float eps){
         float delta = abs(eps);
         std::normal_distribution<> dist(0, delta);
 //        float e = eps*(float)dist(gen);
-        auto e = (float)dist(gen);
+        auto e = abs((float)dist(gen));
 //        float newValtemp = x + e + eps;
         float newValtemp = x + e;
         if (eps < 0) newValtemp = x - e;
@@ -353,11 +360,14 @@ double VQ::PSNR(const fMatrix &oldI, const fMatrix &newI){
          i += 1;
          for (const auto & row : codebook) {
              for(const auto &point : row){
+//                 string temp = to_string(round(point));
                  string temp = to_string(point);
+                 int count = 0;
                  bool mark = false;
                  for(char c : temp){
                      putc(c, fout);
-                     if(mark) break;
+                     if(count > 2) break;
+                     if(mark) count += 1;
                      if(c == '.') mark = true;
 
                  }
@@ -452,7 +462,7 @@ vector<fMatrix> VQ::load_codebooks(const string& filename){
     return codebook_list;
 }
 
-vector<vector<performance>> VQ::evaluate_codebooks(const vector<fMatrix> &subbands, vector<intMatrix>& bb_idx) {
+vector<vector<performance>> VQ::evaluate_codebooks(const vector<fMatrix> &subbands, vector<intMatrix>& bb_idx, bool second_pass, const vector<vector<vector<vector<int>>>>& all_bb_idx, vector<vector<int*>> all_models) {
     unsigned count = 0;
     vector<vector<performance>> allPerformances;
 
@@ -502,6 +512,24 @@ vector<vector<performance>> VQ::evaluate_codebooks(const vector<fMatrix> &subban
                         if(std::isnan(mse)) exit(-1);
                         double psnr = 10*log10(255*255/mse);
 
+                        if (second_pass){
+                            FILE *fout = fopen("./performances/temp", "wb");
+                            start_outputing_bits();
+                            start_encoding(32);
+//                            int *cum_freq = VQ::load_model2(j, (int)cIdx);
+                            int *cum_freq = all_models[j][cIdx];
+                            for (int idx : bestblockList) {
+                                int symbol = idx+1;
+                                encode_symbol(symbol, cum_freq, fout);
+                            }
+                            done_encoding(fout);
+                            done_outputing_bits(fout);
+                            fseek(fout, 0, SEEK_END);
+                            long file_size_out = ftell(fout);
+                            fclose(fout);
+                            R = (double)file_size_out/(dims[0]*dims[1]);
+                        }
+
                         printf("\n[%i/%i] SB: %i/10 MSE = %f PSNR = %f R = %f", count, NBANDS*csize_list(j).size()*bsize_list(j).size(), j, mse, psnr, R);
 
                         per.R = R;
@@ -532,7 +560,9 @@ vector<vector<performance>> VQ::evaluate_codebooks(const vector<fMatrix> &subban
             }
 
         }
-        bb_idx.push_back(subband_bb_idx);
+        if (!second_pass){
+            bb_idx.push_back(subband_bb_idx);
+        }
         allPerformances.push_back(subbandPer);
 
 //        vector<unsigned> bc = VQ::best_codebook(subbands[i], block_list, codebook_list, dims, iIdx);
@@ -606,7 +636,7 @@ fMatrix VQ::fill_image(const intMatrix &allBlocks, const vector<fMatrix> &select
     return newImage;
 }
 //per[imagem][banda][config]
-void VQ::save_performances(const vector<vector<vector<performance>>> &performances, const vector<string>& img_names) {
+void VQ::save_performances(const vector<vector<vector<performance>>> &performances, const vector<string>& img_names, bool second_pass) {
     vector<vector<performance>> means;
 //    printf("\nSizes: %i/%i/%i", performances.size(), performances[0].size(), performances[0][0].size());
     for (int i = 0; i < NBANDS; ++i) {
@@ -626,8 +656,13 @@ void VQ::save_performances(const vector<vector<vector<performance>>> &performanc
         means.push_back(temp);
     }
 
+    string name = "./performances/performances.txt";
+    if(second_pass){
+        name = "./performances/performances2.txt";
+    }
 
-    FILE *fout = fopen("./performances/performances.txt", "wb");
+
+    FILE *fout = fopen(name.c_str(), "wb");
 
     if (fout == nullptr){
         printf("\nArquivo de avaliacoes nao encontrado (escrita)!");
@@ -780,9 +815,9 @@ void VQ::save_histograms(const vector<vector<vector<vector<int>>>> &idx_list, co
                     hist[location] += 1;
                 }
             }
-            for (int & l : hist) {
-                l = (int)round((float)l/idx_list.size());
-            }
+//            for (int & l : hist) {
+//                l = (int)round((float)l/idx_list.size());
+//            }
             temp_hists.push_back(hist);
         }
         histograms.push_back(temp_hists);
@@ -817,13 +852,121 @@ void VQ::save_histograms(const vector<vector<vector<vector<int>>>> &idx_list, co
     fclose(fout);
 }
 
+void VQ::save_histograms2(const vector<vector<vector<vector<int>>>> &idx_list, const vector<vector<vector<performance>>>& performances) {
+    vector<vector<vector<int>>> histograms;
+//    printf("\nSizes: %i/%i/%i", performances.size(), performances[0].size(), performances[0][0].size());
+    for (int i = 0; i < NBANDS; ++i) {
+        vector<performance> temp;
+        vector<vector<int>> temp_hists;
+        for (int j = 0; j < performances[0][i].size(); ++j) {
+            unsigned cbsize = performances[0][i][j].codebook_size;
+            vector<int> hist(cbsize, 0);
+
+            for (int k = 0; k < idx_list.size(); k++){
+//                printf("\nHisto: %i/%i/%i", k, i, j);
+//                printf("\nIdx_list: %i/%i/%i/%i", idx_list.size(), idx_list[k].size(), idx_list[k][i].size(), idx_list[k][i][j].size());
+                for (int l = 0; l < idx_list[k][i][j].size(); ++l) {
+                    unsigned location = idx_list[k][i][j][l];
+                    hist[location] += 1;
+                }
+            }
+//            for (int & l : hist) {
+//                l = (int)round((float)l/idx_list.size());
+//            }
+            temp_hists.push_back(hist);
+        }
+        histograms.push_back(temp_hists);
+    }
+
+    printf("\nEscrita");
+
+//
+//    FILE *fout = fopen("./performances/histograms.txt", "wb");
+//
+//    if (fout == nullptr){
+//        printf("\nArquivo de histogramas nao encontrado (escrita)!");
+//        return;
+//    }
+
+    ofstream  output_file( "./performances/histograms2.txt");
+//    using namespace std;
+    for (int i = 0; i < NBANDS; ++i) {
+        for (int j = 0; j < performances[0][i].size(); ++j) {
+//            for(const char &c : to_string(i)){
+//                putc(c, fout);
+//            }
+            output_file << (int)i;
+            output_file << "\n";
+            output_file << (int)histograms[i][j].size();
+            output_file << "\n";
+            ostream_iterator<int> output_iterator( output_file, "\n" );
+            copy( histograms[i][j].begin( ), histograms[i][j].end( ), output_iterator );
+
+        }
+    }
+    output_file.close();
+}
+
+
 int *VQ::load_model(int sband, int cb_idx){
 
-    ifstream input("./performances/histograms.txt");
+//    FILE *input = fopen("./performances/histograms.txt", "rb");
+    ifstream input;
+    input.open("./performances/histograms.txt");
     printf("\n CBidx: %i", cb_idx);
 
     vector<int> temp_cum;
     int counter = 0;
+    int state = 0;
+//    string buffer;
+//    bool exit = false;
+//
+//    while(true){
+//        char ch = (char)getc(input);
+//        if(ch == EOF){
+//            fclose(input);
+//            break;
+//        }
+//        switch (state) {
+//            case 0:
+//                if (ch - '0' == sband) {
+//                    state = 1;
+//                }
+//                else{
+//                    state = 2;
+//                };
+//                break;
+//            case 1:
+//                if (counter != cb_idx) {
+//                    state = 2;
+//                    counter += 1;
+//                }else{
+////                    buffer += ch;
+//                    state = 3;
+//                }
+//                    break;
+//            case 2:
+//                if(ch == '\n') exit = true;
+//                break;
+//            case 3:
+//                if(ch == '\n') {
+//                    state = 0;
+//                }else{
+//                    if (ch == ','){
+////                        printf("\nbuffer: %s", buffer.c_str());
+//                        temp_cum.push_back(stoi(buffer));
+//                        buffer = "";
+//                    }else {
+//                        buffer += ch;
+//                    }
+//                }
+//                break;
+//        }
+//        if (exit) break;
+//    }
+
+//
+//
     for( string line; getline( input, line ); )
     {
 //        printf("\nLine: %c", line[0]);
@@ -846,6 +989,7 @@ int *VQ::load_model(int sband, int cb_idx){
         }
     }
     unsigned freq_size = temp_cum.size()+2;
+    printf("\nFreq Size: %i", freq_size);
     int *cum_freq = (int *)calloc (freq_size,  sizeof (int));
     cum_freq[freq_size-1] = 0;
 //    cum_freq[freq_size-2] = 1;
@@ -857,6 +1001,117 @@ int *VQ::load_model(int sband, int cb_idx){
 //        printf(" %i", cum_freq[i]);
     }
     cum_freq[0] = cum_freq[1]+1;
+
+//    if (sband == 2){
+//        for (int i = 0; i < freq_size; ++i) {
+//            printf("\n%i", cum_freq[i]);
+//        }
+//
+//    }
 //    printf(" %i", cum_freq[0]);
+    return cum_freq;
+}
+
+
+int *VQ::load_model_known(int sband, int cb_idx, vector<vector<vector<vector<int>>>> all_bb_idx, unsigned cbSize){
+
+//    printf("\nSizes: %i/%i/%i", performances.size(), performances[0].size(), performances[0][0].size());
+
+    vector<performance> temp;
+    vector<vector<int>> temp_hists;
+    for (int j = 0; j < all_bb_idx[0][sband].size(); ++j) {
+        vector<int> hist(cbSize, 0);
+
+        for (int k = 0; k < all_bb_idx.size(); k++){
+//                printf("\nHisto: %i/%i/%i", k, i, j);
+//                printf("\nIdx_list: %i/%i/%i/%i", idx_list.size(), idx_list[k].size(), idx_list[k][i].size(), idx_list[k][i][j].size());
+            for (int l = 0; l < all_bb_idx[k][sband][j].size(); ++l) {
+                unsigned location = all_bb_idx[k][sband][j][l];
+                hist[location] += 1;
+            }
+        }
+//            for (int & l : hist) {
+//                l = (int)round((float)l/idx_list.size());
+//            }
+        temp_hists.push_back(hist);
+    }
+
+    unsigned freq_size = temp_hists[cb_idx].size()+2;
+    printf("\nFreq Size: %i", freq_size);
+    int *cum_freq = (int *)calloc (freq_size,  sizeof (int));
+    cum_freq[freq_size-1] = 0;
+//    cum_freq[freq_size-2] = 1;
+//    printf("\n\n 0");
+    for (unsigned i = freq_size-2; i > 0; --i) {
+        cum_freq[i] = cum_freq[i+1] + temp_hists[cb_idx][i-1] + 1;
+//        cum_freq[i] = cum_freq[i+1] + 1;
+//        cum_freq[i] = cum_freq[i+1] + temp_cum[freq_size-i-1] + 1;
+//        printf(" %i", cum_freq[i]);
+    }
+    cum_freq[0] = cum_freq[1]+1;
+
+//    if (sband == 2){
+//        for (int i = 0; i < freq_size; ++i) {
+//            printf("\n%i", cum_freq[i]);
+//        }
+//
+//    }
+//    printf(" %i", cum_freq[0]);
+    return cum_freq;
+}
+
+int *VQ::load_model2(int sband, int cb_idx){
+
+//    FILE *input = fopen("./performances/histograms.txt", "rb");
+    ifstream input;
+//    input.open("./performances/histograms.txt");
+    printf("\n Sband: %i, CBidx: %i", sband, cb_idx);
+
+    ifstream input_file("./performances/histograms2.txt" );
+
+    int tempVar;
+    int band;
+    int size;
+    int counter = 0;
+    vector<int> temp_cum;
+
+
+
+    while (true)
+    {
+        input_file >> band;
+        input_file >> size;
+//        if (sband ==0 && cb_idx == 9){
+//            printf("\nBand: %i, Size: %i", band, size);
+//        }
+
+        for (int i = 0; i < size; ++i) {
+            input_file >> tempVar;
+            temp_cum.push_back( tempVar );
+        }
+        if(counter == cb_idx && band == sband){
+            break;
+        }
+        if (band == sband){
+            counter += 1;
+        }
+        temp_cum.clear();
+    }
+    input_file.close();
+
+    unsigned freq_size = temp_cum.size()+2;
+    if (freq_size < 10){
+        printf("\nErro no load_model2, frqsize: %i", freq_size);
+        exit(-1);
+    }
+//    printf("\nFreq Size: %i", freq_size);
+    int *cum_freq = (int *)calloc (freq_size,  sizeof (int));
+    cum_freq[freq_size-1] = 0;
+
+    for (unsigned i = freq_size-2; i > 0; --i) {
+        cum_freq[i] = cum_freq[i+1] + temp_cum[i-1] + 1;
+
+    }
+    cum_freq[0] = cum_freq[1]+1;
     return cum_freq;
 }

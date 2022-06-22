@@ -19,7 +19,7 @@ extern "C"
 }
 
 
-void EncoderWrapper::encode(const string& in, const string& out, float lb) {
+void EncoderWrapper::encode(const string& in, const string& out, float lb, int R_method) {
     //******************************************************************************
     //*                                                                            *
     //*                         Quantizar Subbandas                                *
@@ -35,14 +35,35 @@ void EncoderWrapper::encode(const string& in, const string& out, float lb) {
     unsigned dims[3];
     intMatrix image = ImageReader::read(imgPath, dims);
     int **Image_orig = ImageReader::imatrix2ipointer(image);
+    int **Image = ImageReader::allocIntMatrix((int)dims[0], (int)dims[1]);
     int **Image_out = ImageReader::allocIntMatrix((int)dims[0], (int)dims[1]);
 
 
-    double *pSIMG[YLUM];
     int avg = ImageReader::remove_avg(Image_orig, dims);
-//    int avg = 0;
-    only_anal(Image_orig, pSIMG, (int)dims[1], (int)dims[0]);
+    double *pSIMG[YLUM];
+        only_anal(Image_orig, pSIMG, (int)dims[1], (int)dims[0]);
+//    sub2(Image_orig, Image_out, Image, (int)dims[1], (int)dims[0]);
 
+
+//    for (int y = 0; y < (int)dims[0]; y++) {
+//        if ((pSIMG[y] = (double *) malloc((int)dims[1] * (sizeof(double)))) == NULL) {
+//            printf("Memory allocation for luminance transform failed at line %d", y);
+//            exit(1);
+//        }
+//    }
+//    for (int i = 0; i < (int)dims[0]; ++i) {
+//        for (int j = 0; j < (int)dims[1]; ++j) {
+//            pSIMG[i][j] = (double)Image[i][j];
+////                printf("\npSIMG: %f", pSIMG[i][j]);
+//        }
+//    }
+
+
+//    double *pSIMG[YLUM];
+//    int avg = ImageReader::remove_avg(Image_orig, dims);
+////    int avg = 0;
+////    only_anal(Image_orig, pSIMG, (int)dims[1], (int)dims[0]);
+//    sub2(Image_orig, pSIMG, (int)dims[1], (int)dims[0]);
 //    double avg = 0;
 //    for (int k = 0; k < (int)dims[0]/8; ++k) {
 //        for (int j = 0; j < (int)dims[1]/8; ++j) {
@@ -86,13 +107,18 @@ void EncoderWrapper::encode(const string& in, const string& out, float lb) {
 
     vector<fMatrix> subbands = WaveletHelper::splitSubbands(pSIMG, (int)dims[1], (int)dims[0], NSTAGES);
 
-    vector<vector<performance>> performances = VQ::load_performances("./performances/performances.txt");
+    string per_filename = "./performances/performances.txt";
+    if(R_method != 1){
+        per_filename = "./performances/performances2.txt";
+    }
+    vector<vector<performance>> performances = VQ::load_performances(per_filename);
     printf("");
 
 
     unsigned bestCodebooks[NBANDS];
+    unsigned best_idx_list[NBANDS];
     unsigned imgSize = dims[1]*dims[0];
-    intMatrix newBlocks = WaveletHelper::quantize_1(subbands, performances, lb, bestCodebooks, (int)imgSize);
+    intMatrix newBlocks = WaveletHelper::quantize_1(subbands, performances, lb, bestCodebooks, (int)imgSize, R_method, best_idx_list);
 
 //    for (int i = 0; i < newBlocks.size(); ++i) {
 //        printf("\n\n");
@@ -122,13 +148,15 @@ void EncoderWrapper::encode(const string& in, const string& out, float lb) {
     start_encoding(32);
     double sent_idx = 0;
 
-
     for (int subband = 0; subband < NBANDS; ++subband) {
+
         performance per = performances[subband][bestCodebooks[subband]];
+        int bits_indice = ceil(log((int)per.codebook_size) / log(2));
         int freq_size = (int)per.codebook_size + 1 + 1;
         int *freq = (int *)calloc (freq_size,  sizeof (int));
-        int *cum_freq = (int *)calloc (freq_size,  sizeof (int));
+//        int *cum_freq = (int *)calloc (freq_size,  sizeof (int));
 //        int *cum_freq = VQ::load_model(subband, (int)per.codebook_idx);
+        int *cum_freq = VQ::load_model(subband, (int)bestCodebooks[subband]);
 
 
 //        int max_bits = ceil(log2(freq_size));
@@ -142,19 +170,20 @@ void EncoderWrapper::encode(const string& in, const string& out, float lb) {
             }
         }else{
             printf("\nCodificando subbanda: %i, fSize: %i, cbIdx: %i\n", subband, freq_size, bestCodebooks[subband]);
-            start_model(freq, cum_freq, freq_size, subband);
+//            start_model(freq, cum_freq, freq_size, subband);
 
 
             int counter = 0;
 
             for (int idx : newBlocks[subband]) {
+//                escreve_indice(idx, bits_indice, fout);
                 sent_idx += log2(idx+1);
                 int symbol = idx+1;
 //                if(subband < 20){
 //                    printf(" %i", symbol);
 //                }
                 encode_symbol(symbol, cum_freq, fout);
-                update_model(freq, cum_freq, freq_size, symbol);
+//                update_model(freq, cum_freq, freq_size, symbol);
 //                if(subband == 0){
 //                    printf("\n");
 //                    for (int j = 0; j < freq_size; ++j) {
@@ -173,9 +202,49 @@ void EncoderWrapper::encode(const string& in, const string& out, float lb) {
     done_encoding(fout);
     done_outputing_bits(fout);
 
+    //******************************************************************************
+    //*                                                                            *
+    //*                         Desempenho                                         *
+    //*                                                                            *
+    //******************************************************************************
+    vector<fMatrix> selected_codebooks;
+    vector<codebookInfo> selected_infos;
+    for (int i = 0; i < NBANDS; ++i) {
+        codebookInfo cbInfo = get_cb_info((int)bestCodebooks[i], dims, i);
+        selected_infos.push_back(cbInfo);
+        vector<fMatrix> codebook_list = VQ::load_codebooks("./codebooks/codebooks_" + to_string(i) + ".txt");
+        selected_codebooks.push_back(codebook_list[bestCodebooks[i]]);
+    }
+
+    fMatrix quantized_image = VQ::fill_image(newBlocks, selected_codebooks, selected_infos, dims);
+
+    double *pSIMG2[YIMG];
+
+
+    for (int y = 0; y < dims[0]; y++) /* luminance */
+    {
+        pSIMG2[y] = (double *) malloc(dims[1] * (sizeof(double)));
+        for (int x = 0; x < dims[1]; x++) {
+            *(pSIMG2[y] + x) = (double) quantized_image[y][x];
+        }
+    }
+
+//    for (int i = 0; i < (int)dims[0]/8; ++i) {
+//        for (int j = 0; j < (int)dims[1]/8; ++j) {
+//            pSIMG[i][j] += round(avg);
+//        }
+//    }
+
+    int **Image_out2 = ImageReader::allocIntMatrix((int)dims[0], (int)dims[1]);
+    printf("\nSubband synthesis ...");
+    only_synt(Image_out2, pSIMG2, (int)dims[1], (int)dims[0]);
+    ImageReader::add_avg(Image_out2, dims, avg);
+    fMatrix FImage_out = ImageReader::ipointer2fmatrix(Image_out2, dims);
+    ImageReader::write((out + "_dec.pgm").c_str(), dims, FImage_out);
+
     fseek(fout, 0, SEEK_END);
     long file_size_out = ftell(fout);
-    printf("\n\n Taxa de compressao: %.2fx", (float) file_size/ (float) file_size_out);
+    printf("\n\nTaxa de compressao: %.2fx", (float) file_size/ (float) file_size_out);
 //    printf("\n\n Taxa de compressao sem cod: %.2fx", (float) sent_idx/ (float) dims[0]/(float) dims[1]);
     fclose(fout);
 }
@@ -294,12 +363,12 @@ void EncoderWrapper::decode(const string &filename, const string& out) {
         else{
             int freq_size = (int)cbInfo.cbSize+1+1;
             int *freq = (int *)calloc (freq_size,  sizeof (int));
-            int *cum_freq = (int *)calloc (freq_size,  sizeof (int));
+//            int *cum_freq = (int *)calloc (freq_size,  sizeof (int));
 
 //            int max_bits = ceil(log2(freq_size));
 
-            start_model(freq, cum_freq, freq_size, subband);
-//            int *cum_freq = VQ::load_model(subband, cbIdx);
+//            start_model(freq, cum_freq, freq_size, subband);
+            int *cum_freq = VQ::load_model(subband, cbIdx);
 //            printf("\n");
 //            for (int j = 0; j < freq_size; ++j) {
 //                printf(" %i", cum_freq[j]);
@@ -315,7 +384,7 @@ void EncoderWrapper::decode(const string &filename, const string& out) {
 //                    printf(" %i", symbol);
 //                }
                 subbandBlocksIdx.push_back(symbol - 1);
-                update_model(freq, cum_freq, freq_size, symbol);
+//                update_model(freq, cum_freq, freq_size, symbol);
 //                printf("\n");
 //                for (int j = 0; j < freq_size; ++j) {
 //                    printf(" %i", cum_freq[j]);

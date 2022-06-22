@@ -2,6 +2,7 @@
 
 #include "arithmetic_coding.h"
 #include "bit_output.h"
+#include <math.h>
 
 static void bit_plus_follow();        /* Routine that follows	*/
 
@@ -13,6 +14,7 @@ static void bit_plus_follow();        /* Routine that follows	*/
 
 static code_value low, high;        /* ends of the current code-region */
 static uint32_t bits_to_follow;        /* Number of opposite bits to output after	*/
+static unsigned bits_written;
 /* the next bit.				            */
 
 /* START ENCODING A STREAM OF SYMBOLS */
@@ -103,7 +105,22 @@ static void bit_plus_follow(int bit, FILE *file)
         bits_to_follow -= 1;                    /* opposite bits. Set			*/
     }                                        /* bits_to_follow to zero		*/
 }
-            
+
+void escreve_indice(int indice, int bits_indice, FILE* pointf_file) {
+    int k;
+    int mask;
+    int bit_to_write;
+
+    mask = pow(2, bits_indice - 1);
+    //printf("\nIndice: %d\t", indice);
+    for (k = 0; k < bits_indice; k++) {
+        bit_to_write = (mask & indice) / mask;
+        //printf(" %d", bit);
+        indice = indice << 1;
+        output_bit(bit_to_write, pointf_file);
+    }
+
+}
 
 
 

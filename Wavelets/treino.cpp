@@ -30,9 +30,27 @@ int main(int argc, char **argv) {
         unsigned dims[3];
         intMatrix image = ImageReader::read(img_name.c_str(), dims);
         int **Image_orig = ImageReader::imatrix2ipointer(image);
+        int **Image = ImageReader::allocIntMatrix((int)dims[0], (int)dims[1]);
+        int **Image_out = ImageReader::allocIntMatrix((int)dims[0], (int)dims[1]);
         double *pSIMG[YLUM];
+
         ImageReader::remove_avg(Image_orig, dims);
         only_anal(Image_orig, pSIMG, (int)dims[1], (int)dims[0]);
+//        sub2(Image_orig, Image_out, Image, (int)dims[1], (int)dims[0]);
+
+
+//        for (int y = 0; y < (int)dims[0]; y++) {
+//            if ((pSIMG[y] = (double *) malloc((int)dims[1] * (sizeof(double)))) == NULL) {
+//                printf("Memory allocation for luminance transform failed at line %d", y);
+//                exit(1);
+//            }
+//        }
+//        for (int i = 0; i < (int)dims[0]; ++i) {
+//            for (int j = 0; j < (int)dims[1]; ++j) {
+//                pSIMG[i][j] = (double)Image[i][j];
+////                printf("\npSIMG: %f", pSIMG[i][j]);
+//            }
+//        }
 //        double media = 0;
 //        for (int i = 0; i < (int)dims[0]/8; ++i) {
 //            for (int j = 0; j < (int)dims[1]/8; ++j) {
@@ -45,6 +63,7 @@ int main(int argc, char **argv) {
 //            }
 //        }
         vector<fMatrix> subbands = WaveletHelper::splitSubbands(pSIMG, (int)dims[1], (int)dims[0], NSTAGES);
+
         all_subbands.push_back(subbands);
     }
 
@@ -72,6 +91,8 @@ int main(int argc, char **argv) {
         unsigned bSizeIdx = 0;
         vector<bool> skips;
         intMatrix codebook_dim_list;
+//        float eps = 10;
+//        float parada = 0.05;
         float eps = 1;
         float parada = 0.1;
 
@@ -86,9 +107,9 @@ int main(int argc, char **argv) {
                         blocks.push_back(block);
                 }
             }
-//            if (i == 0 && bSizeIdx == 0){
-//                ImageReader::save_csv("aaaa.csv", ImageReader::float2int(blocks));
-//            }
+            if (i == 0 && block_size[0] == 1 && block_size[1] == 2){
+                ImageReader::save_csv("aaaa.csv", ImageReader::float2int(blocks));
+            }
             for (auto cbSize : csize_list(i)) {
                 unsigned bSize = block_size[0] * block_size[1];
                 double R = log2(cbSize)/bSize;
@@ -105,6 +126,9 @@ int main(int argc, char **argv) {
                             finish = true;
                         }
                     }
+                        if (i == 0 && block_size[0] == 1 && block_size[1] == 2 && cbSize == 128){
+                        ImageReader::save_csv("bbbb.csv", ImageReader::float2int(codebook_list[codebook_list.size() - 1]));
+                    }
                 }
                 else{
                     printf("\nTamanho de codebook ignorado.");
@@ -115,6 +139,33 @@ int main(int argc, char **argv) {
             }
             bSizeIdx += 1;
         }
+//        if(i == 0){
+//            char * imgPath = const_cast<char *>(training_images[8].c_str());
+//            unsigned dims[3];
+//            intMatrix image = ImageReader::read(imgPath, dims);
+//            int **Image_orig = ImageReader::imatrix2ipointer(image);
+//            int cidx = 0;
+//
+//            double *pSIMG[YLUM];
+//            ImageReader::remove_avg(Image_orig, dims);
+//            only_anal(Image_orig, pSIMG, (int)dims[1], (int)dims[0]);
+//            vector<fMatrix> subbands = WaveletHelper::splitSubbands(pSIMG, (int)dims[1], (int)dims[0], NSTAGES);
+//            for (int cb_size : csize_list(0)) {
+//                for(const auto& block_size : bsize_list(i)) {
+//                    fMatrix temp_blocks = ImageReader::getBlocks(block_size, subbands[0]);
+//                    unsigned dims2[3] = {(unsigned)subbands[0].size(), (unsigned)subbands[0][0].size(), 255};
+//                    vector<int> bestblockList;
+//                    fMatrix newImage = VQ::replaceBlocks(temp_blocks, codebook_list[cidx], block_size, dims2, bestblockList);
+//                    cidx += 1;
+//                    double mse = VQ::MSE(subbands[0], newImage);
+//                    double psnr = 10*log10(255*255/mse);
+//                    unsigned bSize = bsize_list(0)[i][0] * bsize_list(0)[i][1];
+//                    double R = log2(cb_size+1)/bSize;
+//                    printf("\n[%i] SB: %i/10 MSE = %f PSNR = %f R = %f", cidx, 0, mse, psnr, R);
+//                }
+//            }
+//
+//        }
 
         VQ::save_codebooks("./codebooks/codebooks_" + to_string(i) + ".txt", codebook_list, codebook_dim_list);
 

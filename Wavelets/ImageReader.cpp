@@ -147,10 +147,12 @@ fMatrix ImageReader::getBlocks(const vector<int>& size, const fMatrix &image){
                 unsigned x = c;
                 unsigned y = r;
                 if(x >= w){
-                    x = 2*w - x - 1;
+//                    x = 2*w - x - 1;
+                    x = w - 1;
                 }
                 if(y >= h){
-                    y = 2*h - y - 1;
+//                    y = 2*h - y - 1;
+                    y = h - 1;
                 }
                 block.push_back(float(image[y][x]));
             }

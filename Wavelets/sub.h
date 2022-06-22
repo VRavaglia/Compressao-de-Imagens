@@ -8,6 +8,7 @@
 #include "subdefs2.h"
 
 void sub(int **Image_orig, int **Image_out, int **Image, int xsize, int ysize);
+void sub2(int **Image_orig, int **Image_out, int **Image, int xsize, int ysize);
 void only_anal(int **Image_orig, double *pSIMG[YLUM], int xsize, int ysize);
 void only_synt(int **Image_out, double *pSIMG[YLUM], int xsize, int ysize);
 int sub4anal(double *pSIMG[], int nstg, int l_f);

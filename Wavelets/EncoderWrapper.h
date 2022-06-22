@@ -21,7 +21,7 @@ private:
     static void write_header(FILE *fout, const vector<vector<performance>> &performances, unsigned bestCodebooks[NBANDS], const unsigned *dims, int avg);
     static codebookInfo get_cb_info(int codebook_index, const unsigned *dims, int subband);
 public:
-    static void encode(const string& in, const string& out, float lb);
+    static void encode(const string& in, const string& out, float lb, int R_method);
     static void decode(const string& filename, const string& out);
 };
 

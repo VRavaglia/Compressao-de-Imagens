@@ -49,10 +49,12 @@ using namespace std;
 //25, 10
 //#define LAMBDA 10
 #define  MAXR 15
+#define USADIST false
+#define TWOPASSES true
 #define  MAXVQITS 20
 #define MAXBLOCK 30
 //static const float lambdas[7] = {200, 100, 25, 10, 5, 2.5, 1};
-static const float lambdas[5] = {800, 400, 200, 50, 10};
+static const float lambdas[1] = {100};
 
 struct performance{
     unsigned codebook_size = 0;
@@ -89,12 +91,15 @@ public:
 //    static vector<unsigned> best_codebook(const fMatrix &image, const vector<fMatrix> &block_list, const vector<fMatrix> &codebook_list, const unsigned *dims, unsigned testIdx);
     static double MSE(const fMatrix &oldI, const fMatrix &newI);
     static double PSNR(const fMatrix &oldI, const fMatrix &newI);
-    static vector<vector<performance>> evaluate_codebooks(const vector<fMatrix> &subbands, vector<intMatrix>& bb_idx);
+    static vector<vector<performance>> evaluate_codebooks(const vector<fMatrix> &subbands, vector<intMatrix>& bb_idx, bool second_pass, const vector<vector<vector<vector<int>>>>& all_bb_idx, vector<vector<int*>> all_models);
     static fMatrix fill_image(const intMatrix &allBlocks, const vector<fMatrix> &selected_codebooks, const vector<codebookInfo>& selected_infos, unsigned *dims);
-    static void save_performances(const vector<vector<vector<performance>>> &performances, const vector<string>& img_name);
+    static void save_performances(const vector<vector<vector<performance>>> &performances, const vector<string>& img_name, bool second_pass);
     static vector<vector<performance>> load_performances(const string& filename);
     static void save_histograms(const vector<vector<vector<vector<int>>>> &idx_list, const vector<vector<vector<performance>>>& performances);
+    static void save_histograms2(const vector<vector<vector<vector<int>>>> &idx_list, const vector<vector<vector<performance>>>& performances);
     static int *load_model(int sband, int cb_idx);
+    static int *load_model2(int sband, int cb_idx);
+    static int *load_model_known(int sband, int cb_idx, vector<vector<vector<vector<int>>>> all_bb_idx, unsigned cbSize);
 };
 
 
